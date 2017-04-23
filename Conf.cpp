@@ -30,37 +30,35 @@ enum SECTION {
   SECTION_NONE,
   SECTION_GENERAL,
   SECTION_LOG,
-	SECTION_MMDVM,
   SECTION_DMR_NETWORK,
-	SECTION_XLX_NETWORK
+  SECTION_XLX_NETWORK
 };
 
 CConf::CConf(const std::string& file) :
 m_file(file),
 m_daemon(false),
 m_xlxSlot(2U),
+m_rptAddress("127.0.0.1"),
+m_rptPort(62032U),
+m_localAddress("127.0.0.1"),
+m_localPort(62031U),
 m_timeout(10U),
+m_debug(false),
 m_logDisplayLevel(0U),
 m_logFileLevel(0U),
 m_logFilePath(),
 m_logFileRoot(),
-m_mmdvmAddress(),
-m_mmdvmPort(0U),
-m_mmdvmLocal(0U),
-m_mmdvmDebug(false),
+m_dmrNetworkAddress(),
+m_dmrNetworkPort(0U),
+m_dmrNetworkLocal(0U),
+m_dmrNetworkPassword(),
+m_dmrNetworkDebug(false),
 m_xlxNetworkAddress(),
 m_xlxNetworkPort(0U),
 m_xlxNetworkLocal(0U),
 m_xlxNetworkPassword(),
 m_xlxNetworkOptions(),
-m_xlxNetworkSlot(1U),
-m_xlxNetworkTG(9U),
-m_xlxNetworkDebug(false),
-m_dmrNetworkAddress(),
-m_dmrNetworkPort(0U),
-m_dmrNetworkLocal(0U),
-m_dmrNetworkPassword(),
-m_dmrNetworkDebug(false)
+m_xlxNetworkDebug(false)
 {
 }
 
@@ -88,13 +86,11 @@ bool CConf::read()
         section = SECTION_GENERAL;
       else if (::strncmp(buffer, "[Log]", 5U) == 0)
         section = SECTION_LOG;
-      else if (::strncmp(buffer, "[MMDVM]", 13U) == 0)
-        section = SECTION_MMDVM;
-			else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
-				section = SECTION_XLX_NETWORK;
-			else if (::strncmp(buffer, "[DMR Network]", 13U) == 0)
-				section = SECTION_DMR_NETWORK;
-			else
+	  else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
+		section = SECTION_XLX_NETWORK;
+	  else if (::strncmp(buffer, "[DMR Network]", 13U) == 0)
+		section = SECTION_DMR_NETWORK;
+	  else
         section = SECTION_NONE;
 
       continue;
@@ -115,6 +111,16 @@ bool CConf::read()
 				m_xlxSlot = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Timeout") == 0)
 				m_timeout = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RptAddress") == 0)
+				m_rptAddress = value;
+			else if (::strcmp(key, "RptPort") == 0)
+				m_rptPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "LocalAddress") == 0)
+				m_localAddress = value;
+			else if (::strcmp(key, "LocalPort") == 0)
+				m_localPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Debug") == 0)
+				m_debug = ::atoi(value) == 1;
 		} else if (section == SECTION_LOG) {
       if (::strcmp(key, "FilePath") == 0)
         m_logFilePath = value;
@@ -124,15 +130,6 @@ bool CConf::read()
         m_logFileLevel = (unsigned int)::atoi(value);
       else if (::strcmp(key, "DisplayLevel") == 0)
         m_logDisplayLevel = (unsigned int)::atoi(value);
-    } else if (section == SECTION_MMDVM) {
-			if (::strcmp(key, "Address") == 0)
-				m_mmdvmAddress = value;
-			else if (::strcmp(key, "Port") == 0)
-				m_mmdvmPort = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Local") == 0)
-				m_mmdvmLocal = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Debug") == 0)
-				m_mmdvmDebug = ::atoi(value) == 1;
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Address") == 0)
 				m_xlxNetworkAddress = value;
@@ -144,10 +141,6 @@ bool CConf::read()
 				m_xlxNetworkPassword = value;
 			else if (::strcmp(key, "Options") == 0)
 				m_xlxNetworkOptions = value;
-			else if (::strcmp(key, "Slot") == 0)
-				m_xlxNetworkSlot = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "TG") == 0)
-				m_xlxNetworkTG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Debug") == 0)
 				m_xlxNetworkDebug = ::atoi(value) == 1;
 		} else if (section == SECTION_DMR_NETWORK) {
@@ -179,9 +172,34 @@ unsigned int CConf::getXLXSlot() const
 	return m_xlxSlot;
 }
 
+std::string CConf::getRptAddress() const
+{
+	return m_rptAddress;
+}
+
+unsigned int CConf::getRptPort() const
+{
+	return m_rptPort;
+}
+
+std::string CConf::getLocalAddress() const
+{
+	return m_localAddress;
+}
+
+unsigned int CConf::getLocalPort() const
+{
+	return m_localPort;
+}
+
 unsigned int CConf::getTimeout() const
 {
 	return m_timeout;
+}
+
+bool CConf::getDebug() const
+{
+	return m_debug;
 }
 
 unsigned int CConf::getLogDisplayLevel() const
@@ -202,26 +220,6 @@ std::string CConf::getLogFilePath() const
 std::string CConf::getLogFileRoot() const
 {
 	return m_logFileRoot;
-}
-
-std::string CConf::getMMDVMAddress() const
-{
-	return m_mmdvmAddress;
-}
-
-unsigned int CConf::getMMDVMPort() const
-{
-	return m_mmdvmPort;
-}
-
-unsigned int CConf::getMMDVMLocal() const
-{
-	return m_mmdvmLocal;
-}
-
-bool CConf::getMMDVMDebug() const
-{
-	return m_mmdvmDebug;
 }
 
 std::string CConf::getXLXNetworkAddress() const
@@ -247,16 +245,6 @@ std::string CConf::getXLXNetworkPassword() const
 std::string CConf::getXLXNetworkOptions() const
 {
 	return m_xlxNetworkOptions;
-}
-
-unsigned int CConf::getXLXNetworkSlot() const
-{
-	return m_xlxNetworkSlot;
-}
-
-unsigned int CConf::getXLXNetworkTG() const
-{
-	return m_xlxNetworkTG;
 }
 
 bool CConf::getXLXNetworkDebug() const

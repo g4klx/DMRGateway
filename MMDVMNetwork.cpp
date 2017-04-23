@@ -31,23 +31,23 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CMMDVMNetwork::CMMDVMNetwork(const std::string& address, unsigned int port, unsigned int local, bool debug) :
-m_address(),
-m_port(port),
+CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
+m_rptAddress(),
+m_rptPort(rptPort),
 m_id(0U),
 m_netId(NULL),
 m_debug(debug),
-m_socket(local),
+m_socket(localAddress, localPort),
 m_buffer(NULL),
 m_rxData(1000U, "MMDVM Network"),
 m_options(),
 m_configData(NULL),
 m_configLen(0U)
 {
-	assert(!address.empty());
-	assert(port > 0U);
+	assert(!rptAddress.empty());
+	assert(rptPort > 0U);
 
-	m_address = CUDPSocket::lookup(address);
+	m_rptAddress = CUDPSocket::lookup(rptAddress);
 
 	m_buffer = new unsigned char[BUFFER_LENGTH];
 	m_netId  = new unsigned char[4U];
@@ -198,7 +198,7 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	if (m_debug)
 		CUtils::dump(1U, "Network Transmitted", buffer, HOMEBREW_DATA_PACKET_LENGTH);
 
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_address, m_port);
+	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
 
 	return true;
 }
@@ -225,7 +225,7 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	// if (m_debug && length > 0)
 	//	CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0 && m_address.s_addr == address.s_addr && m_port == port) {
+	if (length > 0 && m_rptAddress.s_addr == address.s_addr && m_rptPort == port) {
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
 			if (m_debug)
 				CUtils::dump(1U, "Network Received", m_buffer, length);
@@ -233,8 +233,7 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			unsigned char len = length;
 			m_rxData.addData(&len, 1U);
 			m_rxData.addData(m_buffer, len);
-		}
-		else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
+		} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
 			m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 			::memcpy(m_netId, m_buffer + 4U, 4U);
 
@@ -244,35 +243,30 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			uint32_t salt = 1U;
 			::memcpy(ack + 6U, &salt, sizeof(uint32_t));
 
-			m_socket.write(ack, 10U, m_address, m_port);
-		} 
-		else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
+			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+		} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
 			unsigned char ack[6U];
 			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_address, m_port);
-		}
-		else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
+			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
 			m_configLen = length - 8U;
 			m_configData = new unsigned char[m_configLen];
 			::memcpy(m_configData, m_buffer + 8U, m_configLen);
 
 			unsigned char ack[6U];
 			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_address, m_port);
-		}
-		else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
+			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
 			m_options = std::string((char*)(m_buffer + 8U), length - 8U);
 
 			unsigned char ack[6U];
 			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_address, m_port);
-		}
-		else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
+			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+		} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
 			unsigned char pong[7U];
 			::memcpy(pong, "MSTPONG", 6U);
-			m_socket.write(pong, 7U, m_address, m_port);
-		}
-		else {
+			m_socket.write(pong, 7U, m_rptAddress, m_rptPort);
+		} else {
 			CUtils::dump("Unknown packet from the master", m_buffer, length);
 		}
 	}

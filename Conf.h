@@ -25,34 +25,33 @@
 class CConf
 {
 public:
-  CConf(const std::string& file);
-  ~CConf();
+	CConf(const std::string& file);
+	~CConf();
 
-  bool read();
+	bool read();
 
-  // The General section
-  bool         getDaemon() const;
+	// The General section
+	bool         getDaemon() const;
 	unsigned int getXLXSlot() const;
 	unsigned int getTimeout() const;
+	std::string  getRptAddress() const;
+	unsigned int getRptPort() const;
+	std::string  getLocalAddress() const;
+	unsigned int getLocalPort() const;
+	bool         getDebug() const;
 
-  // The Log section
-  unsigned int getLogDisplayLevel() const;
-  unsigned int getLogFileLevel() const;
-  std::string  getLogFilePath() const;
-  std::string  getLogFileRoot() const;
-
-	// The MMDVM Network section
-	std::string  getMMDVMAddress() const;
-	unsigned int getMMDVMPort() const;
-	unsigned int getMMDVMLocal() const;
-	bool         getMMDVMDebug() const;
+	// The Log section
+	unsigned int getLogDisplayLevel() const;
+	unsigned int getLogFileLevel() const;
+	std::string  getLogFilePath() const;
+	std::string  getLogFileRoot() const;
 
 	// The DMR Network section
-  std::string  getDMRNetworkAddress() const;
-  unsigned int getDMRNetworkPort() const;
-  unsigned int getDMRNetworkLocal() const;
-  std::string  getDMRNetworkPassword() const;
-  bool         getDMRNetworkDebug() const;
+	std::string  getDMRNetworkAddress() const;
+	unsigned int getDMRNetworkPort() const;
+	unsigned int getDMRNetworkLocal() const;
+	std::string  getDMRNetworkPassword() const;
+	bool         getDMRNetworkDebug() const;
 
 	// The XLX Network section
 	std::string  getXLXNetworkAddress() const;
@@ -60,39 +59,35 @@ public:
 	unsigned int getXLXNetworkLocal() const;
 	std::string  getXLXNetworkPassword() const;
 	std::string  getXLXNetworkOptions() const;
-	unsigned int getXLXNetworkSlot() const;
-	unsigned int getXLXNetworkTG() const;
 	bool         getXLXNetworkDebug() const;
 
 private:
-  std::string  m_file;
-  bool         m_daemon;
+	std::string  m_file;
+	bool         m_daemon;
 	unsigned int m_xlxSlot;
+	std::string  m_rptAddress;
+	unsigned int m_rptPort;
+	std::string  m_localAddress;
+	unsigned int m_localPort;
 	unsigned int m_timeout;
+	bool         m_debug;
 
-  unsigned int m_logDisplayLevel;
-  unsigned int m_logFileLevel;
-  std::string  m_logFilePath;
-  std::string  m_logFileRoot;
-
-	std::string  m_mmdvmAddress;
-	unsigned int m_mmdvmPort;
-	unsigned int m_mmdvmLocal;
-	bool         m_mmdvmDebug;
+	unsigned int m_logDisplayLevel;
+	unsigned int m_logFileLevel;
+	std::string  m_logFilePath;
+	std::string  m_logFileRoot;
 
 	std::string  m_dmrNetworkAddress;
-  unsigned int m_dmrNetworkPort;
-  unsigned int m_dmrNetworkLocal;
-  std::string  m_dmrNetworkPassword;
-  bool         m_dmrNetworkDebug;
+	unsigned int m_dmrNetworkPort;
+	unsigned int m_dmrNetworkLocal;
+	std::string  m_dmrNetworkPassword;
+	bool         m_dmrNetworkDebug;
 
 	std::string  m_xlxNetworkAddress;
 	unsigned int m_xlxNetworkPort;
 	unsigned int m_xlxNetworkLocal;
 	std::string  m_xlxNetworkPassword;
 	std::string  m_xlxNetworkOptions;
-	unsigned int m_xlxNetworkSlot;
-	unsigned int m_xlxNetworkTG;
 	bool         m_xlxNetworkDebug;
 };
 

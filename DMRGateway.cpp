@@ -39,6 +39,9 @@ const char* DEFAULT_INI_FILE = "DMRGateway.ini";
 const char* DEFAULT_INI_FILE = "/etc/DMRGateway.ini";
 #endif
 
+const unsigned int XLX_SLOT = 2U;
+const unsigned int XLX_TG   = 9U;
+
 static bool m_killed = false;
 static int  m_signal = 0;
 
@@ -222,14 +225,10 @@ int CDMRGateway::run()
 	LogMessage("MMDVM has connected");
 
 	unsigned int xlxSlot        = m_conf.getXLXSlot();
-	unsigned int xlxNetworkSlot = m_conf.getXLXNetworkSlot();
-	unsigned int xlxNetworkTG   = m_conf.getXLXNetworkTG();
 	unsigned int timeout        = m_conf.getTimeout();
 
 	LogInfo("Id: %u", m_mmdvm->getId());
 	LogInfo("XLX Local Slot: %u", xlxSlot);
-	LogInfo("XLX Reflector Slot: %u", xlxNetworkSlot);
-	LogInfo("XLX TG: %u", xlxNetworkTG);
 	LogInfo("Timeout: %us", timeout);
 
 
@@ -260,8 +259,8 @@ int CDMRGateway::run()
 				FLCO flco = data.getFLCO();
 				unsigned int id = data.getDstId();
 
-				if (flco == FLCO_GROUP && id == xlxNetworkTG) {
-					data.setSlotNo(xlxNetworkSlot);
+				if (flco == FLCO_GROUP && id == XLX_TG) {
+					data.setSlotNo(XLX_SLOT);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -272,7 +271,7 @@ int CDMRGateway::run()
 						m_reflector = reflector;
 					}
 
-					data.setSlotNo(xlxNetworkSlot);
+					data.setSlotNo(XLX_SLOT);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -290,7 +289,7 @@ int CDMRGateway::run()
 		if (ret) {
 			if (status == DMRGWS_NONE || status == DMRGWS_REFLECTOR) {
 				unsigned int slotNo = data.getSlotNo();
-				if (slotNo == xlxNetworkSlot) {
+				if (slotNo == XLX_SLOT) {
 					data.setSlotNo(xlxSlot);
 					m_mmdvm->write(data);
 					status = DMRGWS_REFLECTOR;
@@ -306,7 +305,7 @@ int CDMRGateway::run()
 				// Stop BM from using the same TG as XLX
 				unsigned int dstId = data.getDstId();
 				FLCO flco = data.getFLCO();
-				if (flco != FLCO_GROUP || dstId != xlxNetworkTG) {
+				if (flco != FLCO_GROUP || dstId != XLX_TG) {
 					if (status == DMRGWS_NONE || status == DMRGWS_NETWORK) {
 						m_mmdvm->write(data);
 						status = DMRGWS_NETWORK;
@@ -351,20 +350,19 @@ int CDMRGateway::run()
 
 bool CDMRGateway::createMMDVM()
 {
-	std::string address = m_conf.getMMDVMAddress();
-	unsigned int port   = m_conf.getMMDVMPort();
-	unsigned int local  = m_conf.getMMDVMLocal();
-	bool debug          = m_conf.getMMDVMDebug();
+	std::string rptAddress   = m_conf.getRptAddress();
+	unsigned int rptPort     = m_conf.getRptPort();
+	std::string localAddress = m_conf.getLocalAddress();
+	unsigned int localPort   = m_conf.getLocalPort();
+	bool debug               = m_conf.getDebug();
 
 	LogInfo("MMDVM Network Parameters");
-	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
-	if (local > 0U)
-		LogInfo("    Local: %u", local);
-	else
-		LogInfo("    Local: random");
+	LogInfo("    Rpt Address: %s", rptAddress.c_str());
+	LogInfo("    Rpt Port: %u", rptPort);
+	LogInfo("    Local Address: %s", localAddress.c_str());
+	LogInfo("    Local Port: %u", localPort);
 
-	m_mmdvm = new CMMDVMNetwork(address, port, local, debug);
+	m_mmdvm = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
 
 	bool ret = m_mmdvm->open();
 	if (!ret) {

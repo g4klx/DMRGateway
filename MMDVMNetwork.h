@@ -30,7 +30,7 @@
 class CMMDVMNetwork
 {
 public:
-	CMMDVMNetwork(const std::string& address, unsigned int port, unsigned int local, bool debug);
+	CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
 	~CMMDVMNetwork();
 
 	std::string getOptions() const;
@@ -50,8 +50,8 @@ public:
 	void close();
 
 private: 
-	in_addr        m_address;
-	unsigned int   m_port;
+	in_addr        m_rptAddress;
+	unsigned int   m_rptPort;
 	unsigned int   m_id;
 	unsigned char* m_netId;
 	bool           m_debug;
