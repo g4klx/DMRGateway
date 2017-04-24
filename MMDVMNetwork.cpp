@@ -245,27 +245,31 @@ void CMMDVMNetwork::clock(unsigned int ms)
 
 			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
 		} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
-			unsigned char ack[6U];
-			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+			unsigned char ack[10U];
+			::memcpy(ack + 0U, "RPTACK", 6U);
+			::memcpy(ack + 6U, m_netId, 4U);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
 			m_configLen = length - 8U;
 			m_configData = new unsigned char[m_configLen];
 			::memcpy(m_configData, m_buffer + 8U, m_configLen);
 
-			unsigned char ack[6U];
-			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+			unsigned char ack[10U];
+			::memcpy(ack + 0U, "RPTACK", 6U);
+			::memcpy(ack + 6U, m_netId, 4U);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
 		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
 			m_options = std::string((char*)(m_buffer + 8U), length - 8U);
 
-			unsigned char ack[6U];
-			::memcpy(ack, "RPTACK", 6U);
-			m_socket.write(ack, 6U, m_rptAddress, m_rptPort);
+			unsigned char ack[10U];
+			::memcpy(ack + 0U, "RPTACK", 6U);
+			::memcpy(ack + 6U, m_netId, 4U);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
 		} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
-			unsigned char pong[7U];
-			::memcpy(pong, "MSTPONG", 6U);
-			m_socket.write(pong, 7U, m_rptAddress, m_rptPort);
+			unsigned char pong[11U];
+			::memcpy(pong + 0U, "MSTPONG", 7U);
+			::memcpy(pong + 7U, m_netId, 4U);
+			m_socket.write(pong, 11U, m_rptAddress, m_rptPort);
 		} else {
 			CUtils::dump("Unknown packet from the master", m_buffer, length);
 		}
