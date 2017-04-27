@@ -28,21 +28,21 @@
 class CDMRGateway
 {
 public:
-  CDMRGateway(const std::string& confFile);
-  ~CDMRGateway();
+	CDMRGateway(const std::string& confFile);
+	~CDMRGateway();
 
-  int run();
+	int run();
 
 private:
-  CConf          m_conf;
+	CConf          m_conf;
 	CMMDVMNetwork* m_mmdvm;
 	CDMRNetwork*   m_dmrNetwork;
-  CDMRNetwork*   m_xlxNetwork;
+	CDMRNetwork*   m_xlxNetwork;
 	unsigned int   m_reflector;
 
 	bool createMMDVM();
-  bool createDMRNetwork();
-  bool createXLXNetwork();
+	bool createDMRNetwork();
+	bool createXLXNetwork();
 };
 
 #endif

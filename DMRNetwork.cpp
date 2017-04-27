@@ -31,11 +31,12 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, bool debug) :
+CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, char* name, bool debug) :
 m_address(),
 m_port(port),
 m_id(NULL),
 m_password(password),
+m_name(name),
 m_debug(debug),
 m_socket(local),
 m_status(WAITING_CONNECT),
@@ -91,7 +92,7 @@ void CDMRNetwork::setConfig(const unsigned char* data, unsigned int len)
 
 bool CDMRNetwork::open()
 {
-	LogMessage("DMR, Opening DMR Network");
+	LogMessage("%s, Opening DMR Network", m_name);
 
 	m_status = WAITING_CONNECT;
 	m_timeoutTimer.stop();
@@ -221,7 +222,7 @@ bool CDMRNetwork::write(const CDMRData& data)
 
 void CDMRNetwork::close()
 {
-	LogMessage("DMR, Closing DMR Network");
+	LogMessage("%s, Closing DMR Network", m_name);
 
 	if (m_status == RUNNING) {
 		unsigned char buffer[9U];
@@ -261,7 +262,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	unsigned int port;
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
 	if (length < 0) {
-		LogError("DMR, Socket has failed, retrying connection to the master");
+		LogError("%s, Socket has failed, retrying connection to the master", m_name);
 		close();
 		open();
 		return;
@@ -280,7 +281,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			m_rxData.addData(m_buffer, len);
 		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
 			if (m_status == RUNNING) {
-				LogWarning("DMR, The master is restarting, logging back in");
+				LogWarning("%s, The master is restarting, logging back in", m_name);
 				m_status = WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
@@ -288,7 +289,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				/* Once the modem death spiral has been prevented in Modem.cpp
 				   the Network sometimes times out and reaches here.
 				   We want it to reconnect so... */
-				LogError("DMR, Login to the master has failed, retrying ...");
+				LogError("%s, Login to the master has failed, retrying ...", m_name);
 				close();
 				open();
 				return;
@@ -296,7 +297,7 @@ void CDMRNetwork::clock(unsigned int ms)
 		} else if (::memcmp(m_buffer, "RPTACK",  6U) == 0) {
 			switch (m_status) {
 				case WAITING_LOGIN:
-					LogDebug("DMR, Sending authorisation");
+					LogDebug("%s, Sending authorisation", m_name);
 					::memcpy(m_salt, m_buffer + 6U, sizeof(uint32_t));
 					writeAuthorisation();
 					m_status = WAITING_AUTHORISATION;
@@ -304,7 +305,7 @@ void CDMRNetwork::clock(unsigned int ms)
 					m_retryTimer.start();
 					break;
 				case WAITING_AUTHORISATION:
-					LogDebug("DMR, Sending configuration");
+					LogDebug("%s, Sending configuration", m_name);
 					writeConfig();
 					m_status = WAITING_CONFIG;
 					m_timeoutTimer.start();
@@ -312,10 +313,10 @@ void CDMRNetwork::clock(unsigned int ms)
 					break;
 				case WAITING_CONFIG:
 					if (m_options.empty()) {
-						LogMessage("DMR, Logged into the master successfully");
+						LogMessage("%s, Logged into the master successfully", m_name);
 						m_status = RUNNING;
 					} else {
-						LogDebug("DMR, Sending options");
+						LogDebug("%s, Sending options", m_name);
 						writeOptions();
 						m_status = WAITING_OPTIONS;
 					}
@@ -323,7 +324,7 @@ void CDMRNetwork::clock(unsigned int ms)
 					m_retryTimer.start();
 					break;
 				case WAITING_OPTIONS:
-					LogMessage("DMR, Logged into the master successfully");
+					LogMessage("%s, Logged into the master successfully", m_name);
 					m_status = RUNNING;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
@@ -332,7 +333,7 @@ void CDMRNetwork::clock(unsigned int ms)
 					break;
 			}
 		} else if (::memcmp(m_buffer, "MSTCL",   5U) == 0) {
-			LogError("DMR, Master is closing down");
+			LogError("%s, Master is closing down", m_name);
 			close();
 			open();
 		} else if (::memcmp(m_buffer, "MSTPONG", 7U) == 0) {
@@ -371,7 +372,7 @@ void CDMRNetwork::clock(unsigned int ms)
 
 	m_timeoutTimer.clock(ms);
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
-		LogError("DMR, Connection to the master has timed out, retrying connection");
+		LogError("%s, Connection to the master has timed out, retrying connection", m_name);
 		close();
 		open();
 	}
@@ -459,7 +460,7 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 
 	bool ret = m_socket.write(data, length, m_address, m_port);
 	if (!ret) {
-		LogError("DMR, Socket has failed when writing data to the master, retrying connection");
+		LogError("%s, Socket has failed when writing data to the master, retrying connection", m_name);
 		m_socket.close();
 		open();
 		return false;

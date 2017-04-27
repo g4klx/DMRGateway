@@ -214,12 +214,14 @@ int CDMRGateway::run()
 	LogMessage("Waiting for MMDVM to connect.....");
 
 	for (;;) {
-		CThread::sleep(100U);
-
 		unsigned char config[400U];
 		unsigned int len = m_mmdvm->getConfig(config);
 		if (len > 0U)
 			break;
+
+		m_mmdvm->clock(10U);
+
+		CThread::sleep(10U);
 	}
 
 	LogMessage("MMDVM has connected");
@@ -391,7 +393,7 @@ bool CDMRGateway::createDMRNetwork()
 	else
 		LogInfo("    Local: random");
 
-	m_dmrNetwork = new CDMRNetwork(address, port, local, id, password, debug);
+	m_dmrNetwork = new CDMRNetwork(address, port, local, id, password, "DMR", debug);
 
 	std::string options = m_mmdvm->getOptions();
 	if (!options.empty()) {
@@ -432,7 +434,7 @@ bool CDMRGateway::createXLXNetwork()
 	else
 		LogInfo("    Local: random");
 
-	m_xlxNetwork = new CDMRNetwork(address, port, local, id, password, debug);
+	m_xlxNetwork = new CDMRNetwork(address, port, local, id, password, "XLX", debug);
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
