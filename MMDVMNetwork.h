@@ -50,18 +50,18 @@ public:
 	void close();
 
 private: 
-	in_addr        m_rptAddress;
-	unsigned int   m_rptPort;
-	unsigned int   m_id;
-	unsigned char* m_netId;
-	bool           m_debug;
-	CUDPSocket     m_socket;
-	unsigned char* m_buffer;
-	std::string    m_options;
-	unsigned char* m_configData;
-	unsigned int   m_configLen;
-
+	in_addr                    m_rptAddress;
+	unsigned int               m_rptPort;
+	unsigned int               m_id;
+	unsigned char*             m_netId;
+	bool                       m_debug;
+	CUDPSocket                 m_socket;
+	unsigned char*             m_buffer;
 	CRingBuffer<unsigned char> m_rxData;
+	std::string                m_options;
+	unsigned char*             m_configData;
+	unsigned int               m_configLen;
+
 };
 
 #endif
