@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,27 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(DMRSLOTTYPE_H)
+#define DMRSLOTTYPE_H
 
-const char* VERSION = "20170428";
+class CDMRSlotType
+{
+public:
+	CDMRSlotType();
+	~CDMRSlotType();
+
+	void putData(const unsigned char* data);
+	void getData(unsigned char* data) const;
+
+	unsigned char getColorCode() const;
+	void setColorCode(unsigned char code);
+
+	unsigned char getDataType() const;
+	void setDataType(unsigned char type);
+
+private:
+	unsigned char m_colorCode;
+	unsigned char m_dataType;
+};
 
 #endif

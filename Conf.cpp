@@ -38,6 +38,7 @@ CConf::CConf(const std::string& file) :
 m_file(file),
 m_daemon(false),
 m_xlxSlot(2U),
+m_xlxTG(9U),
 m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
@@ -109,6 +110,8 @@ bool CConf::read()
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "XLSSlot") == 0)
 				m_xlxSlot = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "XLXTG") == 0)
+				m_xlxTG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Timeout") == 0)
 				m_timeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptAddress") == 0)
@@ -122,14 +125,14 @@ bool CConf::read()
 			else if (::strcmp(key, "Debug") == 0)
 				m_debug = ::atoi(value) == 1;
 		} else if (section == SECTION_LOG) {
-      if (::strcmp(key, "FilePath") == 0)
-        m_logFilePath = value;
-      else if (::strcmp(key, "FileRoot") == 0)
-        m_logFileRoot = value;
-      else if (::strcmp(key, "FileLevel") == 0)
-        m_logFileLevel = (unsigned int)::atoi(value);
-      else if (::strcmp(key, "DisplayLevel") == 0)
-        m_logDisplayLevel = (unsigned int)::atoi(value);
+			if (::strcmp(key, "FilePath") == 0)
+				m_logFilePath = value;
+			else if (::strcmp(key, "FileRoot") == 0)
+				m_logFileRoot = value;
+			else if (::strcmp(key, "FileLevel") == 0)
+				m_logFileLevel = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "DisplayLevel") == 0)
+				m_logDisplayLevel = (unsigned int)::atoi(value);
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Address") == 0)
 				m_xlxNetworkAddress = value;
@@ -144,22 +147,22 @@ bool CConf::read()
 			else if (::strcmp(key, "Debug") == 0)
 				m_xlxNetworkDebug = ::atoi(value) == 1;
 		} else if (section == SECTION_DMR_NETWORK) {
-      if (::strcmp(key, "Address") == 0)
-        m_dmrNetworkAddress = value;
-      else if (::strcmp(key, "Port") == 0)
-        m_dmrNetworkPort = (unsigned int)::atoi(value);
-      else if (::strcmp(key, "Local") == 0)
-        m_dmrNetworkLocal = (unsigned int)::atoi(value);
-      else if (::strcmp(key, "Password") == 0)
-        m_dmrNetworkPassword = value;
-      else if (::strcmp(key, "Debug") == 0)
-        m_dmrNetworkDebug = ::atoi(value) == 1;
-    }
-  }
+			if (::strcmp(key, "Address") == 0)
+				m_dmrNetworkAddress = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_dmrNetworkPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Local") == 0)
+				m_dmrNetworkLocal = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Password") == 0)
+				m_dmrNetworkPassword = value;
+			else if (::strcmp(key, "Debug") == 0)
+				m_dmrNetworkDebug = ::atoi(value) == 1;
+		}
+	}
 
-  ::fclose(fp);
+	::fclose(fp);
 
-  return true;
+	return true;
 }
 
 bool CConf::getDaemon() const
@@ -170,6 +173,11 @@ bool CConf::getDaemon() const
 unsigned int CConf::getXLXSlot() const
 {
 	return m_xlxSlot;
+}
+
+unsigned int CConf::getXLXTG() const
+{
+	return m_xlxTG;
 }
 
 std::string CConf::getRptAddress() const

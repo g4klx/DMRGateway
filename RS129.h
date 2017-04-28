@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,15 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(RS129_H)
+#define	RS129_H
 
-const char* VERSION = "20170428";
+class CRS129
+{
+public:
+	static bool check(const unsigned char* in);
+
+	static void encode(const unsigned char* msg, unsigned int nbytes, unsigned char* parity);
+};
 
 #endif

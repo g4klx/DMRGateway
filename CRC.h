@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,22 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(CRC_H)
+#define	CRC_H
 
-const char* VERSION = "20170428";
+class CCRC
+{
+public:
+	static bool checkFiveBit(bool* in, unsigned int tcrc);
+	static void encodeFiveBit(const bool* in, unsigned int& tcrc);
+
+	static void addCCITT161(unsigned char* in, unsigned int length);
+	static void addCCITT162(unsigned char* in, unsigned int length);
+
+	static bool checkCCITT161(const unsigned char* in, unsigned int length);
+	static bool checkCCITT162(const unsigned char* in, unsigned int length);
+
+	static unsigned char crc8(const unsigned char* in, unsigned int length);
+};
 
 #endif

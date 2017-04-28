@@ -21,6 +21,7 @@
 
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
+#include "Rewrite.h"
 #include "Conf.h"
 
 #include <string>
@@ -39,6 +40,8 @@ private:
 	CDMRNetwork*   m_dmrNetwork;
 	CDMRNetwork*   m_xlxNetwork;
 	unsigned int   m_reflector;
+	CRewrite       m_rptRewrite;
+	CRewrite       m_xlxRewrite;
 
 	bool createMMDVM();
 	bool createDMRNetwork();

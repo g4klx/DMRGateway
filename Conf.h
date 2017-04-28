@@ -33,6 +33,7 @@ public:
 	// The General section
 	bool         getDaemon() const;
 	unsigned int getXLXSlot() const;
+	unsigned int getXLXTG() const;
 	unsigned int getTimeout() const;
 	std::string  getRptAddress() const;
 	unsigned int getRptPort() const;
@@ -65,6 +66,7 @@ private:
 	std::string  m_file;
 	bool         m_daemon;
 	unsigned int m_xlxSlot;
+	unsigned int m_xlxTG;
 	std::string  m_rptAddress;
 	unsigned int m_rptPort;
 	std::string  m_localAddress;

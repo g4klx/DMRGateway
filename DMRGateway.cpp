@@ -114,7 +114,9 @@ m_conf(confFile),
 m_mmdvm(NULL),
 m_dmrNetwork(NULL),
 m_xlxNetwork(NULL),
-m_reflector(0U)
+m_reflector(0U),
+m_rptRewrite(),
+m_xlxRewrite()
 {
 }
 
@@ -226,13 +228,17 @@ int CDMRGateway::run()
 
 	LogMessage("MMDVM has connected");
 
-	unsigned int xlxSlot        = m_conf.getXLXSlot();
-	unsigned int timeout        = m_conf.getTimeout();
+	unsigned int xlxSlot = m_conf.getXLXSlot();
+	unsigned int xlxTG   = m_conf.getXLXTG();
+	unsigned int timeout = m_conf.getTimeout();
 
 	LogInfo("Id: %u", m_mmdvm->getId());
 	LogInfo("XLX Local Slot: %u", xlxSlot);
+	LogInfo("XLX Local TG: %u", xlxTG);
 	LogInfo("Timeout: %us", timeout);
 
+	m_rptRewrite.setParams(xlxSlot, xlxTG);
+	m_xlxRewrite.setParams(XLX_SLOT, XLX_TG);
 
 	ret = createDMRNetwork();
 	if (!ret)
@@ -261,8 +267,8 @@ int CDMRGateway::run()
 				FLCO flco = data.getFLCO();
 				unsigned int id = data.getDstId();
 
-				if (flco == FLCO_GROUP && id == XLX_TG) {
-					data.setSlotNo(XLX_SLOT);
+				if (flco == FLCO_GROUP && id == xlxTG) {
+					m_xlxRewrite.process(data);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -273,7 +279,7 @@ int CDMRGateway::run()
 						m_reflector = reflector;
 					}
 
-					data.setSlotNo(XLX_SLOT);
+					m_xlxRewrite.process(data);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -292,7 +298,7 @@ int CDMRGateway::run()
 			if (status == DMRGWS_NONE || status == DMRGWS_REFLECTOR) {
 				unsigned int slotNo = data.getSlotNo();
 				if (slotNo == XLX_SLOT) {
-					data.setSlotNo(xlxSlot);
+					m_rptRewrite.process(data);
 					m_mmdvm->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -307,7 +313,7 @@ int CDMRGateway::run()
 				// Stop BM from using the same TG as XLX
 				unsigned int dstId = data.getDstId();
 				FLCO flco = data.getFLCO();
-				if (flco != FLCO_GROUP || dstId != XLX_TG) {
+				if (flco != FLCO_GROUP || dstId != xlxTG) {
 					if (status == DMRGWS_NONE || status == DMRGWS_NETWORK) {
 						m_mmdvm->write(data);
 						status = DMRGWS_NETWORK;

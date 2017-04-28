@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,27 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#ifndef DMRFullLC_H
+#define DMRFullLC_H
 
-const char* VERSION = "20170428";
+#include "DMRLC.h"
+#include "DMRSlotType.h"
+
+#include "BPTC19696.h"
+
+class CDMRFullLC
+{
+public:
+	CDMRFullLC();
+	~CDMRFullLC();
+
+	CDMRLC* decode(const unsigned char* data, unsigned char type);
+
+	void encode(const CDMRLC& lc, unsigned char* data, unsigned char type);
+
+private:
+	CBPTC19696 m_bptc;
+};
 
 #endif
+

@@ -1,12 +1,11 @@
-# This makefile is for all platforms, but doesn't include support for the HD44780 display on the Raspberry Pi.
-
 CC      = gcc
 CXX     = g++
 CFLAGS  = -g -O3 -Wall -std=c++0x -pthread
 LIBS    = -lpthread
 LDFLAGS = -g
 
-OBJECTS = Conf.o DMRData.o DMRGateway.o DMRNetwork.o Log.o MMDVMNetwork.o SHA256.o StopWatch.o Thread.o Timer.o UDPSocket.o Utils.o
+OBJECTS = BPTC19696.o Conf.o CRC.o DMRData.o DMREmbeddedData.o DMRFullLC.o DMRGateway.o DMRLC.o DMRNetwork.o DMRSlotType.o Golay2087.o Hamming.o Log.o MMDVMNetwork.o \
+				  Rewrite.o RS129.o SHA256.o StopWatch.o Thread.o Timer.o UDPSocket.o Utils.o
 
 all:	DMRGateway
 

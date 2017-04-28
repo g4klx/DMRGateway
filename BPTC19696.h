@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,32 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(BPTC19696_H)
+#define	BPTC19696_H
 
-const char* VERSION = "20170428";
+class CBPTC19696
+{
+public:
+	CBPTC19696();
+	~CBPTC19696();
+
+	void decode(const unsigned char* in, unsigned char* out);
+
+	void encode(const unsigned char* in, unsigned char* out);
+
+private:
+	bool* m_rawData;
+	bool* m_deInterData;
+
+	void decodeExtractBinary(const unsigned char* in);
+	void decodeErrorCheck();
+	void decodeDeInterleave();
+	void decodeExtractData(unsigned char* data) const;
+
+	void encodeExtractData(const unsigned char* in) const;
+	void encodeInterleave();
+	void encodeErrorCheck();
+	void encodeExtractBinary(unsigned char* data);
+};
 
 #endif

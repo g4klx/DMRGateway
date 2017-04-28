@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,17 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#ifndef Golay2087_H
+#define Golay2087_H
 
-const char* VERSION = "20170428";
+class CGolay2087 {
+public:
+	static void encode(unsigned char* data);
+
+	static unsigned char decode(const unsigned char* data);
+
+private:
+	static unsigned int getSyndrome1987(unsigned int pattern);
+};
 
 #endif
