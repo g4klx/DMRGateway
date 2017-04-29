@@ -108,7 +108,7 @@ bool CConf::read()
 		if (section == SECTION_GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
-			else if (::strcmp(key, "XLSSlot") == 0)
+			else if (::strcmp(key, "XLXSlot") == 0)
 				m_xlxSlot = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "XLXTG") == 0)
 				m_xlxTG = (unsigned int)::atoi(value);
