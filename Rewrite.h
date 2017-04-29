@@ -25,10 +25,8 @@
 
 class CRewrite {
 public:
-	CRewrite();
+	CRewrite(unsigned int slot, unsigned int tg);
 	~CRewrite();
-
-	void setParams(unsigned int slot, unsigned int tg);
 
 	void process(CDMRData& data);
 

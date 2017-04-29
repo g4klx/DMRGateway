@@ -19,6 +19,7 @@
 #include "DMRGateway.h"
 #include "Version.h"
 #include "StopWatch.h"
+#include "Rewrite.h"
 #include "Thread.h"
 #include "Log.h"
 
@@ -114,9 +115,7 @@ m_conf(confFile),
 m_mmdvm(NULL),
 m_dmrNetwork(NULL),
 m_xlxNetwork(NULL),
-m_reflector(0U),
-m_rptRewrite(),
-m_xlxRewrite()
+m_reflector(0U)
 {
 }
 
@@ -237,8 +236,8 @@ int CDMRGateway::run()
 	LogInfo("XLX Local TG: %u", xlxTG);
 	LogInfo("Timeout: %us", timeout);
 
-	m_rptRewrite.setParams(xlxSlot, xlxTG);
-	m_xlxRewrite.setParams(XLX_SLOT, XLX_TG);
+	CRewrite rptRewrite(xlxSlot, xlxTG);
+	CRewrite xlxRewrite(XLX_SLOT, XLX_TG);
 
 	ret = createDMRNetwork();
 	if (!ret)
@@ -268,7 +267,7 @@ int CDMRGateway::run()
 				unsigned int id = data.getDstId();
 
 				if (flco == FLCO_GROUP && id == xlxTG) {
-					m_xlxRewrite.process(data);
+					xlxRewrite.process(data);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -279,7 +278,7 @@ int CDMRGateway::run()
 						m_reflector = reflector;
 					}
 
-					m_xlxRewrite.process(data);
+					xlxRewrite.process(data);
 					m_xlxNetwork->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -298,7 +297,7 @@ int CDMRGateway::run()
 			if (status == DMRGWS_NONE || status == DMRGWS_REFLECTOR) {
 				unsigned int slotNo = data.getSlotNo();
 				if (slotNo == XLX_SLOT) {
-					m_rptRewrite.process(data);
+					rptRewrite.process(data);
 					m_mmdvm->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
@@ -310,7 +309,7 @@ int CDMRGateway::run()
 		if (ret) {
 			unsigned int slotNo = data.getSlotNo();
 			if (slotNo == xlxSlot) {
-				// Stop BM from using the same TG as XLX
+				// Stop the DMR network from using the same TG as XLX
 				unsigned int dstId = data.getDstId();
 				FLCO flco = data.getFLCO();
 				if (flco != FLCO_GROUP || dstId != xlxTG) {

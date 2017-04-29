@@ -22,23 +22,20 @@
 #include "DMRFullLC.h"
 
 #include <cstdio>
+#include <cassert>
 
-CRewrite::CRewrite() :
-m_slot(0U),
-m_tg(0U),
+CRewrite::CRewrite(unsigned int slot, unsigned int tg) :
+m_slot(slot),
+m_tg(tg),
 m_lc(NULL),
 m_embeddedLC()
 {
+	assert(slot == 1U || slot == 2U);
+	assert(tg < 16U);
 }
 
 CRewrite::~CRewrite()
 {
-}
-
-void CRewrite::setParams(unsigned int slot, unsigned int tg)
-{
-	m_slot = slot;
-	m_tg   = tg;
 }
 
 void CRewrite::process(CDMRData& data)
