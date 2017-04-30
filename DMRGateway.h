@@ -19,6 +19,7 @@
 #if !defined(DMRGateway_H)
 #define	DMRGateway_H
 
+#include "RepeaterProtocol.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
 #include "Conf.h"
@@ -34,11 +35,11 @@ public:
 	int run();
 
 private:
-	CConf          m_conf;
-	CMMDVMNetwork* m_mmdvm;
-	CDMRNetwork*   m_dmrNetwork;
-	CDMRNetwork*   m_xlxNetwork;
-	unsigned int   m_reflector;
+	CConf              m_conf;
+	IRepeaterProtocol* m_repeater;
+	CDMRNetwork*       m_dmrNetwork;
+	CDMRNetwork*       m_xlxNetwork;
+	unsigned int       m_reflector;
 
 	bool createMMDVM();
 	bool createDMRNetwork();

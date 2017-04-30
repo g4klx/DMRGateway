@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
 CDMRGateway::CDMRGateway(const std::string& confFile) :
 m_conf(confFile),
-m_mmdvm(NULL),
+m_repeater(NULL),
 m_dmrNetwork(NULL),
 m_xlxNetwork(NULL),
 m_reflector(4000U)
@@ -216,11 +216,11 @@ int CDMRGateway::run()
 
 	for (;;) {
 		unsigned char config[400U];
-		unsigned int len = m_mmdvm->getConfig(config);
+		unsigned int len = m_repeater->getConfig(config);
 		if (len > 0U)
 			break;
 
-		m_mmdvm->clock(10U);
+		m_repeater->clock(10U);
 
 		CThread::sleep(10U);
 	}
@@ -231,7 +231,7 @@ int CDMRGateway::run()
 	unsigned int xlxTG   = m_conf.getXLXTG();
 	unsigned int timeout = m_conf.getTimeout();
 
-	LogInfo("Id: %u", m_mmdvm->getId());
+	LogInfo("Id: %u", m_repeater->getId());
 	LogInfo("XLX Local Slot: %u", xlxSlot);
 	LogInfo("XLX Local TG: %u", xlxTG);
 	LogInfo("Timeout: %us", timeout);
@@ -259,7 +259,7 @@ int CDMRGateway::run()
 	while (!m_killed) {
 		CDMRData data;
 
-		bool ret = m_mmdvm->read(data);
+		bool ret = m_repeater->read(data);
 		if (ret) {
 			unsigned int slotNo = data.getSlotNo();
 			if (slotNo == xlxSlot) {
@@ -308,7 +308,7 @@ int CDMRGateway::run()
 				unsigned int slotNo = data.getSlotNo();
 				if (slotNo == XLX_SLOT) {
 					rptRewrite.process(data);
-					m_mmdvm->write(data);
+					m_repeater->write(data);
 					status = DMRGWS_REFLECTOR;
 					timer.start();
 				}
@@ -324,20 +324,20 @@ int CDMRGateway::run()
 				FLCO flco = data.getFLCO();
 				if (flco != FLCO_GROUP || dstId != xlxTG) {
 					if (status == DMRGWS_NONE || status == DMRGWS_NETWORK) {
-						m_mmdvm->write(data);
+						m_repeater->write(data);
 						status = DMRGWS_NETWORK;
 						timer.start();
 					}
 				}
 			} else {
-				m_mmdvm->write(data);
+				m_repeater->write(data);
 			}
 		}
 
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
-		m_mmdvm->clock(ms);
+		m_repeater->clock(ms);
 		m_dmrNetwork->clock(ms);
 		m_xlxNetwork->clock(ms);
 
@@ -353,8 +353,8 @@ int CDMRGateway::run()
 
 	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 
-	m_mmdvm->close();
-	delete m_mmdvm;
+	m_repeater->close();
+	delete m_repeater;
 
 	m_dmrNetwork->close();
 	delete m_dmrNetwork;
@@ -379,12 +379,12 @@ bool CDMRGateway::createMMDVM()
 	LogInfo("    Local Address: %s", localAddress.c_str());
 	LogInfo("    Local Port: %u", localPort);
 
-	m_mmdvm = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
+	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
 
-	bool ret = m_mmdvm->open();
+	bool ret = m_repeater->open();
 	if (!ret) {
-		delete m_mmdvm;
-		m_mmdvm = NULL;
+		delete m_repeater;
+		m_repeater = NULL;
 		return false;
 	}
 
@@ -396,7 +396,7 @@ bool CDMRGateway::createDMRNetwork()
 	std::string address  = m_conf.getDMRNetworkAddress();
 	unsigned int port    = m_conf.getDMRNetworkPort();
 	unsigned int local   = m_conf.getDMRNetworkLocal();
-	unsigned int id      = m_mmdvm->getId();
+	unsigned int id      = m_repeater->getId();
 	std::string password = m_conf.getDMRNetworkPassword();
 	bool debug           = m_conf.getDMRNetworkDebug();
 
@@ -410,14 +410,14 @@ bool CDMRGateway::createDMRNetwork()
 
 	m_dmrNetwork = new CDMRNetwork(address, port, local, id, password, "DMR", debug);
 
-	std::string options = m_mmdvm->getOptions();
+	std::string options = m_repeater->getOptions();
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
 		m_dmrNetwork->setOptions(options);
 	}
 
 	unsigned char config[400U];
-	unsigned int len = m_mmdvm->getConfig(config);
+	unsigned int len = m_repeater->getConfig(config);
 
 	m_dmrNetwork->setConfig(config, len);
 
@@ -436,7 +436,7 @@ bool CDMRGateway::createXLXNetwork()
 	std::string address  = m_conf.getXLXNetworkAddress();
 	unsigned int port    = m_conf.getXLXNetworkPort();
 	unsigned int local   = m_conf.getXLXNetworkLocal();
-	unsigned int id      = m_mmdvm->getId();
+	unsigned int id      = m_repeater->getId();
 	std::string password = m_conf.getXLXNetworkPassword();
 	std::string options  = m_conf.getXLXNetworkOptions();
 	bool debug           = m_conf.getXLXNetworkDebug();
@@ -457,7 +457,7 @@ bool CDMRGateway::createXLXNetwork()
 	}
 
 	unsigned char config[400U];
-	unsigned int len = m_mmdvm->getConfig(config);
+	unsigned int len = m_repeater->getConfig(config);
 
 	m_xlxNetwork->setConfig(config, len);
 

@@ -161,6 +161,7 @@
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MMDVMNetwork.h" />
+    <ClInclude Include="RepeaterProtocol.h" />
     <ClInclude Include="Rewrite.h" />
     <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="RS129.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MMDVMNetwork.cpp" />
+    <ClCompile Include="RepeaterProtocol.cpp" />
     <ClCompile Include="Rewrite.cpp" />
     <ClCompile Include="RS129.cpp" />
     <ClCompile Include="SHA256.cpp" />

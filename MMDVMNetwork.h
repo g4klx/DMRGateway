@@ -19,6 +19,7 @@
 #if !defined(MMDVMNetwork_H)
 #define	MMDVMNetwork_H
 
+#include "RepeaterProtocol.h"
 #include "UDPSocket.h"
 #include "Timer.h"
 #include "RingBuffer.h"
@@ -27,27 +28,27 @@
 #include <string>
 #include <cstdint>
 
-class CMMDVMNetwork
+class CMMDVMNetwork : public IRepeaterProtocol
 {
 public:
 	CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
-	~CMMDVMNetwork();
+	virtual ~CMMDVMNetwork();
 
-	std::string getOptions() const;
+	virtual std::string getOptions() const;
 
-	unsigned int getConfig(unsigned char* config) const;
+	virtual unsigned int getConfig(unsigned char* config) const;
 
-	unsigned int getId() const;
+	virtual unsigned int getId() const;
 
-	bool open();
+	virtual bool open();
 
-	bool read(CDMRData& data);
+	virtual bool read(CDMRData& data);
 
-	bool write(const CDMRData& data);
+	virtual bool write(const CDMRData& data);
 
-	void clock(unsigned int ms);
+	virtual void clock(unsigned int ms);
 
-	void close();
+	virtual void close();
 
 private: 
 	in_addr                    m_rptAddress;
