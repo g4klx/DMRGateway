@@ -115,7 +115,7 @@ m_conf(confFile),
 m_mmdvm(NULL),
 m_dmrNetwork(NULL),
 m_xlxNetwork(NULL),
-m_reflector(0U)
+m_reflector(4000U)
 {
 }
 
@@ -272,16 +272,26 @@ int CDMRGateway::run()
 					status = DMRGWS_REFLECTOR;
 					timer.start();
 				} else if (flco == FLCO_USER_USER) {
-					unsigned int reflector = data.getDstId();
-					if (reflector != m_reflector) {
-						LogMessage("Switching to reflector %u", reflector);
-						m_reflector = reflector;
-					}
+					unsigned int id = data.getDstId();
+					if (id >= 4000U && id <= 4026U) {
+						if (id != m_reflector) {
+							if (id != 4000U)
+								LogMessage("Linking to reflector %u", id);
+							else
+								LogMessage("Unlinking");
 
-					xlxRewrite.process(data);
-					m_xlxNetwork->write(data);
-					status = DMRGWS_REFLECTOR;
-					timer.start();
+							m_reflector = id;
+						}
+
+						xlxRewrite.process(data);
+						m_xlxNetwork->write(data);
+						status = DMRGWS_REFLECTOR;
+						timer.start();
+					} else {
+						m_dmrNetwork->write(data);
+						status = DMRGWS_NETWORK;
+						timer.start();
+					}
 				} else {
 					m_dmrNetwork->write(data);
 					status = DMRGWS_NETWORK;
