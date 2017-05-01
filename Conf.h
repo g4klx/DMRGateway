@@ -47,6 +47,10 @@ public:
 	std::string  getLogFilePath() const;
 	std::string  getLogFileRoot() const;
 
+	// The Voice section
+	bool         getVoiceEnabled() const;
+	std::string  getVoiceLanguage() const;
+
 	// The DMR Network section
 	std::string  getDMRNetworkAddress() const;
 	unsigned int getDMRNetworkPort() const;
@@ -73,6 +77,9 @@ private:
 	unsigned int m_localPort;
 	unsigned int m_timeout;
 	bool         m_debug;
+
+	bool         m_voiceEnabled;
+	std::string  m_voiceLanguage;
 
 	unsigned int m_logDisplayLevel;
 	unsigned int m_logFileLevel;

@@ -21,6 +21,7 @@
 #include "StopWatch.h"
 #include "Rewrite.h"
 #include "Thread.h"
+#include "Voice.h"
 #include "Log.h"
 
 #include <cstdio>
@@ -63,7 +64,7 @@ enum DMRGW_STATUS {
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2015-2017 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -247,6 +248,23 @@ int CDMRGateway::run()
 	if (!ret)
 		return 1;
 
+	CVoice* voice = NULL;
+	if (m_conf.getVoiceEnabled()) {
+		std::string language = m_conf.getVoiceLanguage();
+
+		LogInfo("Voice Parameters");
+		LogInfo("    Enabled: yes");
+		LogInfo("    Language: %s", language.c_str());
+
+		voice = new CVoice(language, xlxSlot, xlxTG);
+
+		bool ret = voice->open();
+		if (!ret) {
+			delete voice;
+			voice = NULL;
+		}
+	}
+
 	DMRGW_STATUS status = DMRGWS_NONE;
 
 	CTimer timer(1000U, timeout);
@@ -255,6 +273,8 @@ int CDMRGateway::run()
 	stopWatch.start();
 
 	LogMessage("DMRGateway-%s is running", VERSION);
+
+	bool changed = false;
 
 	while (!m_killed) {
 		CDMRData data;
@@ -281,12 +301,26 @@ int CDMRGateway::run()
 								LogMessage("Unlinking");
 
 							m_reflector = id;
+							changed = true;
 						}
 
 						xlxRewrite.process(data);
 						m_xlxNetwork->write(data);
 						status = DMRGWS_REFLECTOR;
 						timer.start();
+
+						if (voice != NULL) {
+							unsigned char type = data.getDataType();
+							if (type == DT_TERMINATOR_WITH_LC) {
+								if (changed) {
+									if (m_reflector == 4000U)
+										voice->unlinked();
+									else
+										voice->linkedTo(m_reflector);
+									changed = false;
+								}
+							}
+						}
 					} else {
 						m_dmrNetwork->write(data);
 						status = DMRGWS_NETWORK;
@@ -334,12 +368,24 @@ int CDMRGateway::run()
 			}
 		}
 
+		if (voice != NULL) {
+			ret = voice->read(data);
+			if (ret) {
+				m_repeater->write(data);
+				status = DMRGWS_REFLECTOR;
+				timer.start();
+			}
+		}
+
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
 		m_repeater->clock(ms);
 		m_dmrNetwork->clock(ms);
 		m_xlxNetwork->clock(ms);
+
+		if (voice != NULL)
+			voice->clock(ms);
 
 		timer.clock(ms);
 		if (timer.isRunning() && timer.hasExpired()) {
@@ -352,6 +398,8 @@ int CDMRGateway::run()
 	}
 
 	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
+
+	delete voice;
 
 	m_repeater->close();
 	delete m_repeater;

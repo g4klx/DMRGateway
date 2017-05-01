@@ -30,6 +30,7 @@ enum SECTION {
   SECTION_NONE,
   SECTION_GENERAL,
   SECTION_LOG,
+  SECTION_VOICE,
   SECTION_DMR_NETWORK,
   SECTION_XLX_NETWORK
 };
@@ -49,6 +50,8 @@ m_logDisplayLevel(0U),
 m_logFileLevel(0U),
 m_logFilePath(),
 m_logFileRoot(),
+m_voiceEnabled(true),
+m_voiceLanguage("en_GB"),
 m_dmrNetworkAddress(),
 m_dmrNetworkPort(0U),
 m_dmrNetworkLocal(0U),
@@ -82,20 +85,22 @@ bool CConf::read()
     if (buffer[0U] == '#')
       continue;
 
-    if (buffer[0U] == '[') {
-      if (::strncmp(buffer, "[General]", 9U) == 0)
-        section = SECTION_GENERAL;
-      else if (::strncmp(buffer, "[Log]", 5U) == 0)
-        section = SECTION_LOG;
-	  else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
-		section = SECTION_XLX_NETWORK;
-	  else if (::strncmp(buffer, "[DMR Network]", 13U) == 0)
-		section = SECTION_DMR_NETWORK;
-	  else
-        section = SECTION_NONE;
+	if (buffer[0U] == '[') {
+		if (::strncmp(buffer, "[General]", 9U) == 0)
+			section = SECTION_GENERAL;
+		else if (::strncmp(buffer, "[Log]", 5U) == 0)
+			section = SECTION_LOG;
+		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
+			section = SECTION_VOICE;
+		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
+			section = SECTION_XLX_NETWORK;
+		else if (::strncmp(buffer, "[DMR Network]", 13U) == 0)
+			section = SECTION_DMR_NETWORK;
+		else
+			section = SECTION_NONE;
 
-      continue;
-    }
+		continue;
+	}
 
     char* key = ::strtok(buffer, " \t=\r\n");
     if (key == NULL)
@@ -133,6 +138,11 @@ bool CConf::read()
 				m_logFileLevel = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "DisplayLevel") == 0)
 				m_logDisplayLevel = (unsigned int)::atoi(value);
+		} else if (section == SECTION_VOICE) {
+			if (::strcmp(key, "Enabled") == 0)
+				m_voiceEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Language") == 0)
+				m_voiceLanguage = value;
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Address") == 0)
 				m_xlxNetworkAddress = value;
@@ -228,6 +238,16 @@ std::string CConf::getLogFilePath() const
 std::string CConf::getLogFileRoot() const
 {
 	return m_logFileRoot;
+}
+
+bool CConf::getVoiceEnabled() const
+{
+	return m_voiceEnabled;
+}
+
+std::string CConf::getVoiceLanguage() const
+{
+	return m_voiceLanguage;
 }
 
 std::string CConf::getXLXNetworkAddress() const
