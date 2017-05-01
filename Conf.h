@@ -50,6 +50,7 @@ public:
 	// The Voice section
 	bool         getVoiceEnabled() const;
 	std::string  getVoiceLanguage() const;
+	std::string  getVoiceDirectory() const;
 
 	// The DMR Network section
 	std::string  getDMRNetworkAddress() const;
@@ -80,6 +81,7 @@ private:
 
 	bool         m_voiceEnabled;
 	std::string  m_voiceLanguage;
+	std::string  m_voiceDirectory;
 
 	unsigned int m_logDisplayLevel;
 	unsigned int m_logFileLevel;

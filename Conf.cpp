@@ -52,6 +52,7 @@ m_logFilePath(),
 m_logFileRoot(),
 m_voiceEnabled(true),
 m_voiceLanguage("en_GB"),
+m_voiceDirectory(),
 m_dmrNetworkAddress(),
 m_dmrNetworkPort(0U),
 m_dmrNetworkLocal(0U),
@@ -143,6 +144,8 @@ bool CConf::read()
 				m_voiceEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Language") == 0)
 				m_voiceLanguage = value;
+			else if (::strcmp(key, "Directory") == 0)
+				m_voiceDirectory = value;
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Address") == 0)
 				m_xlxNetworkAddress = value;
@@ -248,6 +251,11 @@ bool CConf::getVoiceEnabled() const
 std::string CConf::getVoiceLanguage() const
 {
 	return m_voiceLanguage;
+}
+
+std::string CConf::getVoiceDirectory() const
+{
+	return m_voiceDirectory;
 }
 
 std::string CConf::getXLXNetworkAddress() const

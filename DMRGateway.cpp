@@ -250,13 +250,15 @@ int CDMRGateway::run()
 
 	CVoice* voice = NULL;
 	if (m_conf.getVoiceEnabled()) {
-		std::string language = m_conf.getVoiceLanguage();
+		std::string language  = m_conf.getVoiceLanguage();
+		std::string directory = m_conf.getVoiceDirectory();
 
 		LogInfo("Voice Parameters");
 		LogInfo("    Enabled: yes");
 		LogInfo("    Language: %s", language.c_str());
+		LogInfo("    Directory: %s", directory.c_str());
 
-		voice = new CVoice(language, xlxSlot, xlxTG);
+		voice = new CVoice(directory, language, m_repeater->getId(), xlxSlot, xlxTG);
 
 		bool ret = voice->open();
 		if (!ret) {

@@ -19,11 +19,15 @@
 #if !defined(Voice_H)
 #define	Voice_H
 
+#include "DMREmbeddedData.h"
 #include "StopWatch.h"
 #include "DMRData.h"
+#include "DMRLC.h"
 #include "Timer.h"
 
+#include <unordered_map>
 #include <string>
+#include <vector>
 
 enum VOICE_STATUS {
 	VS_NONE,
@@ -33,7 +37,7 @@ enum VOICE_STATUS {
 
 class CVoice {
 public:
-	CVoice(const std::string& language, unsigned int slot, unsigned int tg);
+	CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
 	~CVoice();
 
 	bool open();
@@ -46,12 +50,24 @@ public:
 	void clock(unsigned int ms);
 
 private:
-	std::string  m_language;
-	unsigned int m_slot;
-	unsigned int m_tg;
-	VOICE_STATUS m_status;
-	CTimer       m_timer;
-	CStopWatch   m_stopWatch;
+	std::string                            m_indxFile;
+	std::string                            m_ambeFile;
+	unsigned int                           m_slot;
+	CDMRLC                                 m_lc;
+	CDMREmbeddedData                       m_embeddedLC;
+	VOICE_STATUS                           m_status;
+	CTimer                                 m_timer;
+	CStopWatch                             m_stopWatch;
+	unsigned int                           m_seqNo;
+	unsigned int                           m_streamId;
+	unsigned int                           m_sent;
+	unsigned char*                         m_ambe;
+	std::vector<CDMRData*>                 m_data;
+	std::vector<CDMRData*>::const_iterator m_it;
+	std::unordered_map<std::string, unsigned int> m_start;
+	std::unordered_map<std::string, unsigned int> m_length;
+
+	void createHeaderTerminator(unsigned char type);
 };
 
 #endif
