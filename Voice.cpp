@@ -27,6 +27,21 @@
 
 #include <sys/stat.h>
 
+const unsigned char SILENCE[] = {0xACU, 0xAAU, 0x40U, 0x20U, 0x00U, 0x44U, 0x40U, 0x80U, 0x80U};
+
+const unsigned int POSITION_0 = 0U;
+const unsigned int POSITION_1 = 1U;
+const unsigned int POSITION_2 = 2U;
+const unsigned int POSITION_3 = 3U;
+const unsigned int POSITION_4 = 4U;
+const unsigned int POSITION_5 = 5U;
+const unsigned int POSITION_6 = 6U;
+const unsigned int POSITION_7 = 7U;
+const unsigned int POSITION_8 = 8U;
+const unsigned int POSITION_9 = 9U;
+const unsigned int POSITION_CONNECTED    = 10U;
+const unsigned int POSITION_DISCONNECTED = 11U;
+
 const unsigned char COLOR_CODE = 3U;
 
 CVoice::CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg) :
@@ -41,13 +56,15 @@ m_stopWatch(),
 m_seqNo(0U),
 m_streamId(0U),
 m_sent(0U),
+m_positions(NULL),
 m_ambe(NULL),
 m_data(),
-m_it(),
-m_start(),
-m_length()
+m_it()
 {
 	m_embeddedLC.setLC(m_lc);
+
+	m_positions = new CPositions[12U];
+	::memset(m_positions, 0x00U, 12U * sizeof(CPositions));
 
 #if defined(_WIN32) || defined(_WIN64)
 	m_indxFile = directory + "\\" + language + ".indx";
@@ -66,6 +83,7 @@ CVoice::~CVoice()
 	m_data.clear();
 
 	delete[] m_ambe;
+	delete[] m_positions;
 }
 
 bool CVoice::open()
@@ -105,8 +123,43 @@ bool CVoice::open()
 			unsigned int start = ::atoi(p2) * 9U;
 			unsigned int length = ::atoi(p3) * 9U;
 
-			m_start[p1]  = start;
-			m_length[p1] = length;
+			if (::strcmp(p1, "0") == 0) {
+				m_positions[POSITION_0].m_start = start;
+				m_positions[POSITION_0].m_length = length;
+			} else if (::strcmp(p1, "1") == 0) {
+				m_positions[POSITION_1].m_start = start;
+				m_positions[POSITION_1].m_length = length;
+			} else if (::strcmp(p1, "2") == 0) {
+				m_positions[POSITION_2].m_start = start;
+				m_positions[POSITION_2].m_length = length;
+			} else if (::strcmp(p1, "3") == 0) {
+				m_positions[POSITION_3].m_start = start;
+				m_positions[POSITION_3].m_length = length;
+			} else if (::strcmp(p1, "4") == 0) {
+				m_positions[POSITION_4].m_start = start;
+				m_positions[POSITION_4].m_length = length;
+			} else if (::strcmp(p1, "5") == 0) {
+				m_positions[POSITION_5].m_start = start;
+				m_positions[POSITION_5].m_length = length;
+			} else if (::strcmp(p1, "6") == 0) {
+				 m_positions[POSITION_6].m_start = start;
+				 m_positions[POSITION_6].m_length = length;
+			} else if (::strcmp(p1, "7") == 0) {
+				 m_positions[POSITION_7].m_start = start;
+				 m_positions[POSITION_7].m_length = length;
+			} else if (::strcmp(p1, "8") == 0) {
+				 m_positions[POSITION_8].m_start = start;
+				 m_positions[POSITION_8].m_length = length;
+			} else if (::strcmp(p1, "9") == 0) {
+				 m_positions[POSITION_9].m_start = start;
+				 m_positions[POSITION_9].m_length = length;
+			} else if (::strcmp(p1, "connected") == 0) {
+				 m_positions[POSITION_CONNECTED].m_start = start;
+				 m_positions[POSITION_CONNECTED].m_length = length;
+			} else if (::strcmp(p1, "disconnected") == 0) {
+				 m_positions[POSITION_DISCONNECTED].m_start = start;
+				 m_positions[POSITION_DISCONNECTED].m_length = length;
+			}
 		}
 	}
 
@@ -118,32 +171,54 @@ bool CVoice::open()
 
 void CVoice::linkedTo(unsigned int id)
 {
-	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
-		delete *it;
+	char number[10U];
+	::sprintf(number, "%04u", id);
 
-	m_data.clear();
+	std::vector<unsigned int> words;
+	words.push_back(POSITION_CONNECTED);
+	words.push_back(number[0U] - '0');
+	words.push_back(number[1U] - '0');
+	words.push_back(number[2U] - '0');
+	words.push_back(number[3U] - '0');
 
-	m_streamId = ::rand() + 1U;
-	m_seqNo = 0U;
-
-	createHeaderTerminator(DT_VOICE_LC_HEADER);
-	createHeaderTerminator(DT_VOICE_LC_HEADER);
-	createHeaderTerminator(DT_VOICE_LC_HEADER);
-
-	unsigned int length = 0U;
-	unsigned char* ambe = new unsigned char[10000U];
-
-
-	delete[] ambe;
-
-	createHeaderTerminator(DT_TERMINATOR_WITH_LC);
-
-	m_status = VS_WAITING;
-	m_timer.start();
+	createVoice(words);
 }
 
 void CVoice::unlinked()
 {
+	std::vector<unsigned int> words;
+	words.push_back(POSITION_DISCONNECTED);
+
+	createVoice(words);
+}
+
+void CVoice::createVoice(const std::vector<unsigned int>& words)
+{
+	unsigned int ambeLength = 0U;
+	for (std::vector<unsigned int>::const_iterator it = words.begin(); it != words.end(); ++it)
+		ambeLength += m_positions[*it].m_length;
+
+	// Ensure that the AMBE is an integer number of DMR frames
+	if ((ambeLength % 27U) != 0U) {
+		unsigned int frames = ambeLength / 27U;
+		frames++;
+		ambeLength = frames * 27U;
+	}
+
+	unsigned char* ambeData = new unsigned char[ambeLength];
+
+	// Fill the AMBE data with silence
+	for (unsigned int i = 0U; i < ambeLength; i += 9U)
+		::memcpy(ambeData + i, SILENCE, 9U);
+
+	unsigned int pos = 0U;
+	for (std::vector<unsigned int>::const_iterator it = words.begin(); it != words.end(); ++it) {
+		unsigned int start  = m_positions[*it].m_start;
+		unsigned int length = m_positions[*it].m_length;
+		::memcpy(ambeData + pos, m_ambe + start, length);
+		pos += length;
+	}
+		
 	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
 		delete *it;
 
@@ -156,20 +231,19 @@ void CVoice::unlinked()
 	createHeaderTerminator(DT_VOICE_LC_HEADER);
 	createHeaderTerminator(DT_VOICE_LC_HEADER);
 
-	unsigned int start = m_start["disconnected"];
-	unsigned int length = m_length["disconnected"] / 9U;
-
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 
-	unsigned char* p = m_ambe + start;
-	for (unsigned int i = 0U; i < length; i++, p += 27U) {
+	unsigned int n = 0U;
+	for (unsigned int i = 0U; i < ambeLength; i += 27U) {
+		unsigned char* p = ambeData + i;
+
 		CDMRData* data = new CDMRData;
 
 		data->setSlotNo(m_slot);
 		data->setFLCO(FLCO_GROUP);
 		data->setSrcId(m_lc.getSrcId());
 		data->setDstId(m_lc.getDstId());
-		data->setN();
+		data->setN(n);
 		data->setSeqNo(m_seqNo++);
 		data->setStreamId(m_streamId);
 
@@ -179,19 +253,23 @@ void CVoice::unlinked()
 		::memcpy(buffer + 24U, p + 18U, 9U);
 
 		if (n == 0U) {
-			CSync::addDMRAudioSync(buffer);
+			CSync::addDMRAudioSync(buffer, true);
 			data->setDataType(DT_VOICE_SYNC);
 		} else {
+			unsigned char lcss = m_embeddedLC.getData(buffer, n);
+
 			CDMREMB emb;
 			emb.setColorCode(COLOR_CODE);
 			emb.setPI(false);
-			emb.setLCSS();
+			emb.setLCSS(lcss);
 			emb.getData(buffer);
-
-			m_embeddedLC.getData(buffer, n);
 
 			data->setDataType(DT_VOICE);
 		}
+
+		n++;
+		if (n >= 6U)
+			n = 0U;
 
 		data->setData(buffer);
 
@@ -199,6 +277,9 @@ void CVoice::unlinked()
 	}
 
 	createHeaderTerminator(DT_TERMINATOR_WITH_LC);
+	createHeaderTerminator(DT_TERMINATOR_WITH_LC);
+
+	delete[] ambeData;
 
 	m_status = VS_WAITING;
 	m_timer.start();

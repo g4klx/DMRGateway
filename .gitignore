@@ -14,5 +14,3 @@ MMDVMHost
 *.user
 *.VC.db
 .vs
-*.ambe
-GitVersion.h

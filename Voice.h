@@ -25,7 +25,6 @@
 #include "DMRLC.h"
 #include "Timer.h"
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -33,6 +32,11 @@ enum VOICE_STATUS {
 	VS_NONE,
 	VS_WAITING,
 	VS_SENDING
+};
+
+struct CPositions {
+	unsigned int m_start;
+	unsigned int m_length;
 };
 
 class CVoice {
@@ -62,12 +66,12 @@ private:
 	unsigned int                           m_streamId;
 	unsigned int                           m_sent;
 	unsigned char*                         m_ambe;
+	CPositions*                            m_positions;
 	std::vector<CDMRData*>                 m_data;
 	std::vector<CDMRData*>::const_iterator m_it;
-	std::unordered_map<std::string, unsigned int> m_start;
-	std::unordered_map<std::string, unsigned int> m_length;
 
 	void createHeaderTerminator(unsigned char type);
+	void createVoice(const std::vector<unsigned int>& words);
 };
 
 #endif
