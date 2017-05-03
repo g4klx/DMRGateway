@@ -22,6 +22,13 @@
 #include <string>
 #include <vector>
 
+struct CRewriteStruct {
+	unsigned int m_fromSlot;
+	unsigned int m_fromTG;
+	unsigned int m_toSlot;
+	unsigned int m_toTG;
+};
+
 class CConf
 {
 public:
@@ -32,8 +39,6 @@ public:
 
 	// The General section
 	bool         getDaemon() const;
-	unsigned int getXLXSlot() const;
-	unsigned int getXLXTG() const;
 	unsigned int getTimeout() const;
 	std::string  getRptAddress() const;
 	unsigned int getRptPort() const;
@@ -52,26 +57,42 @@ public:
 	std::string  getVoiceLanguage() const;
 	std::string  getVoiceDirectory() const;
 
-	// The DMR Network section
-	std::string  getDMRNetworkAddress() const;
-	unsigned int getDMRNetworkPort() const;
-	unsigned int getDMRNetworkLocal() const;
-	std::string  getDMRNetworkPassword() const;
-	bool         getDMRNetworkDebug() const;
+	// The DMR Network 1 section
+	bool         getDMRNetwork1Enabled() const;
+	std::string  getDMRNetwork1Address() const;
+	unsigned int getDMRNetwork1Port() const;
+	unsigned int getDMRNetwork1Local() const;
+	std::string  getDMRNetwork1Password() const;
+	bool         getDMRNetwork1Debug() const;
+	std::vector<CRewriteStruct> getDMRNetwork1Rewrites() const;
+	bool         getDMRNetwork1PrivateSlot1() const;
+	bool         getDMRNetwork1PrivateSlot2() const;
+
+	// The DMR Network 2 section
+	bool         getDMRNetwork2Enabled() const;
+	std::string  getDMRNetwork2Address() const;
+	unsigned int getDMRNetwork2Port() const;
+	unsigned int getDMRNetwork2Local() const;
+	std::string  getDMRNetwork2Password() const;
+	bool         getDMRNetwork2Debug() const;
+	std::vector<CRewriteStruct> getDMRNetwork2Rewrites() const;
+	bool         getDMRNetwork2PrivateSlot1() const;
+	bool         getDMRNetwork2PrivateSlot2() const;
 
 	// The XLX Network section
+	bool         getXLXNetworkEnabled() const;
 	std::string  getXLXNetworkAddress() const;
 	unsigned int getXLXNetworkPort() const;
 	unsigned int getXLXNetworkLocal() const;
 	std::string  getXLXNetworkPassword() const;
+	unsigned int getXLXNetworkSlot() const;
+	unsigned int getXLXNetworkTG() const;
 	std::string  getXLXNetworkOptions() const;
 	bool         getXLXNetworkDebug() const;
 
 private:
 	std::string  m_file;
 	bool         m_daemon;
-	unsigned int m_xlxSlot;
-	unsigned int m_xlxTG;
 	std::string  m_rptAddress;
 	unsigned int m_rptPort;
 	std::string  m_localAddress;
@@ -88,18 +109,35 @@ private:
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
 
-	std::string  m_dmrNetworkAddress;
-	unsigned int m_dmrNetworkPort;
-	unsigned int m_dmrNetworkLocal;
-	std::string  m_dmrNetworkPassword;
-	bool         m_dmrNetworkDebug;
+	bool         m_dmrNetwork1Enabled;
+	std::string  m_dmrNetwork1Address;
+	unsigned int m_dmrNetwork1Port;
+	unsigned int m_dmrNetwork1Local;
+	std::string  m_dmrNetwork1Password;
+	bool         m_dmrNetwork1Debug;
 
+	bool         m_dmrNetwork2Enabled;
+	std::string  m_dmrNetwork2Address;
+	unsigned int m_dmrNetwork2Port;
+	unsigned int m_dmrNetwork2Local;
+	std::string  m_dmrNetwork2Password;
+	bool         m_dmrNetwork2Debug;
+	std::vector<CRewriteStruct> m_dmrNetwork1Rewrites;
+	bool         m_dmrNetwork1PrivateSlot1;
+	bool         m_dmrNetwork1PrivateSlot2;
+
+	bool         m_xlxNetworkEnabled;
 	std::string  m_xlxNetworkAddress;
 	unsigned int m_xlxNetworkPort;
 	unsigned int m_xlxNetworkLocal;
 	std::string  m_xlxNetworkPassword;
+	unsigned int m_xlxNetworkSlot;
+	unsigned int m_xlxNetworkTG;
 	std::string  m_xlxNetworkOptions;
 	bool         m_xlxNetworkDebug;
+	std::vector<CRewriteStruct> m_dmrNetwork2Rewrites;
+	bool         m_dmrNetwork2PrivateSlot1;
+	bool         m_dmrNetwork2PrivateSlot2;
 };
 
 #endif

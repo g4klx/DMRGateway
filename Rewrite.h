@@ -25,14 +25,16 @@
 
 class CRewrite {
 public:
-	CRewrite(unsigned int slot, unsigned int tg);
+	CRewrite(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
 	~CRewrite();
 
-	void process(CDMRData& data);
+	bool process(CDMRData& data);
 
 private:
-	unsigned int     m_slot;
-	unsigned int     m_tg;
+	unsigned int     m_fromSlot;
+	unsigned int     m_fromTG;
+	unsigned int     m_toSlot;
+	unsigned int     m_toTG;
 	CDMRLC*          m_lc;
 	CDMREmbeddedData m_embeddedLC;
 

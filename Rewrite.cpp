@@ -24,29 +24,38 @@
 #include <cstdio>
 #include <cassert>
 
-CRewrite::CRewrite(unsigned int slot, unsigned int tg) :
-m_slot(slot),
-m_tg(tg),
+CRewrite::CRewrite(unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG) :
+m_fromSlot(fromSlot),
+m_fromTG(fromTG),
+m_toSlot(toSlot),
+m_toTG(toTG),
 m_lc(NULL),
 m_embeddedLC()
 {
-	assert(slot == 1U || slot == 2U);
-	assert(tg < 16U);
+	assert(fromSlot == 1U || fromSlot == 2U);
+	assert(fromTG < 16U);
+	assert(toSlot == 1U || toSlot == 2U);
+	assert(toTG < 16U);
 }
 
 CRewrite::~CRewrite()
 {
 }
 
-void CRewrite::process(CDMRData& data)
+bool CRewrite::process(CDMRData& data)
 {
-	data.setSlotNo(m_slot);
-
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
+	unsigned int slotNo = data.getSlotNo();
 
-	if (flco == FLCO_GROUP && dstId != m_tg) {
-		data.setDstId(m_tg);
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG)
+		return false;
+
+	if (m_fromSlot != m_toSlot)
+		data.setSlotNo(m_toSlot);
+
+	if (m_fromTG != m_toTG) {
+		data.setDstId(m_toTG);
 
 		unsigned char dataType = data.getDataType();
 
@@ -66,6 +75,8 @@ void CRewrite::process(CDMRData& data)
 			break;
 		}
 	}
+
+	return true;
 }
 
 void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
@@ -81,7 +92,7 @@ void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
 	if (m_lc == NULL)
 		return;
 
-	m_lc->setDstId(m_tg);
+	m_lc->setDstId(m_toTG);
 
 	m_embeddedLC.setLC(*m_lc);
 
@@ -93,7 +104,7 @@ void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
 void CRewrite::processVoice(CDMRData& data)
 {
 	if (m_lc == NULL) {
-		m_lc = new CDMRLC(FLCO_GROUP, data.getSrcId(), m_tg);
+		m_lc = new CDMRLC(FLCO_GROUP, data.getSrcId(), m_toTG);
 		m_embeddedLC.setLC(*m_lc);
 	}
 

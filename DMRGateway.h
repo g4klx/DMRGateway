@@ -22,6 +22,7 @@
 #include "RepeaterProtocol.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
+#include "Rewrite.h"
 #include "Conf.h"
 
 #include <string>
@@ -37,12 +38,24 @@ public:
 private:
 	CConf              m_conf;
 	IRepeaterProtocol* m_repeater;
-	CDMRNetwork*       m_dmrNetwork;
+	CDMRNetwork*       m_dmrNetwork1;
+	CDMRNetwork*       m_dmrNetwork2;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_reflector;
+	unsigned int       m_xlxSlot;
+	unsigned int       m_xlxTG;
+	std::vector<CRewrite*> m_dmr1NetRewrites;
+	std::vector<CRewrite*> m_dmr1RFRewrites;
+	std::vector<CRewrite*> m_dmr2NetRewrites;
+	std::vector<CRewrite*> m_dmr2RFRewrites;
+	bool               m_dmr1PrivateSlot1;
+	bool               m_dmr1PrivateSlot2;
+	bool               m_dmr2PrivateSlot1;
+	bool               m_dmr2PrivateSlot2;
 
 	bool createMMDVM();
-	bool createDMRNetwork();
+	bool createDMRNetwork1();
+	bool createDMRNetwork2();
 	bool createXLXNetwork();
 };
 
