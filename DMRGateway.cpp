@@ -248,13 +248,6 @@ int CDMRGateway::run()
 
 	LogMessage("MMDVM has connected");
 
-	unsigned int timeout = m_conf.getTimeout();
-
-	LogInfo("Id: %u", m_repeater->getId());
-
-	CRewrite rptRewrite(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
-	CRewrite xlxRewrite(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
-
 	if (m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
 		if (!ret)
@@ -272,6 +265,11 @@ int CDMRGateway::run()
 		if (!ret)
 			return 1;
 	}
+
+	unsigned int timeout = m_conf.getTimeout();
+
+	CRewrite rptRewrite(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
+	CRewrite xlxRewrite(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
 
 	CVoice* voice = NULL;
 	if (m_conf.getVoiceEnabled() && m_xlxNetwork != NULL) {
@@ -368,9 +366,10 @@ int CDMRGateway::run()
 					timer[slotNo]->start();
 				}
 			} else {
+				bool rewritten = false;
+
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
-					bool rewritten = false;
 					for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
 						bool ret = (*it)->process(data);
 						if (ret) {
@@ -389,23 +388,24 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (m_dmrNetwork2 != NULL) {
-					// Rewrite the slot and/or TG or neither
-					bool rewritten = false;
-					for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
-						bool ret = (*it)->process(data);
-						if (ret) {
-							rewritten = true;
-							break;
+				if (!rewritten) {
+					if (m_dmrNetwork2 != NULL) {
+						// Rewrite the slot and/or TG or neither
+						for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
+							bool ret = (*it)->process(data);
+							if (ret) {
+								rewritten = true;
+								break;
+							}
 						}
-					}
 
-					if (rewritten) {
-						unsigned int slotNo = data.getSlotNo();
-						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
-							m_dmrNetwork2->write(data);
-							status[slotNo] = DMRGWS_NETWORK2;
-							timer[slotNo]->start();
+						if (rewritten) {
+							unsigned int slotNo = data.getSlotNo();
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
+								m_dmrNetwork2->write(data);
+								status[slotNo] = DMRGWS_NETWORK2;
+								timer[slotNo]->start();
+							}
 						}
 					}
 				}
@@ -575,6 +575,9 @@ int CDMRGateway::run()
 		delete m_xlxNetwork;
 	}
 
+	delete timer[1U];
+	delete timer[2U];
+
 	return 0;
 }
 
@@ -609,11 +612,15 @@ bool CDMRGateway::createDMRNetwork1()
 	std::string address  = m_conf.getDMRNetwork1Address();
 	unsigned int port    = m_conf.getDMRNetwork1Port();
 	unsigned int local   = m_conf.getDMRNetwork1Local();
-	unsigned int id      = m_repeater->getId();
+	unsigned int id      = m_conf.getDMRNetwork1Id();
 	std::string password = m_conf.getDMRNetwork1Password();
 	bool debug           = m_conf.getDMRNetwork1Debug();
 
+	if (id == 0U)
+		id = m_repeater->getId();
+
 	LogInfo("DMR Network 1 Parameters");
+	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
 	if (local > 0U)
@@ -666,11 +673,15 @@ bool CDMRGateway::createDMRNetwork2()
 	std::string address  = m_conf.getDMRNetwork2Address();
 	unsigned int port    = m_conf.getDMRNetwork2Port();
 	unsigned int local   = m_conf.getDMRNetwork2Local();
-	unsigned int id      = m_repeater->getId();
+	unsigned int id      = m_conf.getDMRNetwork2Id();
 	std::string password = m_conf.getDMRNetwork2Password();
 	bool debug           = m_conf.getDMRNetwork2Debug();
 
+	if (id == 0U)
+		id = m_repeater->getId();
+
 	LogInfo("DMR Network 2 Parameters");
+	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
 	if (local > 0U)
@@ -723,12 +734,16 @@ bool CDMRGateway::createXLXNetwork()
 	std::string address  = m_conf.getXLXNetworkAddress();
 	unsigned int port    = m_conf.getXLXNetworkPort();
 	unsigned int local   = m_conf.getXLXNetworkLocal();
-	unsigned int id      = m_repeater->getId();
+	unsigned int id      = m_conf.getXLXNetworkId();
 	std::string password = m_conf.getXLXNetworkPassword();
 	std::string options  = m_conf.getXLXNetworkOptions();
 	bool debug           = m_conf.getXLXNetworkDebug();
 
+	if (id == 0U)
+		id = m_repeater->getId();
+
 	LogInfo("XLX Network Parameters");
+	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
 	if (local > 0U)

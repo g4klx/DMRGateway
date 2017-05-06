@@ -59,6 +59,7 @@ public:
 
 	// The DMR Network 1 section
 	bool         getDMRNetwork1Enabled() const;
+	unsigned int getDMRNetwork1Id() const;
 	std::string  getDMRNetwork1Address() const;
 	unsigned int getDMRNetwork1Port() const;
 	unsigned int getDMRNetwork1Local() const;
@@ -70,6 +71,7 @@ public:
 
 	// The DMR Network 2 section
 	bool         getDMRNetwork2Enabled() const;
+	unsigned int getDMRNetwork2Id() const;
 	std::string  getDMRNetwork2Address() const;
 	unsigned int getDMRNetwork2Port() const;
 	unsigned int getDMRNetwork2Local() const;
@@ -81,6 +83,7 @@ public:
 
 	// The XLX Network section
 	bool         getXLXNetworkEnabled() const;
+	unsigned int getXLXNetworkId() const;
 	std::string  getXLXNetworkAddress() const;
 	unsigned int getXLXNetworkPort() const;
 	unsigned int getXLXNetworkLocal() const;
@@ -110,6 +113,7 @@ private:
 	std::string  m_logFileRoot;
 
 	bool         m_dmrNetwork1Enabled;
+	unsigned int m_dmrNetwork1Id;
 	std::string  m_dmrNetwork1Address;
 	unsigned int m_dmrNetwork1Port;
 	unsigned int m_dmrNetwork1Local;
@@ -117,6 +121,7 @@ private:
 	bool         m_dmrNetwork1Debug;
 
 	bool         m_dmrNetwork2Enabled;
+	unsigned int m_dmrNetwork2Id;
 	std::string  m_dmrNetwork2Address;
 	unsigned int m_dmrNetwork2Port;
 	unsigned int m_dmrNetwork2Local;
@@ -127,6 +132,7 @@ private:
 	bool         m_dmrNetwork1PrivateSlot2;
 
 	bool         m_xlxNetworkEnabled;
+	unsigned int m_xlxNetworkId;
 	std::string  m_xlxNetworkAddress;
 	unsigned int m_xlxNetworkPort;
 	unsigned int m_xlxNetworkLocal;

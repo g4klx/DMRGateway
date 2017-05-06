@@ -85,12 +85,13 @@ void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
 	data.getData(buffer);
 
 	delete m_lc;
-	m_lc = NULL;
 
 	CDMRFullLC fullLC;
 	m_lc = fullLC.decode(buffer, dataType);
-	if (m_lc == NULL)
-		return;
+	if (m_lc == NULL) {
+		m_lc = new CDMRLC(FLCO_GROUP, data.getSrcId(), m_toTG);
+		m_embeddedLC.setLC(*m_lc);
+	}
 
 	m_lc->setDstId(m_toTG);
 

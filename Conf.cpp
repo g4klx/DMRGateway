@@ -53,6 +53,7 @@ m_voiceEnabled(true),
 m_voiceLanguage("en_GB"),
 m_voiceDirectory(),
 m_dmrNetwork1Enabled(false),
+m_dmrNetwork1Id(0U),
 m_dmrNetwork1Address(),
 m_dmrNetwork1Port(0U),
 m_dmrNetwork1Local(0U),
@@ -62,6 +63,7 @@ m_dmrNetwork1Rewrites(),
 m_dmrNetwork1PrivateSlot1(false),
 m_dmrNetwork1PrivateSlot2(false),
 m_dmrNetwork2Enabled(false),
+m_dmrNetwork2Id(0U),
 m_dmrNetwork2Address(),
 m_dmrNetwork2Port(0U),
 m_dmrNetwork2Local(0U),
@@ -71,6 +73,7 @@ m_dmrNetwork2Rewrites(),
 m_dmrNetwork2PrivateSlot1(false),
 m_dmrNetwork2PrivateSlot2(false),
 m_xlxNetworkEnabled(false),
+m_xlxNetworkId(0U),
 m_xlxNetworkAddress(),
 m_xlxNetworkPort(0U),
 m_xlxNetworkLocal(0U),
@@ -162,6 +165,8 @@ bool CConf::read()
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_xlxNetworkEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Id") == 0)
+				m_xlxNetworkId = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
 				m_xlxNetworkAddress = value;
 			else if (::strcmp(key, "Port") == 0)
@@ -181,6 +186,8 @@ bool CConf::read()
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Id") == 0)
+				m_dmrNetwork1Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
 				m_dmrNetwork1Address = value;
 			else if (::strcmp(key, "Port") == 0)
@@ -191,7 +198,7 @@ bool CConf::read()
 				m_dmrNetwork1Password = value;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork1Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "Rewrites") == 0) {
+			else if (::strcmp(key, "Rewrite") == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -211,6 +218,8 @@ bool CConf::read()
 		} else if (section == SECTION_DMR_NETWORK_2) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork2Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Id") == 0)
+				m_dmrNetwork2Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
 				m_dmrNetwork2Address = value;
 			else if (::strcmp(key, "Port") == 0)
@@ -221,7 +230,7 @@ bool CConf::read()
 				m_dmrNetwork2Password = value;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork2Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "Rewrites") == 0) {
+			else if (::strcmp(key, "Rewrite") == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -321,6 +330,11 @@ bool CConf::getXLXNetworkEnabled() const
 	return m_xlxNetworkEnabled;
 }
 
+unsigned int CConf::getXLXNetworkId() const
+{
+	return m_xlxNetworkId;
+}
+
 std::string CConf::getXLXNetworkAddress() const
 {
 	return m_xlxNetworkAddress;
@@ -366,6 +380,11 @@ bool CConf::getDMRNetwork1Enabled() const
 	return m_dmrNetwork1Enabled;
 }
 
+unsigned int CConf::getDMRNetwork1Id() const
+{
+	return m_dmrNetwork1Id;
+}
+
 std::string CConf::getDMRNetwork1Address() const
 {
 	return m_dmrNetwork1Address;
@@ -409,6 +428,11 @@ bool CConf::getDMRNetwork1PrivateSlot2() const
 bool CConf::getDMRNetwork2Enabled() const
 {
 	return m_dmrNetwork2Enabled;
+}
+
+unsigned int CConf::getDMRNetwork2Id() const
+{
+	return m_dmrNetwork2Id;
 }
 
 std::string CConf::getDMRNetwork2Address() const
