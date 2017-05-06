@@ -44,6 +44,8 @@ private:
 	unsigned int       m_reflector;
 	unsigned int       m_xlxSlot;
 	unsigned int       m_xlxTG;
+	CRewrite*          m_rptRewrite;
+	CRewrite*          m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;
 	std::vector<CRewrite*> m_dmr1RFRewrites;
 	std::vector<CRewrite*> m_dmr2NetRewrites;

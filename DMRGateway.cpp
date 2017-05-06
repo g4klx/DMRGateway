@@ -19,7 +19,6 @@
 #include "DMRGateway.h"
 #include "Version.h"
 #include "StopWatch.h"
-#include "Rewrite.h"
 #include "Thread.h"
 #include "Voice.h"
 #include "Log.h"
@@ -122,6 +121,8 @@ m_xlxNetwork(NULL),
 m_reflector(4000U),
 m_xlxSlot(0U),
 m_xlxTG(0U),
+m_rptRewrite(NULL),
+m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
@@ -260,6 +261,7 @@ int CDMRGateway::run()
 			return 1;
 	}
 
+
 	if (m_conf.getXLXNetworkEnabled()) {
 		ret = createXLXNetwork();
 		if (!ret)
@@ -267,9 +269,6 @@ int CDMRGateway::run()
 	}
 
 	unsigned int timeout = m_conf.getTimeout();
-
-	CRewrite rptRewrite(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
-	CRewrite xlxRewrite(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
 
 	CVoice* voice = NULL;
 	if (m_conf.getVoiceEnabled() && m_xlxNetwork != NULL) {
@@ -315,7 +314,7 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlxSlot && dstId == m_xlxTG) {
-				xlxRewrite.process(data);
+				m_xlxRewrite->process(data);
 				m_xlxNetwork->write(data);
 				status[slotNo] = DMRGWS_REFLECTOR;
 				timer[slotNo]->start();
@@ -347,7 +346,7 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (flco = FLCO_USER_USER) {
+			} else if (flco == FLCO_USER_USER) {
 				if (m_dmrNetwork1 != NULL && slotNo == 1U && m_dmr1PrivateSlot1) {
 					m_dmrNetwork1->write(data);
 					status[slotNo] = DMRGWS_NETWORK1;
@@ -418,7 +417,7 @@ int CDMRGateway::run()
 				if (status[m_xlxSlot] == DMRGWS_NONE || status[m_xlxSlot] == DMRGWS_REFLECTOR) {
 					unsigned int slotNo = data.getSlotNo();
 					if (slotNo == XLX_SLOT) {
-						rptRewrite.process(data);
+						m_rptRewrite->process(data);
 						m_repeater->write(data);
 						status[m_xlxSlot] = DMRGWS_REFLECTOR;
 						timer[m_xlxSlot]->start();
@@ -575,6 +574,9 @@ int CDMRGateway::run()
 		delete m_xlxNetwork;
 	}
 
+	delete m_rptRewrite;
+	delete m_xlxRewrite;
+
 	delete timer[1U];
 	delete timer[2U];
 
@@ -628,7 +630,7 @@ bool CDMRGateway::createDMRNetwork1()
 	else
 		LogInfo("    Local: random");
 
-	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, "DMR", debug);
+	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, "DMR1", debug);
 
 	std::string options = m_repeater->getOptions();
 	if (!options.empty()) {
@@ -689,7 +691,7 @@ bool CDMRGateway::createDMRNetwork2()
 	else
 		LogInfo("    Local: random");
 
-	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, "DMR", debug);
+	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, "DMR2", debug);
 
 	std::string options = m_repeater->getOptions();
 	if (!options.empty()) {
@@ -775,6 +777,9 @@ bool CDMRGateway::createXLXNetwork()
 
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
+
+	m_rptRewrite = new CRewrite(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
+	m_xlxRewrite = new CRewrite(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
 
 	return true;
 }

@@ -56,8 +56,8 @@ m_stopWatch(),
 m_seqNo(0U),
 m_streamId(0U),
 m_sent(0U),
-m_positions(NULL),
 m_ambe(NULL),
+m_positions(NULL),
 m_data(),
 m_it()
 {
@@ -111,54 +111,55 @@ bool CVoice::open()
 
 	m_ambe = new unsigned char[statStruct.st_size];
 
-	::fread(m_ambe, 1U, statStruct.st_size, fpambe);
+	size_t sizeRead = ::fread(m_ambe, 1U, statStruct.st_size, fpambe);
+	if (sizeRead != 0U) {
+		char buffer[80U];
+		while (::fgets(buffer, 80, fpindx) != NULL) {
+			char* p1 = ::strtok(buffer, "\t\r\n");
+			char* p2 = ::strtok(NULL, "\t\r\n");
+			char* p3 = ::strtok(NULL, "\t\r\n");
 
-	char buffer[80U];
-	while (::fgets(buffer, 80, fpindx) != NULL) {
-		char* p1 = ::strtok(buffer, "\t\r\n");
-		char* p2 = ::strtok(NULL, "\t\r\n");
-		char* p3 = ::strtok(NULL, "\t\r\n");
+			if (p1 != NULL && p2 != NULL && p3 != NULL) {
+				unsigned int start = ::atoi(p2) * 9U;
+				unsigned int length = ::atoi(p3) * 9U;
 
-		if (p1 != NULL && p2 != NULL && p3 != NULL) {
-			unsigned int start = ::atoi(p2) * 9U;
-			unsigned int length = ::atoi(p3) * 9U;
-
-			if (::strcmp(p1, "0") == 0) {
-				m_positions[POSITION_0].m_start = start;
-				m_positions[POSITION_0].m_length = length;
-			} else if (::strcmp(p1, "1") == 0) {
-				m_positions[POSITION_1].m_start = start;
-				m_positions[POSITION_1].m_length = length;
-			} else if (::strcmp(p1, "2") == 0) {
-				m_positions[POSITION_2].m_start = start;
-				m_positions[POSITION_2].m_length = length;
-			} else if (::strcmp(p1, "3") == 0) {
-				m_positions[POSITION_3].m_start = start;
-				m_positions[POSITION_3].m_length = length;
-			} else if (::strcmp(p1, "4") == 0) {
-				m_positions[POSITION_4].m_start = start;
-				m_positions[POSITION_4].m_length = length;
-			} else if (::strcmp(p1, "5") == 0) {
-				m_positions[POSITION_5].m_start = start;
-				m_positions[POSITION_5].m_length = length;
-			} else if (::strcmp(p1, "6") == 0) {
-				 m_positions[POSITION_6].m_start = start;
-				 m_positions[POSITION_6].m_length = length;
-			} else if (::strcmp(p1, "7") == 0) {
-				 m_positions[POSITION_7].m_start = start;
-				 m_positions[POSITION_7].m_length = length;
-			} else if (::strcmp(p1, "8") == 0) {
-				 m_positions[POSITION_8].m_start = start;
-				 m_positions[POSITION_8].m_length = length;
-			} else if (::strcmp(p1, "9") == 0) {
-				 m_positions[POSITION_9].m_start = start;
-				 m_positions[POSITION_9].m_length = length;
-			} else if (::strcmp(p1, "connected") == 0) {
-				 m_positions[POSITION_CONNECTED].m_start = start;
-				 m_positions[POSITION_CONNECTED].m_length = length;
-			} else if (::strcmp(p1, "disconnected") == 0) {
-				 m_positions[POSITION_DISCONNECTED].m_start = start;
-				 m_positions[POSITION_DISCONNECTED].m_length = length;
+				if (::strcmp(p1, "0") == 0) {
+					m_positions[POSITION_0].m_start = start;
+					m_positions[POSITION_0].m_length = length;
+				} else if (::strcmp(p1, "1") == 0) {
+					m_positions[POSITION_1].m_start = start;
+					m_positions[POSITION_1].m_length = length;
+				} else if (::strcmp(p1, "2") == 0) {
+					m_positions[POSITION_2].m_start = start;
+					m_positions[POSITION_2].m_length = length;
+				} else if (::strcmp(p1, "3") == 0) {
+					m_positions[POSITION_3].m_start = start;
+					m_positions[POSITION_3].m_length = length;
+				} else if (::strcmp(p1, "4") == 0) {
+					m_positions[POSITION_4].m_start = start;
+					m_positions[POSITION_4].m_length = length;
+				} else if (::strcmp(p1, "5") == 0) {
+					m_positions[POSITION_5].m_start = start;
+					m_positions[POSITION_5].m_length = length;
+				} else if (::strcmp(p1, "6") == 0) {
+					 m_positions[POSITION_6].m_start = start;
+					 m_positions[POSITION_6].m_length = length;
+				} else if (::strcmp(p1, "7") == 0) {
+					 m_positions[POSITION_7].m_start = start;
+					 m_positions[POSITION_7].m_length = length;
+				} else if (::strcmp(p1, "8") == 0) {
+					 m_positions[POSITION_8].m_start = start;
+					 m_positions[POSITION_8].m_length = length;
+				} else if (::strcmp(p1, "9") == 0) {
+					 m_positions[POSITION_9].m_start = start;
+					 m_positions[POSITION_9].m_length = length;
+				} else if (::strcmp(p1, "connected") == 0) {
+					 m_positions[POSITION_CONNECTED].m_start = start;
+					 m_positions[POSITION_CONNECTED].m_length = length;
+				} else if (::strcmp(p1, "disconnected") == 0) {
+					 m_positions[POSITION_DISCONNECTED].m_start = start;
+					 m_positions[POSITION_DISCONNECTED].m_length = length;
+				}
 			}
 		}
 	}

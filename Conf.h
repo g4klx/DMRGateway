@@ -119,6 +119,9 @@ private:
 	unsigned int m_dmrNetwork1Local;
 	std::string  m_dmrNetwork1Password;
 	bool         m_dmrNetwork1Debug;
+	std::vector<CRewriteStruct> m_dmrNetwork1Rewrites;
+	bool         m_dmrNetwork1PrivateSlot1;
+	bool         m_dmrNetwork1PrivateSlot2;
 
 	bool         m_dmrNetwork2Enabled;
 	unsigned int m_dmrNetwork2Id;
@@ -127,9 +130,9 @@ private:
 	unsigned int m_dmrNetwork2Local;
 	std::string  m_dmrNetwork2Password;
 	bool         m_dmrNetwork2Debug;
-	std::vector<CRewriteStruct> m_dmrNetwork1Rewrites;
-	bool         m_dmrNetwork1PrivateSlot1;
-	bool         m_dmrNetwork1PrivateSlot2;
+	std::vector<CRewriteStruct> m_dmrNetwork2Rewrites;
+	bool         m_dmrNetwork2PrivateSlot1;
+	bool         m_dmrNetwork2PrivateSlot2;
 
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;
@@ -141,9 +144,6 @@ private:
 	unsigned int m_xlxNetworkTG;
 	std::string  m_xlxNetworkOptions;
 	bool         m_xlxNetworkDebug;
-	std::vector<CRewriteStruct> m_dmrNetwork2Rewrites;
-	bool         m_dmrNetwork2PrivateSlot1;
-	bool         m_dmrNetwork2PrivateSlot2;
 };
 
 #endif
