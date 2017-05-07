@@ -19,6 +19,6 @@
 #if !defined(VERSION_H)
 #define	VERSION_H
 
-const char* VERSION = "20170506a";
+const char* VERSION = "20170507";
 
 #endif

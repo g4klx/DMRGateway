@@ -630,7 +630,7 @@ bool CDMRGateway::createDMRNetwork1()
 	else
 		LogInfo("    Local: random");
 
-	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, "DMR1", debug);
+	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, "DMR-1", debug);
 
 	std::string options = m_repeater->getOptions();
 	if (!options.empty()) {
@@ -691,7 +691,7 @@ bool CDMRGateway::createDMRNetwork2()
 	else
 		LogInfo("    Local: random");
 
-	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, "DMR2", debug);
+	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, "DMR-2", debug);
 
 	std::string options = m_repeater->getOptions();
 	if (!options.empty()) {

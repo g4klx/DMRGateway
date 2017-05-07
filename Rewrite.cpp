@@ -33,9 +33,7 @@ m_lc(NULL),
 m_embeddedLC()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
-	assert(fromTG < 16U);
 	assert(toSlot == 1U || toSlot == 2U);
-	assert(toTG < 16U);
 }
 
 CRewrite::~CRewrite()
