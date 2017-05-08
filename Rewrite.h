@@ -35,7 +35,7 @@ private:
 	unsigned int     m_fromTG;
 	unsigned int     m_toSlot;
 	unsigned int     m_toTG;
-	CDMRLC*          m_lc;
+	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
 	void processHeader(CDMRData& data, unsigned char dataType);

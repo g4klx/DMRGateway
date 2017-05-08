@@ -415,9 +415,8 @@ int CDMRGateway::run()
 			ret = m_xlxNetwork->read(data);
 			if (ret) {
 				if (status[m_xlxSlot] == DMRGWS_NONE || status[m_xlxSlot] == DMRGWS_REFLECTOR) {
-					unsigned int slotNo = data.getSlotNo();
-					if (slotNo == XLX_SLOT) {
-						m_rptRewrite->process(data);
+					bool ret = m_rptRewrite->process(data);
+					if (ret) {
 						m_repeater->write(data);
 						status[m_xlxSlot] = DMRGWS_REFLECTOR;
 						timer[m_xlxSlot]->start();

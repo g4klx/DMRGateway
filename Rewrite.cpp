@@ -29,7 +29,7 @@ m_fromSlot(fromSlot),
 m_fromTG(fromTG),
 m_toSlot(toSlot),
 m_toTG(toTG),
-m_lc(NULL),
+m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
@@ -79,32 +79,27 @@ bool CRewrite::process(CDMRData& data)
 
 void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
 {
+	unsigned int srcId = data.getSrcId();
+	if (srcId != m_lc.getSrcId()) {
+		m_lc.setSrcId(srcId);
+		m_embeddedLC.setLC(m_lc);
+	}
+
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 	data.getData(buffer);
 
-	delete m_lc;
-
 	CDMRFullLC fullLC;
-	m_lc = fullLC.decode(buffer, dataType);
-	if (m_lc == NULL) {
-		m_lc = new CDMRLC(FLCO_GROUP, data.getSrcId(), m_toTG);
-		m_embeddedLC.setLC(*m_lc);
-	}
-
-	m_lc->setDstId(m_toTG);
-
-	m_embeddedLC.setLC(*m_lc);
-
-	fullLC.encode(*m_lc, buffer, dataType);
+	fullLC.encode(m_lc, buffer, dataType);
 
 	data.setData(buffer);
 }
 
 void CRewrite::processVoice(CDMRData& data)
 {
-	if (m_lc == NULL) {
-		m_lc = new CDMRLC(FLCO_GROUP, data.getSrcId(), m_toTG);
-		m_embeddedLC.setLC(*m_lc);
+	unsigned int srcId = data.getSrcId();
+	if (srcId != m_lc.getSrcId()) {
+		m_lc.setSrcId(srcId);
+		m_embeddedLC.setLC(m_lc);
 	}
 
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
