@@ -117,12 +117,18 @@ bool CMMDVMNetwork::read(CDMRData& data)
 	unsigned int streamId;
 	::memcpy(&streamId, m_buffer + 16U, 4U);
 
+	unsigned char ber = m_buffer[53U];
+
+	unsigned char rssi = m_buffer[54U];
+
 	data.setSeqNo(seqNo);
 	data.setSlotNo(slotNo);
 	data.setSrcId(srcId);
 	data.setDstId(dstId);
 	data.setFLCO(flco);
 	data.setStreamId(streamId);
+	data.setBER(ber);
+	data.setRSSI(rssi);
 
 	bool dataSync = (m_buffer[15U] & 0x20U) == 0x20U;
 	bool voiceSync = (m_buffer[15U] & 0x10U) == 0x10U;
