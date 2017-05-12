@@ -420,6 +420,11 @@ int CDMRGateway::run()
 						m_repeater->write(data);
 						status[m_xlxSlot] = DMRGWS_REFLECTOR;
 						timer[m_xlxSlot]->start();
+					} else {
+						unsigned int slotNo = data.getSlotNo();
+						unsigned int dstId  = data.getDstId();
+						FLCO flco           = data.getFLCO();
+						LogWarning("XLX, Unexpected data from slot %u %s%u", slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
 					}
 				}
 			}
