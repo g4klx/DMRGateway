@@ -16,17 +16,17 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(REWRITE_H)
-#define	REWRITE_H
+#if !defined(REWRITETG_H)
+#define	REWRITETG_H
 
 #include "DMREmbeddedData.h"
 #include "DMRData.h"
 #include "DMRLC.h"
 
-class CRewrite {
+class CRewriteTG {
 public:
-	CRewrite(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
-	~CRewrite();
+	CRewriteTG(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
+	~CRewriteTG();
 
 	bool process(CDMRData& data);
 

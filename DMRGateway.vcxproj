@@ -164,7 +164,7 @@
     <ClInclude Include="MMDVMNetwork.h" />
     <ClInclude Include="QR1676.h" />
     <ClInclude Include="RepeaterProtocol.h" />
-    <ClInclude Include="Rewrite.h" />
+    <ClInclude Include="RewriteTG.h" />
     <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="RS129.h" />
     <ClInclude Include="SHA256.h" />
@@ -195,7 +195,7 @@
     <ClCompile Include="MMDVMNetwork.cpp" />
     <ClCompile Include="QR1676.cpp" />
     <ClCompile Include="RepeaterProtocol.cpp" />
-    <ClCompile Include="Rewrite.cpp" />
+    <ClCompile Include="RewriteTG.cpp" />
     <ClCompile Include="RS129.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="StopWatch.cpp" />

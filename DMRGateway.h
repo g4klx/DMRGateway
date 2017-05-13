@@ -22,7 +22,7 @@
 #include "RepeaterProtocol.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
-#include "Rewrite.h"
+#include "RewriteTG.h"
 #include "Conf.h"
 
 #include <string>
@@ -44,12 +44,12 @@ private:
 	unsigned int       m_reflector;
 	unsigned int       m_xlxSlot;
 	unsigned int       m_xlxTG;
-	CRewrite*          m_rptRewrite;
-	CRewrite*          m_xlxRewrite;
-	std::vector<CRewrite*> m_dmr1NetRewrites;
-	std::vector<CRewrite*> m_dmr1RFRewrites;
-	std::vector<CRewrite*> m_dmr2NetRewrites;
-	std::vector<CRewrite*> m_dmr2RFRewrites;
+	CRewriteTG*        m_rptRewrite;
+	CRewriteTG*        m_xlxRewrite;
+	std::vector<CRewriteTG*> m_dmr1NetRewrites;
+	std::vector<CRewriteTG*> m_dmr1RFRewrites;
+	std::vector<CRewriteTG*> m_dmr2NetRewrites;
+	std::vector<CRewriteTG*> m_dmr2RFRewrites;
 	bool               m_dmr1PrivateSlot1;
 	bool               m_dmr1PrivateSlot2;
 	bool               m_dmr2PrivateSlot1;

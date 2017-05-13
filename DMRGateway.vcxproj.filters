@@ -56,9 +56,6 @@
     <ClInclude Include="Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rewrite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DMRFullLC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -101,6 +98,9 @@
     <ClInclude Include="Voice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RewriteTG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -137,9 +137,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rewrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DMRFullLC.cpp">
@@ -182,6 +179,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Voice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RewriteTG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

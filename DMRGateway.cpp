@@ -136,16 +136,16 @@ m_dmr2PrivateSlot2(false)
 
 CDMRGateway::~CDMRGateway()
 {
-	for (std::vector<CRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
+	for (std::vector<CRewriteTG*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
 		delete *it;
 
-	for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
+	for (std::vector<CRewriteTG*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
 		delete *it;
 	
-	for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
+	for (std::vector<CRewriteTG*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
 			delete *it;
 	
-	for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
+	for (std::vector<CRewriteTG*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
 }
 
@@ -369,7 +369,7 @@ int CDMRGateway::run()
 
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
-					for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
+					for (std::vector<CRewriteTG*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
 						bool ret = (*it)->process(data);
 						if (ret) {
 							rewritten = true;
@@ -390,7 +390,7 @@ int CDMRGateway::run()
 				if (!rewritten) {
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
-						for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
+						for (std::vector<CRewriteTG*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
 							bool ret = (*it)->process(data);
 							if (ret) {
 								rewritten = true;
@@ -449,7 +449,7 @@ int CDMRGateway::run()
 				} else {
 					// Rewrite the slot and/or TG or neither
 					bool rewritten = false;
-					for (std::vector<CRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
+					for (std::vector<CRewriteTG*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
 						bool ret = (*it)->process(data);
 						if (ret) {
 							rewritten = true;
@@ -493,7 +493,7 @@ int CDMRGateway::run()
 				} else {
 					// Rewrite the slot and/or TG or neither
 					bool rewritten = false;
-					for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
+					for (std::vector<CRewriteTG*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
 						bool ret = (*it)->process(data);
 						if (ret) {
 							rewritten = true;
@@ -654,12 +654,12 @@ bool CDMRGateway::createDMRNetwork1()
 		return false;
 	}
 
-	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork1Rewrites();
+	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork1TGRewrites();
 	for (std::vector<CRewriteStruct>::const_iterator it = rewrites.begin(); it != rewrites.end(); ++it) {
-		LogInfo("    Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		LogInfo("    TG Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		CRewrite* netRewrite = new CRewrite((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
-		CRewrite* rfRewrite = new CRewrite((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		CRewriteTG* netRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
+		CRewriteTG* rfRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
 		m_dmr1NetRewrites.push_back(netRewrite);
 		m_dmr1RFRewrites.push_back(rfRewrite);
@@ -715,12 +715,12 @@ bool CDMRGateway::createDMRNetwork2()
 		return false;
 	}
 
-	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork2Rewrites();
+	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork2TGRewrites();
 	for (std::vector<CRewriteStruct>::const_iterator it = rewrites.begin(); it != rewrites.end(); ++it) {
-		LogInfo("    Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		LogInfo("    TG Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		CRewrite* netRewrite = new CRewrite((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
-		CRewrite* rfRewrite = new CRewrite((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		CRewriteTG* netRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
+		CRewriteTG* rfRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
 		m_dmr2NetRewrites.push_back(netRewrite);
 		m_dmr2RFRewrites.push_back(rfRewrite);
@@ -782,8 +782,8 @@ bool CDMRGateway::createXLXNetwork()
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
 
-	m_rptRewrite = new CRewrite(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
-	m_xlxRewrite = new CRewrite(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
+	m_rptRewrite = new CRewriteTG(XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG);
+	m_xlxRewrite = new CRewriteTG(m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG);
 
 	return true;
 }

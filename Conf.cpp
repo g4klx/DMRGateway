@@ -59,7 +59,7 @@ m_dmrNetwork1Port(0U),
 m_dmrNetwork1Local(0U),
 m_dmrNetwork1Password(),
 m_dmrNetwork1Debug(false),
-m_dmrNetwork1Rewrites(),
+m_dmrNetwork1TGRewrites(),
 m_dmrNetwork1PrivateSlot1(false),
 m_dmrNetwork1PrivateSlot2(false),
 m_dmrNetwork2Enabled(false),
@@ -69,7 +69,7 @@ m_dmrNetwork2Port(0U),
 m_dmrNetwork2Local(0U),
 m_dmrNetwork2Password(),
 m_dmrNetwork2Debug(false),
-m_dmrNetwork2Rewrites(),
+m_dmrNetwork2TGRewrites(),
 m_dmrNetwork2PrivateSlot1(false),
 m_dmrNetwork2PrivateSlot2(false),
 m_xlxNetworkEnabled(false),
@@ -198,7 +198,7 @@ bool CConf::read()
 				m_dmrNetwork1Password = value;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork1Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "Rewrite") == 0) {
+			else if (::strcmp(key, "TGRewrite") == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -209,7 +209,7 @@ bool CConf::read()
 					rewrite.m_fromTG = ::atoi(p2);
 					rewrite.m_toSlot = ::atoi(p3);
 					rewrite.m_toTG = ::atoi(p4);
-					m_dmrNetwork1Rewrites.push_back(rewrite);
+					m_dmrNetwork1TGRewrites.push_back(rewrite);
 				}
 			} else if (::strcmp(key, "PrivateSlot1") == 0)
 				m_dmrNetwork1PrivateSlot1 = ::atoi(value) == 1;
@@ -230,7 +230,7 @@ bool CConf::read()
 				m_dmrNetwork2Password = value;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork2Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "Rewrite") == 0) {
+			else if (::strcmp(key, "TGRewrite") == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -241,7 +241,7 @@ bool CConf::read()
 					rewrite.m_fromTG = ::atoi(p2);
 					rewrite.m_toSlot = ::atoi(p3);
 					rewrite.m_toTG = ::atoi(p4);
-					m_dmrNetwork2Rewrites.push_back(rewrite);
+					m_dmrNetwork2TGRewrites.push_back(rewrite);
 				}
 			} else if (::strcmp(key, "PrivateSlot1") == 0)
 				m_dmrNetwork2PrivateSlot1 = ::atoi(value) == 1;
@@ -410,9 +410,9 @@ bool CConf::getDMRNetwork1Debug() const
 	return m_dmrNetwork1Debug;
 }
 
-std::vector<CRewriteStruct> CConf::getDMRNetwork1Rewrites() const
+std::vector<CRewriteStruct> CConf::getDMRNetwork1TGRewrites() const
 {
-	return m_dmrNetwork1Rewrites;
+	return m_dmrNetwork1TGRewrites;
 }
 
 bool CConf::getDMRNetwork1PrivateSlot1() const
@@ -460,9 +460,9 @@ bool CConf::getDMRNetwork2Debug() const
 	return m_dmrNetwork2Debug;
 }
 
-std::vector<CRewriteStruct> CConf::getDMRNetwork2Rewrites() const
+std::vector<CRewriteStruct> CConf::getDMRNetwork2TGRewrites() const
 {
-	return m_dmrNetwork2Rewrites;
+	return m_dmrNetwork2TGRewrites;
 }
 
 bool CConf::getDMRNetwork2PrivateSlot1() const

@@ -16,7 +16,7 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "Rewrite.h"
+#include "RewriteTG.h"
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <cassert>
 
-CRewrite::CRewrite(unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG) :
+CRewriteTG::CRewriteTG(unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG) :
 m_fromSlot(fromSlot),
 m_fromTG(fromTG),
 m_toSlot(toSlot),
@@ -36,11 +36,11 @@ m_embeddedLC()
 	assert(toSlot == 1U || toSlot == 2U);
 }
 
-CRewrite::~CRewrite()
+CRewriteTG::~CRewriteTG()
 {
 }
 
-bool CRewrite::process(CDMRData& data)
+bool CRewriteTG::process(CDMRData& data)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
@@ -77,7 +77,7 @@ bool CRewrite::process(CDMRData& data)
 	return true;
 }
 
-void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
+void CRewriteTG::processHeader(CDMRData& data, unsigned char dataType)
 {
 	unsigned int srcId = data.getSrcId();
 	if (srcId != m_lc.getSrcId()) {
@@ -94,7 +94,7 @@ void CRewrite::processHeader(CDMRData& data, unsigned char dataType)
 	data.setData(buffer);
 }
 
-void CRewrite::processVoice(CDMRData& data)
+void CRewriteTG::processVoice(CDMRData& data)
 {
 	unsigned int srcId = data.getSrcId();
 	if (srcId != m_lc.getSrcId()) {

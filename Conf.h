@@ -65,7 +65,7 @@ public:
 	unsigned int getDMRNetwork1Local() const;
 	std::string  getDMRNetwork1Password() const;
 	bool         getDMRNetwork1Debug() const;
-	std::vector<CRewriteStruct> getDMRNetwork1Rewrites() const;
+	std::vector<CRewriteStruct> getDMRNetwork1TGRewrites() const;
 	bool         getDMRNetwork1PrivateSlot1() const;
 	bool         getDMRNetwork1PrivateSlot2() const;
 
@@ -77,7 +77,7 @@ public:
 	unsigned int getDMRNetwork2Local() const;
 	std::string  getDMRNetwork2Password() const;
 	bool         getDMRNetwork2Debug() const;
-	std::vector<CRewriteStruct> getDMRNetwork2Rewrites() const;
+	std::vector<CRewriteStruct> getDMRNetwork2TGRewrites() const;
 	bool         getDMRNetwork2PrivateSlot1() const;
 	bool         getDMRNetwork2PrivateSlot2() const;
 
@@ -119,7 +119,7 @@ private:
 	unsigned int m_dmrNetwork1Local;
 	std::string  m_dmrNetwork1Password;
 	bool         m_dmrNetwork1Debug;
-	std::vector<CRewriteStruct> m_dmrNetwork1Rewrites;
+	std::vector<CRewriteStruct> m_dmrNetwork1TGRewrites;
 	bool         m_dmrNetwork1PrivateSlot1;
 	bool         m_dmrNetwork1PrivateSlot2;
 
@@ -130,7 +130,7 @@ private:
 	unsigned int m_dmrNetwork2Local;
 	std::string  m_dmrNetwork2Password;
 	bool         m_dmrNetwork2Debug;
-	std::vector<CRewriteStruct> m_dmrNetwork2Rewrites;
+	std::vector<CRewriteStruct> m_dmrNetwork2TGRewrites;
 	bool         m_dmrNetwork2PrivateSlot1;
 	bool         m_dmrNetwork2PrivateSlot2;
 
