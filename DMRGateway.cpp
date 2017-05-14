@@ -19,6 +19,7 @@
 #include "DMRGateway.h"
 #include "Version.h"
 #include "StopWatch.h"
+#include "RewritePC.h"
 #include "Thread.h"
 #include "Voice.h"
 #include "Log.h"
@@ -126,27 +127,26 @@ m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
-m_dmr2RFRewrites(),
-m_dmr1PrivateSlot1(false),
-m_dmr1PrivateSlot2(false),
-m_dmr2PrivateSlot1(false),
-m_dmr2PrivateSlot2(false)
+m_dmr2RFRewrites()
 {
 }
 
 CDMRGateway::~CDMRGateway()
 {
-	for (std::vector<CRewriteTG*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
+	for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
 		delete *it;
 
-	for (std::vector<CRewriteTG*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
+	for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
 		delete *it;
 	
-	for (std::vector<CRewriteTG*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
+	for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
 			delete *it;
 	
-	for (std::vector<CRewriteTG*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
+	for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
+
+	delete m_rptRewrite;
+	delete m_xlxRewrite;
 }
 
 int CDMRGateway::run()
@@ -346,30 +346,12 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (flco == FLCO_USER_USER) {
-				if (m_dmrNetwork1 != NULL && slotNo == 1U && m_dmr1PrivateSlot1) {
-					m_dmrNetwork1->write(data);
-					status[slotNo] = DMRGWS_NETWORK1;
-					timer[slotNo]->start();
-				} else if (m_dmrNetwork1 != NULL && slotNo == 2U && m_dmr1PrivateSlot2) {
-					m_dmrNetwork1->write(data);
-					status[slotNo] = DMRGWS_NETWORK1;
-					timer[slotNo]->start();
-				} else if (m_dmrNetwork2 != NULL && slotNo == 1U && m_dmr2PrivateSlot1) {
-					m_dmrNetwork2->write(data);
-					status[slotNo] = DMRGWS_NETWORK2;
-					timer[slotNo]->start();
-				} else if (m_dmrNetwork2 != NULL && slotNo == 2U && m_dmr2PrivateSlot2) {
-					m_dmrNetwork2->write(data);
-					status[slotNo] = DMRGWS_NETWORK2;
-					timer[slotNo]->start();
-				}
 			} else {
 				bool rewritten = false;
 
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
-					for (std::vector<CRewriteTG*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
+					for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
 						bool ret = (*it)->process(data);
 						if (ret) {
 							rewritten = true;
@@ -390,7 +372,7 @@ int CDMRGateway::run()
 				if (!rewritten) {
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
-						for (std::vector<CRewriteTG*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
+						for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
 							bool ret = (*it)->process(data);
 							if (ret) {
 								rewritten = true;
@@ -433,41 +415,27 @@ int CDMRGateway::run()
 		if (m_dmrNetwork1 != NULL) {
 			ret = m_dmrNetwork1->read(data);
 			if (ret) {
-				FLCO flco = data.getFLCO();
-				if (flco == FLCO_USER_USER) {
+				// Rewrite the slot and/or TG or neither
+				bool rewritten = false;
+				for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
+					bool ret = (*it)->process(data);
+					if (ret) {
+						rewritten = true;
+						break;
+					}
+				}
+
+				if (rewritten) {
 					unsigned int slotNo = data.getSlotNo();
+					unsigned int dstId  = data.getDstId();
+					FLCO flco           = data.getFLCO();
 
-					if (slotNo == 1U && m_dmr1PrivateSlot1) {
-						m_repeater->write(data);
-						status[slotNo] = DMRGWS_NETWORK1;
-						timer[slotNo]->start();
-					} else if (slotNo == 2U && m_dmr1PrivateSlot2) {
-						m_repeater->write(data);
-						status[slotNo] = DMRGWS_NETWORK1;
-						timer[slotNo]->start();
-					}
-				} else {
-					// Rewrite the slot and/or TG or neither
-					bool rewritten = false;
-					for (std::vector<CRewriteTG*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
-						bool ret = (*it)->process(data);
-						if (ret) {
-							rewritten = true;
-							break;
-						}
-					}
-
-					if (rewritten) {
-						unsigned int slotNo = data.getSlotNo();
-						unsigned int dstId = data.getDstId();
-
-						// Stop the DMR network from using the same TG as XLX after rewriting
-						if (slotNo != m_xlxSlot || dstId != m_xlxTG) {
-							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK1) {
-								m_repeater->write(data);
-								status[slotNo] = DMRGWS_NETWORK1;
-								timer[slotNo]->start();
-							}
+					// Stop the DMR network from using the same TG and slot as XLX after rewriting
+					if (flco != FLCO_GROUP || slotNo != m_xlxSlot || dstId != m_xlxTG) {
+						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK1) {
+							m_repeater->write(data);
+							status[slotNo] = DMRGWS_NETWORK1;
+							timer[slotNo]->start();
 						}
 					}
 				}
@@ -477,41 +445,27 @@ int CDMRGateway::run()
 		if (m_dmrNetwork2 != NULL) {
 			ret = m_dmrNetwork2->read(data);
 			if (ret) {
-				FLCO flco = data.getFLCO();
-				if (flco == FLCO_USER_USER) {
+				// Rewrite the slot and/or TG or neither
+				bool rewritten = false;
+				for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
+					bool ret = (*it)->process(data);
+					if (ret) {
+						rewritten = true;
+						break;
+					}
+				}
+
+				if (rewritten) {
 					unsigned int slotNo = data.getSlotNo();
+					unsigned int dstId  = data.getDstId();
+					FLCO flco           = data.getFLCO();
 
-					if (slotNo == 1U && m_dmr2PrivateSlot1) {
-						m_repeater->write(data);
-						status[slotNo] = DMRGWS_NETWORK2;
-						timer[slotNo]->start();
-					} else if (slotNo == 2U && m_dmr2PrivateSlot2) {
-						m_repeater->write(data);
-						status[slotNo] = DMRGWS_NETWORK2;
-						timer[slotNo]->start();
-					}
-				} else {
-					// Rewrite the slot and/or TG or neither
-					bool rewritten = false;
-					for (std::vector<CRewriteTG*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
-						bool ret = (*it)->process(data);
-						if (ret) {
-							rewritten = true;
-							break;
-						}
-					}
-
-					if (rewritten) {
-						unsigned int slotNo = data.getSlotNo();
-						unsigned int dstId = data.getDstId();
-
-						// Stop the DMR network from using the same TG as XLX after rewriting
-						if (slotNo != m_xlxSlot || dstId != m_xlxTG) {
-							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
-								m_repeater->write(data);
-								status[slotNo] = DMRGWS_NETWORK2;
-								timer[slotNo]->start();
-							}
+					// Stop the DMR network from using the same TG and slot as XLX after rewriting
+					if (flco != FLCO_GROUP || slotNo != m_xlxSlot || dstId != m_xlxTG) {
+						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
+							m_repeater->write(data);
+							status[slotNo] = DMRGWS_NETWORK2;
+							timer[slotNo]->start();
 						}
 					}
 				}
@@ -577,9 +531,6 @@ int CDMRGateway::run()
 		m_xlxNetwork->close();
 		delete m_xlxNetwork;
 	}
-
-	delete m_rptRewrite;
-	delete m_xlxRewrite;
 
 	delete timer[1U];
 	delete timer[2U];
@@ -654,22 +605,27 @@ bool CDMRGateway::createDMRNetwork1()
 		return false;
 	}
 
-	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork1TGRewrites();
-	for (std::vector<CRewriteStruct>::const_iterator it = rewrites.begin(); it != rewrites.end(); ++it) {
+	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork1TGRewrites();
+	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
 		LogInfo("    TG Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		CRewriteTG* netRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
-		CRewriteTG* rfRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		CRewriteTG* netTGRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
+		CRewriteTG* rfTGRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		m_dmr1NetRewrites.push_back(netRewrite);
-		m_dmr1RFRewrites.push_back(rfRewrite);
+		m_dmr1NetRewrites.push_back(netTGRewrite);
+		m_dmr1RFRewrites.push_back(rfTGRewrite);
 	}
 
-	m_dmr1PrivateSlot1 = m_conf.getDMRNetwork1PrivateSlot1();
-	m_dmr1PrivateSlot2 = m_conf.getDMRNetwork1PrivateSlot2();
+	std::vector<CPCRewriteStruct> pcRewrites = m_conf.getDMRNetwork1PCRewrites();
+	for (std::vector<CPCRewriteStruct>::const_iterator it = pcRewrites.begin(); it != pcRewrites.end(); ++it) {
+		LogInfo("    PC Rewrite: %u:%u-%u -> %u:%u-%u", (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U, (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U);
 
-	LogInfo("    Private slot 1: %s", m_dmr1PrivateSlot1 ? "yes" : "no");
-	LogInfo("    Private slot 2: %s", m_dmr1PrivateSlot2 ? "yes" : "no");
+		CRewritePC* netPCRewrite = new CRewritePC((*it).m_toSlot, (*it).m_toId, (*it).m_fromSlot, (*it).m_fromId, (*it).m_range);
+		CRewritePC* rfPCRewrite = new CRewritePC((*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+
+		m_dmr1NetRewrites.push_back(netPCRewrite);
+		m_dmr1RFRewrites.push_back(rfPCRewrite);
+	}
 
 	return true;
 }
@@ -715,22 +671,27 @@ bool CDMRGateway::createDMRNetwork2()
 		return false;
 	}
 
-	std::vector<CRewriteStruct> rewrites = m_conf.getDMRNetwork2TGRewrites();
-	for (std::vector<CRewriteStruct>::const_iterator it = rewrites.begin(); it != rewrites.end(); ++it) {
+	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork2TGRewrites();
+	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
 		LogInfo("    TG Rewrite: %u:%u -> %u:%u", (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		CRewriteTG* netRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
-		CRewriteTG* rfRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
+		CRewriteTG* netTGRewrite = new CRewriteTG((*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG);
+		CRewriteTG* rfTGRewrite  = new CRewriteTG((*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG);
 
-		m_dmr2NetRewrites.push_back(netRewrite);
-		m_dmr2RFRewrites.push_back(rfRewrite);
+		m_dmr2NetRewrites.push_back(netTGRewrite);
+		m_dmr2RFRewrites.push_back(rfTGRewrite);
 	}
 
-	m_dmr2PrivateSlot1 = m_conf.getDMRNetwork2PrivateSlot1();
-	m_dmr2PrivateSlot2 = m_conf.getDMRNetwork2PrivateSlot2();
+	std::vector<CPCRewriteStruct> pcRewrites = m_conf.getDMRNetwork2PCRewrites();
+	for (std::vector<CPCRewriteStruct>::const_iterator it = pcRewrites.begin(); it != pcRewrites.end(); ++it) {
+		LogInfo("    PC Rewrite: %u:%u-%u -> %u:%u-%u", (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U, (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U);
 
-	LogInfo("    Private slot 1: %s", m_dmr2PrivateSlot1 ? "yes" : "no");
-	LogInfo("    Private slot 2: %s", m_dmr2PrivateSlot2 ? "yes" : "no");
+		CRewritePC* netPCRewrite = new CRewritePC((*it).m_toSlot, (*it).m_toId, (*it).m_fromSlot, (*it).m_fromId, (*it).m_range);
+		CRewritePC* rfPCRewrite  = new CRewritePC((*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+
+		m_dmr2NetRewrites.push_back(netPCRewrite);
+		m_dmr2RFRewrites.push_back(rfPCRewrite);
+	}
 
 	return true;
 }

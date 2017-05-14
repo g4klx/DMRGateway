@@ -22,11 +22,19 @@
 #include <string>
 #include <vector>
 
-struct CRewriteStruct {
+struct CTGRewriteStruct {
 	unsigned int m_fromSlot;
 	unsigned int m_fromTG;
 	unsigned int m_toSlot;
 	unsigned int m_toTG;
+};
+
+struct CPCRewriteStruct {
+	unsigned int m_fromSlot;
+	unsigned int m_fromId;
+	unsigned int m_toSlot;
+	unsigned int m_toId;
+	unsigned int m_range;
 };
 
 class CConf
@@ -65,9 +73,8 @@ public:
 	unsigned int getDMRNetwork1Local() const;
 	std::string  getDMRNetwork1Password() const;
 	bool         getDMRNetwork1Debug() const;
-	std::vector<CRewriteStruct> getDMRNetwork1TGRewrites() const;
-	bool         getDMRNetwork1PrivateSlot1() const;
-	bool         getDMRNetwork1PrivateSlot2() const;
+	std::vector<CTGRewriteStruct> getDMRNetwork1TGRewrites() const;
+	std::vector<CPCRewriteStruct> getDMRNetwork1PCRewrites() const;
 
 	// The DMR Network 2 section
 	bool         getDMRNetwork2Enabled() const;
@@ -77,9 +84,8 @@ public:
 	unsigned int getDMRNetwork2Local() const;
 	std::string  getDMRNetwork2Password() const;
 	bool         getDMRNetwork2Debug() const;
-	std::vector<CRewriteStruct> getDMRNetwork2TGRewrites() const;
-	bool         getDMRNetwork2PrivateSlot1() const;
-	bool         getDMRNetwork2PrivateSlot2() const;
+	std::vector<CTGRewriteStruct> getDMRNetwork2TGRewrites() const;
+	std::vector<CPCRewriteStruct> getDMRNetwork2PCRewrites() const;
 
 	// The XLX Network section
 	bool         getXLXNetworkEnabled() const;
@@ -119,9 +125,8 @@ private:
 	unsigned int m_dmrNetwork1Local;
 	std::string  m_dmrNetwork1Password;
 	bool         m_dmrNetwork1Debug;
-	std::vector<CRewriteStruct> m_dmrNetwork1TGRewrites;
-	bool         m_dmrNetwork1PrivateSlot1;
-	bool         m_dmrNetwork1PrivateSlot2;
+	std::vector<CTGRewriteStruct> m_dmrNetwork1TGRewrites;
+	std::vector<CPCRewriteStruct> m_dmrNetwork1PCRewrites;
 
 	bool         m_dmrNetwork2Enabled;
 	unsigned int m_dmrNetwork2Id;
@@ -130,9 +135,8 @@ private:
 	unsigned int m_dmrNetwork2Local;
 	std::string  m_dmrNetwork2Password;
 	bool         m_dmrNetwork2Debug;
-	std::vector<CRewriteStruct> m_dmrNetwork2TGRewrites;
-	bool         m_dmrNetwork2PrivateSlot1;
-	bool         m_dmrNetwork2PrivateSlot2;
+	std::vector<CTGRewriteStruct> m_dmrNetwork2TGRewrites;
+	std::vector<CPCRewriteStruct> m_dmrNetwork2PCRewrites;
 
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;

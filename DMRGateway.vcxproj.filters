@@ -101,6 +101,12 @@
     <ClInclude Include="RewriteTG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RewritePC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rewrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -182,6 +188,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RewriteTG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RewritePC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rewrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

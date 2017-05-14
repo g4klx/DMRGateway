@@ -16,31 +16,32 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(REWRITETG_H)
-#define	REWRITETG_H
+#if !defined(REWRITEPC_H)
+#define	REWRITEPC_H
 
 #include "DMREmbeddedData.h"
 #include "Rewrite.h"
 #include "DMRData.h"
 #include "DMRLC.h"
 
-class CRewriteTG : public IRewrite {
+class CRewritePC : public IRewrite {
 public:
-	CRewriteTG(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
-	virtual ~CRewriteTG();
+	CRewritePC(unsigned int fromSLot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range);
+	virtual ~CRewritePC();
 
 	virtual bool process(CDMRData& data);
 
 private:
 	unsigned int     m_fromSlot;
-	unsigned int     m_fromTG;
+	unsigned int     m_fromIdStart;
+	unsigned int     m_fromIdEnd;
 	unsigned int     m_toSlot;
-	unsigned int     m_toTG;
+	unsigned int     m_toIdStart;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
-	void processHeader(CDMRData& data, unsigned char dataType);
-	void processVoice(CDMRData& data);
+	void processHeader(CDMRData& data, unsigned int dstId, unsigned char dataType);
+	void processVoice(CDMRData& data, unsigned int dstId);
 };
 
 

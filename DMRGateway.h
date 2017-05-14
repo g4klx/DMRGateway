@@ -23,6 +23,7 @@
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
 #include "RewriteTG.h"
+#include "Rewrite.h"
 #include "Conf.h"
 
 #include <string>
@@ -46,14 +47,10 @@ private:
 	unsigned int       m_xlxTG;
 	CRewriteTG*        m_rptRewrite;
 	CRewriteTG*        m_xlxRewrite;
-	std::vector<CRewriteTG*> m_dmr1NetRewrites;
-	std::vector<CRewriteTG*> m_dmr1RFRewrites;
-	std::vector<CRewriteTG*> m_dmr2NetRewrites;
-	std::vector<CRewriteTG*> m_dmr2RFRewrites;
-	bool               m_dmr1PrivateSlot1;
-	bool               m_dmr1PrivateSlot2;
-	bool               m_dmr2PrivateSlot1;
-	bool               m_dmr2PrivateSlot2;
+	std::vector<IRewrite*> m_dmr1NetRewrites;
+	std::vector<IRewrite*> m_dmr1RFRewrites;
+	std::vector<IRewrite*> m_dmr2NetRewrites;
+	std::vector<IRewrite*> m_dmr2RFRewrites;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();

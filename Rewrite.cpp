@@ -16,32 +16,8 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(REWRITETG_H)
-#define	REWRITETG_H
-
-#include "DMREmbeddedData.h"
 #include "Rewrite.h"
-#include "DMRData.h"
-#include "DMRLC.h"
 
-class CRewriteTG : public IRewrite {
-public:
-	CRewriteTG(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
-	virtual ~CRewriteTG();
-
-	virtual bool process(CDMRData& data);
-
-private:
-	unsigned int     m_fromSlot;
-	unsigned int     m_fromTG;
-	unsigned int     m_toSlot;
-	unsigned int     m_toTG;
-	CDMRLC           m_lc;
-	CDMREmbeddedData m_embeddedLC;
-
-	void processHeader(CDMRData& data, unsigned char dataType);
-	void processVoice(CDMRData& data);
-};
-
-
-#endif
+IRewrite::~IRewrite()
+{
+}
