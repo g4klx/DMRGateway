@@ -16,21 +16,21 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "RewriteTG.h"
+#include "RewriteType.h"
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
-CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range) :
+CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG) :
 m_name(name),
 m_fromSlot(fromSlot),
-m_fromTGStart(fromTG),
-m_fromTGEnd(fromTG + range),
+m_fromId(fromId),
 m_toSlot(toSlot),
-m_toTGStart(toTG),
+m_toTG(toTG),
 m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
@@ -38,57 +38,55 @@ m_embeddedLC()
 	assert(toSlot == 1U || toSlot == 2U);
 }
 
-CRewriteTG::~CRewriteTG()
+CRewriteType::~CRewriteType()
 {
 }
 
-bool CRewriteTG::process(CDMRData& data)
+bool CRewriteType::process(CDMRData& data)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId >= m_fromTGEnd)
+	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId != m_fromId)
 		return false;
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
 
-	if (m_fromTGStart != m_toTGStart) {
-		unsigned int newTG = dstId + m_toTGStart - m_fromTGStart;
+	data.setDstId(m_toTG);
+	data.setFLCO(FLCO_GROUP);
 
-		data.setDstId(newTG);
+	unsigned char dataType = data.getDataType();
 
-		unsigned char dataType = data.getDataType();
-
-		switch (dataType) {
-		case DT_VOICE_LC_HEADER:
-		case DT_TERMINATOR_WITH_LC:
-			processHeader(data, newTG, dataType);
-			break;
-		case DT_VOICE:
-			processVoice(data, newTG);
-			break;
-		case DT_VOICE_SYNC:
-			// Nothing to do
-			break;
-		default:
-			// Not sure what to do
-			break;
-		}
+	switch (dataType) {
+	case DT_VOICE_LC_HEADER:
+	case DT_TERMINATOR_WITH_LC:
+		processHeader(data, dataType);
+		break;
+	case DT_VOICE:
+		processVoice(data);
+		break;
+	case DT_VOICE_SYNC:
+		// Nothing to do
+		break;
+	default:
+		// Not sure what to do
+		break;
 	}
 
 	return true;
 }
 
-void CRewriteTG::processHeader(CDMRData& data, unsigned int tg, unsigned char dataType)
+void CRewriteType::processHeader(CDMRData& data, unsigned char dataType)
 {
 	unsigned int srcId = data.getSrcId();
-	if (srcId != m_lc.getSrcId() || tg != m_lc.getDstId()) {
+	if (srcId != m_lc.getSrcId()) {
 		m_lc.setSrcId(srcId);
-		m_lc.setDstId(tg);
 		m_embeddedLC.setLC(m_lc);
 	}
+
+	LogDebug("%s, Private call to TG rewrite of id: %u", m_name, m_fromId);
 
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 	data.getData(buffer);
@@ -99,12 +97,11 @@ void CRewriteTG::processHeader(CDMRData& data, unsigned int tg, unsigned char da
 	data.setData(buffer);
 }
 
-void CRewriteTG::processVoice(CDMRData& data, unsigned int tg)
+void CRewriteType::processVoice(CDMRData& data)
 {
 	unsigned int srcId = data.getSrcId();
-	if (srcId != m_lc.getSrcId() || tg != m_lc.getDstId()) {
+	if (srcId != m_lc.getSrcId()) {
 		m_lc.setSrcId(srcId);
-		m_lc.setDstId(tg);
 		m_embeddedLC.setLC(m_lc);
 	}
 

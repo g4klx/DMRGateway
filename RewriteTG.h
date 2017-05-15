@@ -26,21 +26,23 @@
 
 class CRewriteTG : public IRewrite {
 public:
-	CRewriteTG(unsigned int fromSLot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG);
+	CRewriteTG(const char*name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range);
 	virtual ~CRewriteTG();
 
 	virtual bool process(CDMRData& data);
 
 private:
+	const char*      m_name;
 	unsigned int     m_fromSlot;
-	unsigned int     m_fromTG;
+	unsigned int     m_fromTGStart;
+	unsigned int     m_fromTGEnd;
 	unsigned int     m_toSlot;
-	unsigned int     m_toTG;
+	unsigned int     m_toTGStart;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
-	void processHeader(CDMRData& data, unsigned char dataType);
-	void processVoice(CDMRData& data);
+	void processHeader(CDMRData& data, unsigned int tg, unsigned char dataType);
+	void processVoice(CDMRData& data, unsigned int tg);
 };
 
 

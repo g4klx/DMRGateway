@@ -24,7 +24,8 @@
 #include <cstdio>
 #include <cassert>
 
-CRewritePC::CRewritePC(unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range) :
+CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range) :
+m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
 m_fromIdEnd(fromId + range),
