@@ -50,6 +50,7 @@ struct CSrcRewriteStruct {
 	unsigned int m_fromId;
 	unsigned int m_toSlot;
 	unsigned int m_toTG;
+	unsigned int m_range;
 };
 
 class CConf

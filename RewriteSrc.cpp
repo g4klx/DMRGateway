@@ -25,13 +25,14 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteSrc::CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG) :
+CRewriteSrc::CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range) :
 m_name(name),
 m_fromSlot(fromSlot),
-m_fromId(fromId),
+m_fromIdStart(fromId),
+m_fromIdEnd(fromId + range),
 m_toSlot(toSlot),
 m_toTG(toTG),
-m_lc(FLCO_GROUP, fromId, toTG),
+m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
@@ -50,7 +51,7 @@ bool CRewriteSrc::process(CDMRData& data)
 	unsigned int srcId = data.getSrcId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || srcId != m_fromId)
+	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || srcId < m_fromIdStart || srcId >= m_fromIdEnd)
 		return false;
 
 	if (m_fromSlot != m_toSlot)
@@ -82,6 +83,12 @@ bool CRewriteSrc::process(CDMRData& data)
 
 void CRewriteSrc::processHeader(CDMRData& data, unsigned char dataType)
 {
+	unsigned int srcId = data.getSrcId();
+	if (srcId != m_lc.getSrcId()) {
+		m_lc.setSrcId(srcId);
+		m_embeddedLC.setLC(m_lc);
+	}
+
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 	data.getData(buffer);
 
@@ -93,6 +100,12 @@ void CRewriteSrc::processHeader(CDMRData& data, unsigned char dataType)
 
 void CRewriteSrc::processVoice(CDMRData& data)
 {
+	unsigned int srcId = data.getSrcId();
+	if (srcId != m_lc.getSrcId()) {
+		m_lc.setSrcId(srcId);
+		m_embeddedLC.setLC(m_lc);
+	}
+
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 	data.getData(buffer);
 

@@ -247,13 +247,15 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p4 = ::strtok(NULL, ", ");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
 			}
@@ -319,13 +321,15 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p4 = ::strtok(NULL, ", ");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
 				}
 			}
