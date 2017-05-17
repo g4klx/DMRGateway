@@ -43,6 +43,10 @@ public:
 
 	bool write(const CDMRData& data);
 
+	bool writePosition(const unsigned char* data, unsigned int length);
+
+	bool writeTalkerAlias(const unsigned char* data, unsigned int length);
+
 	bool wantsBeacon();
 
 	void clock(unsigned int ms);

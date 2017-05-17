@@ -39,6 +39,10 @@ public:
 
 	virtual bool write(const CDMRData& data) = 0;
 
+	virtual bool readPosition(unsigned char* data, unsigned int& length) = 0;
+
+	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length) = 0;
+
 	virtual void clock(unsigned int ms) = 0;
 
 	virtual void close() = 0;

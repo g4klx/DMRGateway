@@ -474,6 +474,27 @@ int CDMRGateway::run()
 			}
 		}
 
+		unsigned char buffer[50U];
+		unsigned int length;
+		ret = m_repeater->readPosition(buffer, length);
+		if (ret) {
+			if (m_xlxNetwork != NULL)
+				m_xlxNetwork->writePosition(buffer, length);
+			if (m_dmrNetwork1 != NULL)
+				m_dmrNetwork1->writePosition(buffer, length);
+			if (m_dmrNetwork2 != NULL)
+				m_dmrNetwork2->writePosition(buffer, length);
+		}
+		ret = m_repeater->readTalkerAlias(buffer, length);
+		if (ret) {
+			if (m_xlxNetwork != NULL)
+				m_xlxNetwork->writeTalkerAlias(buffer, length);
+			if (m_dmrNetwork1 != NULL)
+				m_dmrNetwork1->writeTalkerAlias(buffer, length);
+			if (m_dmrNetwork2 != NULL)
+				m_dmrNetwork2->writeTalkerAlias(buffer, length);
+		}
+
 		if (voice != NULL) {
 			ret = voice->read(data);
 			if (ret) {

@@ -46,6 +46,10 @@ public:
 
 	virtual bool write(const CDMRData& data);
 
+	virtual bool readPosition(unsigned char* data, unsigned int& length);
+
+	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length);
+
 	virtual void clock(unsigned int ms);
 
 	virtual void close();
@@ -62,7 +66,10 @@ private:
 	std::string                m_options;
 	unsigned char*             m_configData;
 	unsigned int               m_configLen;
-
+	unsigned char*             m_positionData;
+	unsigned int               m_positionLen;
+	unsigned char*             m_talkerAliasData;
+	unsigned int               m_talkerAliasLen;
 };
 
 #endif
