@@ -24,6 +24,7 @@
 #include "Log.h"
 
 #include <cstring>
+#include <cstdlib>
 
 #include <sys/stat.h>
 
