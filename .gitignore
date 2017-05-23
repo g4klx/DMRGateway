@@ -14,3 +14,4 @@ DMRGateway
 *.user
 *.VC.db
 .vs
+GitVersion.h
