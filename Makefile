@@ -16,7 +16,11 @@ DMRGateway:	GitVersion.h $(OBJECTS)
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
 
+DMRGateway.o: GitVersion.h FORCE
+
 .PHONY: GitVersion.h
+
+FORCE:
 
 clean:
 		$(RM) DMRGateway *.o *.d *.bak *~ GitVersion.h
