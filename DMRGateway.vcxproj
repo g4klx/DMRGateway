@@ -108,6 +108,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)prebuild.cmd" $(ProjectDir)</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>prebuild.cmd generates GitVersion.h from git refs heads master</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

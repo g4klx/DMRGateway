@@ -25,6 +25,7 @@
 #include "Thread.h"
 #include "Voice.h"
 #include "Log.h"
+#include "GitVersion.h"
 
 #include <cstdio>
 #include <vector>
@@ -77,7 +78,7 @@ int main(int argc, char** argv)
 		for (int currentArg = 1; currentArg < argc; ++currentArg) {
 			std::string arg = argv[currentArg];
 			if ((arg == "-v") || (arg == "--version")) {
-				::fprintf(stdout, "DMRGateway version %s\n", VERSION);
+				::fprintf(stdout, "DMRGateway version %s git #%.7s\n", VERSION, gitversion);
 				return 0;
 			} else if (arg.substr(0,1) == "-") {
 				::fprintf(stderr, "Usage: DMRGateway [-v|--version] [filename]\n");
@@ -231,6 +232,7 @@ int CDMRGateway::run()
 	LogInfo(HEADER4);
 
 	LogMessage("DMRGateway-%s is starting", VERSION);
+	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
 
 	ret = createMMDVM();
 	if (!ret)
