@@ -10,11 +10,20 @@ OBJECTS = BPTC19696.o Conf.o CRC.o DMRData.o DMREmbeddedData.o DMREMB.o DMRFullL
 
 all:	DMRGateway
 
-DMRGateway:	$(OBJECTS) 
+DMRGateway:	GitVersion.h $(OBJECTS) 
 		$(CXX) $(OBJECTS) $(CFLAGS) $(LIBS) -o DMRGateway
 
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
 
 clean:
-		$(RM) DMRGateway *.o *.d *.bak *~
+		$(RM) DMRGateway *.o *.d *.bak *~ GitVersion.h
+
+# Export the current git version if the index file exists, else 000...
+GitVersion.h:
+ifneq ("$(wildcard .git/index)","")
+	echo "const char *gitversion = \"$(shell git rev-parse HEAD)\";" > $@
+else
+	echo "const char *gitversion = \"0000000000000000000000000000000000000000\";" > $@
+endif
+
