@@ -612,7 +612,10 @@ bool CDMRGateway::createDMRNetwork1()
 
 	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, "DMR-1", debug);
 
-	std::string options = m_repeater->getOptions();
+	std::string options = m_conf.getDMRNetwork1Options();
+	if (options.empty())
+		options = m_repeater->getOptions();
+
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
 		m_dmrNetwork1->setOptions(options);
@@ -695,7 +698,10 @@ bool CDMRGateway::createDMRNetwork2()
 
 	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, "DMR-2", debug);
 
-	std::string options = m_repeater->getOptions();
+	std::string options = m_conf.getDMRNetwork2Options();
+	if (options.empty())
+		options = m_repeater->getOptions();
+
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
 		m_dmrNetwork2->setOptions(options);
@@ -762,7 +768,6 @@ bool CDMRGateway::createXLXNetwork()
 	unsigned int local   = m_conf.getXLXNetworkLocal();
 	unsigned int id      = m_conf.getXLXNetworkId();
 	std::string password = m_conf.getXLXNetworkPassword();
-	std::string options  = m_conf.getXLXNetworkOptions();
 	bool debug           = m_conf.getXLXNetworkDebug();
 
 	if (id == 0U)
@@ -779,6 +784,7 @@ bool CDMRGateway::createXLXNetwork()
 
 	m_xlxNetwork = new CDMRNetwork(address, port, local, id, password, "XLX", debug);
 
+	std::string options = m_conf.getXLXNetworkOptions();
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
 		m_xlxNetwork->setOptions(options);
