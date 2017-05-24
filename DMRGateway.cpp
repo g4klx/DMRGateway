@@ -26,6 +26,7 @@
 #include "Voice.h"
 #include "Log.h"
 #include "GitVersion.h"
+#include "BPTC19696.h"
 
 #include <cstdio>
 #include <vector>
@@ -308,6 +309,9 @@ int CDMRGateway::run()
 
 	bool changed = false;
 
+	// Callsign placeholder
+	char call[10];
+
 	while (!m_killed) {
 		CDMRData data;
 
@@ -315,7 +319,60 @@ int CDMRGateway::run()
 		if (ret) {
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int dstId = data.getDstId();
+			unsigned int srcId = data.getSrcId();
+
 			FLCO flco = data.getFLCO();
+
+			unsigned char type = data.getDataType();
+
+			// Probably RT8 Packet
+			if (type == DT_DATA_HEADER) {
+				LogDebug("Data Header    : src is %u, dest is %u", srcId, dstId);
+				// Need a way to lookup callsigns, next packet should be position packet
+				if (srcId == 2720050) {
+					strcpy(call,"EI7IG-8");
+				}
+			}
+			// Hack, if both srcId and dstId are the same.. it should be a packet from my modified MMDVM.
+			if (type == DT_RATE_12_DATA  && (srcId == dstId))
+			{
+				LogDebug("1/2 Rate Header: src is %u, dest is %u", srcId, dstId);
+				char latSign[2];
+				char lonSign[2];
+
+				CBPTC19696 bptc;
+				unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+
+				data.getData(buffer);
+
+				unsigned char payload[12U];
+				bptc.decode(buffer, payload);
+
+				if ((payload[0U] & 0x40U) >> 6)
+					strcpy(latSign,"N");
+				else
+					strcpy(latSign,"S");
+
+				if ((payload[0U] & 0x20U) >> 5)
+					strcpy(lonSign,"E");
+				else
+					strcpy(lonSign,"W");
+
+				uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
+				uint8_t latMin = payload[2U] & 0x6F;
+				int32_t latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
+				uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
+				uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
+				uint32_t lonSec = ((payload[6U] & 0x0F) << 8) + (payload[7U] << 2) + ((payload[8U] & 0xA0) >>6);
+				uint8_t alt = ( ((payload[8U] & 0x3F) << 8 ) + payload[9U]);
+
+				if ((payload[0U] & 0x10U) >> 4){
+					LogDebug("Position: of %s is %02d %02d.%03d%s, %03d %02d.%03d%s at Alt of %dm",	call, latDeg, latMin, latSec,latSign, lonDeg, lonMin, lonSec, lonSign, alt);
+				}
+				else
+					LogDebug("No GPS Fix");
+			}
+			// end RT8 Packet
 
 			if (flco == FLCO_GROUP && slotNo == m_xlxSlot && dstId == m_xlxTG) {
 				m_xlxRewrite->process(data);
