@@ -25,13 +25,13 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG) :
+CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId) :
 m_name(name),
 m_fromSlot(fromSlot),
-m_fromId(fromId),
+m_fromTG(fromTG),
 m_toSlot(toSlot),
-m_toTG(toTG),
-m_lc(FLCO_GROUP, 0U, toTG),
+m_toId(toId),
+m_lc(FLCO_USER_USER, 0U, toId),
 m_embeddedLC()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
@@ -48,14 +48,14 @@ bool CRewriteType::process(CDMRData& data)
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId != m_fromId)
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG)
 		return false;
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
 
-	data.setDstId(m_toTG);
-	data.setFLCO(FLCO_GROUP);
+	data.setDstId(m_toId);
+	data.setFLCO(FLCO_USER_USER);
 
 	unsigned char dataType = data.getDataType();
 
@@ -85,8 +85,6 @@ void CRewriteType::processHeader(CDMRData& data, unsigned char dataType)
 		m_lc.setSrcId(srcId);
 		m_embeddedLC.setLC(m_lc);
 	}
-
-	LogDebug("%s, Private call to TG rewrite of id: %u", m_name, m_fromId);
 
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 	data.getData(buffer);

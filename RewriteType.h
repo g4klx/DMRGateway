@@ -26,7 +26,7 @@
 
 class CRewriteType : public IRewrite {
 public:
-	CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG);
+	CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId);
 	virtual ~CRewriteType();
 
 	virtual bool process(CDMRData& data);
@@ -34,9 +34,9 @@ public:
 private:
 	const char*      m_name;
 	unsigned int     m_fromSlot;
-	unsigned int     m_fromId;
+	unsigned int     m_fromTG;
 	unsigned int     m_toSlot;
-	unsigned int     m_toTG;
+	unsigned int     m_toId;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 

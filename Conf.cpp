@@ -242,9 +242,9 @@ bool CConf::read()
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
-					rewrite.m_fromId   = ::atoi(p2);
+					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
-					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_toId     = ::atoi(p4);
 					m_dmrNetwork1TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strcmp(key, "SrcRewrite") == 0) {
@@ -318,9 +318,9 @@ bool CConf::read()
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
-					rewrite.m_fromId   = ::atoi(p2);
+					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
-					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_toId     = ::atoi(p4);
 					m_dmrNetwork2TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strcmp(key, "SrcRewrite") == 0) {

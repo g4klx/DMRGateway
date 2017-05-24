@@ -40,9 +40,9 @@ struct CPCRewriteStruct {
 
 struct CTypeRewriteStruct {
 	unsigned int m_fromSlot;
-	unsigned int m_fromId;
+	unsigned int m_fromTG;
 	unsigned int m_toSlot;
-	unsigned int m_toTG;
+	unsigned int m_toId;
 };
 
 struct CSrcRewriteStruct {
