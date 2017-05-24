@@ -648,10 +648,13 @@ bool CDMRGateway::createDMRNetwork1()
 	std::vector<CPCRewriteStruct> pcRewrites = m_conf.getDMRNetwork1PCRewrites();
 	for (std::vector<CPCRewriteStruct>::const_iterator it = pcRewrites.begin(); it != pcRewrites.end(); ++it) {
 		LogInfo("    Rewrite RF: %u:%u-%u -> %u:%u-%u", (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U, (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U);
+		LogInfo("    Rewrite Net: %u:%u-%u -> %u:%u-%u", (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U, (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U);
 
-		CRewritePC* rewrite = new CRewritePC("DMR-1", (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+		CRewritePC* rfRewrite  = new CRewritePC("DMR-1", (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+		CRewriteTG* netRewrite = new CRewriteTG("DMR-1", (*it).m_toSlot, (*it).m_toId, (*it).m_fromSlot, (*it).m_fromId, (*it).m_range);
 
-		m_dmr1RFRewrites.push_back(rewrite);
+		m_dmr1RFRewrites.push_back(rfRewrite);
+		m_dmr1NetRewrites.push_back(netRewrite);
 	}
 
 	std::vector<CTypeRewriteStruct> typeRewrites = m_conf.getDMRNetwork1TypeRewrites();
@@ -734,10 +737,13 @@ bool CDMRGateway::createDMRNetwork2()
 	std::vector<CPCRewriteStruct> pcRewrites = m_conf.getDMRNetwork2PCRewrites();
 	for (std::vector<CPCRewriteStruct>::const_iterator it = pcRewrites.begin(); it != pcRewrites.end(); ++it) {
 		LogInfo("    Rewrite RF: %u:%u-%u -> %u:%u-%u", (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U, (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U);
+		LogInfo("    Rewrite Net: %u:%u-%u -> %u:%u-%u", (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U, (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U);
 
-		CRewritePC* rewrite = new CRewritePC("DMR-2", (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+		CRewritePC* rfRewrite  = new CRewritePC("DMR-2", (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+		CRewritePC* netRewrite = new CRewritePC("DMR-2", (*it).m_toSlot, (*it).m_toId, (*it).m_fromSlot, (*it).m_fromId, (*it).m_range);
 
-		m_dmr2RFRewrites.push_back(rewrite);
+		m_dmr2RFRewrites.push_back(rfRewrite);
+		m_dmr2NetRewrites.push_back(netRewrite);
 	}
 
 	std::vector<CTypeRewriteStruct> typeRewrites = m_conf.getDMRNetwork2TypeRewrites();
