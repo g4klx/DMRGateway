@@ -118,6 +118,7 @@ public:
 	std::string  getXLXNetworkPassword() const;
 	unsigned int getXLXNetworkSlot() const;
 	unsigned int getXLXNetworkTG() const;
+	unsigned int getXLXNetworkBase() const;
 	std::string  getXLXNetworkOptions() const;
 	bool         getXLXNetworkDebug() const;
 
@@ -174,6 +175,7 @@ private:
 	std::string  m_xlxNetworkPassword;
 	unsigned int m_xlxNetworkSlot;
 	unsigned int m_xlxNetworkTG;
+	unsigned int m_xlxNetworkBase;
 	std::string  m_xlxNetworkOptions;
 	bool         m_xlxNetworkDebug;
 };

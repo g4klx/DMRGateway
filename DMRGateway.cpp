@@ -125,6 +125,7 @@ m_xlxNetwork(NULL),
 m_reflector(4000U),
 m_xlxSlot(0U),
 m_xlxTG(0U),
+m_xlxBase(0U),
 m_rptRewrite(NULL),
 m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
@@ -322,7 +323,10 @@ int CDMRGateway::run()
 				m_xlxNetwork->write(data);
 				status[slotNo] = DMRGWS_REFLECTOR;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= 4000U && dstId <= 4026U) {
+			} else if (flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= m_xlxBase && dstId <= (m_xlxBase + 26U)) {
+				dstId += 4000U;
+				dstId -= m_xlxBase;
+
 				if (dstId != m_reflector) {
 					if (dstId == 4000U)
 						LogMessage("Unlinking");
@@ -804,9 +808,11 @@ bool CDMRGateway::createXLXNetwork()
 
 	m_xlxSlot = m_conf.getXLXNetworkSlot();
 	m_xlxTG   = m_conf.getXLXNetworkTG();
+	m_xlxBase = m_conf.getXLXNetworkBase();
 
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
+	LogInfo("    Base: %u", m_xlxBase);
 
 	m_rptRewrite = new CRewriteTG("XLX", XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG, 1U);
 	m_xlxRewrite = new CRewriteTG("XLX", m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG, 1U);

@@ -84,6 +84,7 @@ m_xlxNetworkLocal(0U),
 m_xlxNetworkPassword(),
 m_xlxNetworkSlot(2U),
 m_xlxNetworkTG(9U),
+m_xlxNetworkBase(4000U),
 m_xlxNetworkOptions(),
 m_xlxNetworkDebug(false)
 {
@@ -183,6 +184,8 @@ bool CConf::read()
 				m_xlxNetworkSlot = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "TG") == 0)
 				m_xlxNetworkTG = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Base") == 0)
+				m_xlxNetworkBase = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Options") == 0)
 				m_xlxNetworkOptions = value;
 			else if (::strcmp(key, "Debug") == 0)
@@ -450,6 +453,11 @@ unsigned int CConf::getXLXNetworkSlot() const
 unsigned int CConf::getXLXNetworkTG() const
 {
 	return m_xlxNetworkTG;
+}
+
+unsigned int CConf::getXLXNetworkBase() const
+{
+	return m_xlxNetworkBase;
 }
 
 std::string CConf::getXLXNetworkPassword() const
