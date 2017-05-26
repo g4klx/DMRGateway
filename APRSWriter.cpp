@@ -64,13 +64,11 @@ void CAPRSWriter::setInfo(unsigned int txFrequency, unsigned int rxFrequency, fl
 
 bool CAPRSWriter::open()
 {
-    ::fprintf(stdout, "Opening\n");
 	return m_thread->start();
 }
 
 void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned char radio, float fLatitude, float fLongitude)
 {
-    ::fprintf(stdout, "Startig to Write!!\n");
 	assert(source != NULL);
 	assert(type != NULL);
 
@@ -115,16 +113,13 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 	}
 
 	char output[300U];
-	::sprintf(output, "%s-Y>APDPRS,WIDE1-1,qAR,%s:!%s%c/%s%c%c %s",
+	::sprintf(output, "%s-D>APDPRS,DMR*,qAR,%s:!%s%c/%s%c%c %s via DRMGateway",
 		callsign, m_callsign.c_str(),
 		lat, (fLatitude < 0.0F) ? 'S' : 'N',
 		lon, (fLongitude < 0.0F) ? 'W' : 'E',
 		symbol, type);
 
-        ::fprintf(stdout, "Sending: %s\n", output);
-        
 	m_thread->write(output);
-        ::fprintf(stdout, "Finished Writing to thread\n");
 }
 
 void CAPRSWriter::clock(unsigned int ms)

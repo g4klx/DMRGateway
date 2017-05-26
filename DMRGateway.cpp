@@ -54,6 +54,9 @@ static int  m_signal = 0;
 
 CAPRSHelper* m_aprshelper = NULL;
 
+// Global.. Fixme
+char source[10];
+
 #if !defined(_WIN32) && !defined(_WIN64)
 static void sigHandler(int signum)
 {
@@ -330,7 +333,6 @@ int CDMRGateway::run()
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int dstId = data.getDstId();
 			unsigned int srcId = data.getSrcId();
-			std::string src = "EI4EBB";
 
 			FLCO flco = data.getFLCO();
 
@@ -339,17 +341,38 @@ int CDMRGateway::run()
 			// Probably RT8 Packet
 			if (type == DT_DATA_HEADER) {
 				LogDebug("Data Header    : src is %u, dest is %u", srcId, dstId);
+				unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+				CBPTC19696 bptc;
+				data.getData(buffer);
+				unsigned char payload[12U];
+				bptc.decode(buffer, payload);
+				LogDebug("payload is %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9], payload[10], payload[11]);
+				
+				if ( ((payload[1U] & 0x05U) == 0x05U) && ((payload[8U] & 0x03U) == 0x00U) )
+				{
+					LogDebug("UDT/NMEA Frame, Slot %d, 1 Appended data block to come.", slotNo);
+					// Store Source and destination ID's  per slot
+				}
+				// Store Slot
 				// Need a way to lookup callsigns, next packet should be position packet
+				// Case 1 Data transmission frame 1 contains callsign.
 				if (srcId == 2720050) {
-					src = "EI7IG";
+					strcpy(source,"EI7IG");
+					LogDebug("Setting Callsign to %s", source);
 				}
 			}
-			// Hack, if both srcId and dstId are the same.. it should be a packet from my modified MMDVM.
 			if (type == DT_RATE_12_DATA)
 			{
-				LogDebug("1/2 Rate Header: src is %u, dest is %u", srcId, dstId);
-				char latSign[2];
-				char lonSign[2];
+				int8_t latSign=0;
+				int8_t longSign=0;
+
+				std::string src="EI3RCW";
+				// Test Only
+				if (srcId == 272999 || srcId == 272050){
+					// Lookup Callsign
+					src = "EI7IG";	
+				}
+				LogDebug("1/2 Rate Header slot %d: src is %u, dest is %u", slotNo, srcId, dstId);
 
 				CBPTC19696 bptc;
 				unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
@@ -360,34 +383,29 @@ int CDMRGateway::run()
 				bptc.decode(buffer, payload);
 
 				if ((payload[0U] & 0x40U) >> 6)
-					strcpy(latSign,"N");
+					latSign = 1;
 				else
-					strcpy(latSign,"S");
+					latSign = -1;
 
 				if ((payload[0U] & 0x20U) >> 5)
-					strcpy(lonSign,"E");
+					longSign = 1;
 				else
-					strcpy(lonSign,"W");
+					longSign = -1;
 
-				float latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
-				float latMin = payload[2U] & 0x6F;
+				uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
+				uint8_t latMin = payload[2U] & 0x6F;
 				float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
-				float lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
-				float lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
+				uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
+				uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
 				float lonSec = ((payload[6U] & 0x0F) << 8) + (payload[7U] << 2) + ((payload[8U] & 0xA0) >>6);
 				uint8_t alt = ( ((payload[8U] & 0x3F) << 8 ) + payload[9U]);
 
 				if ((payload[0U] & 0x10U) >> 4){
-					LogDebug("Position: is %02f %02f.%03f%s, %03f %02f.%03f%s at Alt of %d", latDeg, latMin, latSec,latSign, lonDeg, lonMin, lonSec, lonSign, alt);
 					float latitude = latDeg + (latMin + latSec/10000)/60;
 					float longitude = lonDeg + (lonMin + lonSec/10000)/60;
-					//float latitude = latDeg + ((latMin/100) + (latSec/1000));
-					////float latitude = latDeg + (latMin*60 + latSec)/360.0; 
-					//float longitude = lonDeg + ((lonMin)/100 + (lonSec/1000));
-					////float longitude = (lonDeg*360 + lonMin*60 + lonSec)/360.0; 
-					LogDebug("Converted GPS to %f, %f", latitude, longitude);
-					LogDebug("%s", src.c_str());
-					m_aprshelper->send(src.c_str(), latitude, (longitude*-1));
+
+					// Send it!
+					m_aprshelper->send(src.c_str(), latitude * latSign, longitude * longSign);
 				}
 				else
 					LogDebug("No GPS Fix");

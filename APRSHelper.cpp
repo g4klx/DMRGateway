@@ -43,7 +43,6 @@ CAPRSHelper::~CAPRSHelper()
 	delete[] m_buffer;    
 }
 
-
 void CAPRSHelper::open()
 {
     m_writer.open();    
@@ -51,22 +50,25 @@ void CAPRSHelper::open()
 
 void CAPRSHelper::send(std::string callsign, float latitude, float longitude )
 {    
-    ::fprintf(stdout, "Preparing to send data\n");
-    unsigned char source[10U];
-    ::fprintf(stdout, "Callsign: %s\n", callsign.c_str());
-    ::fprintf(stdout, "Callsign2: %s\n", callsign.c_str());
-    
+    unsigned char source[10U];    
     copy( callsign.begin(), callsign.end(), source );
-    //strcpy(source, callsign.c_str());
     
-    char radio[10U];
-    ::strcpy(radio, "MD-390/RT8");
-    //float latitude = 41;
-    //float longitude = 85;
+    char type[11U];
+    ::strcpy(type, "MD-390/RT8");
     
-    ::fprintf(stdout, "Calling the APRSWriter\n");
-    m_writer.write(source, radio, m_buffer[4U], latitude, longitude);
-    
+    // Source: Callsign
+    // Type: Radio Type
+    // symbol?:
+    //  default (unset) is a House '/-'
+    //  0x24U 
+    //  0x25U
+    //  0x26U - ??
+    //  0x28U - Human
+    //  0x29U - Normal Car '/>'
+    //  lat
+    //  long
+    //::sprintf(m_buffer[4U], 0x28U);
+    m_writer.write(source, type, 0x28U, latitude, longitude); 
 }
     
 void CAPRSHelper::close()

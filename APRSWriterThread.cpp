@@ -108,7 +108,6 @@ void CAPRSWriterThread::entry()
 
 			if (m_connected) {
 				if (!m_queue.isEmpty()){
-                                    
 					char* p = NULL;
 					m_queue.getData(&p, 1U);
 
@@ -159,10 +158,8 @@ void CAPRSWriterThread::entry()
 		LogError("Exception raised in the APRS Writer thread - \"%s\"", e.what());
 	}
 	catch (...) {
-
-            LogError("Unknown exception raised in the APRS Writer thread");
+		LogError("Unknown exception raised in the APRS Writer thread");
 	}
-        
 
 	LogMessage("Stopping the APRS Writer thread");
 }
@@ -177,9 +174,7 @@ void CAPRSWriterThread::write(const char* data)
 	assert(data != NULL);
 
 	if (!m_connected)
-        {
 		return;
-        }
 
 	unsigned int len = ::strlen(data);
 
@@ -218,7 +213,6 @@ bool CAPRSWriterThread::connect()
 	}
 
 	LogMessage("Received login banner : %s", serverResponse.c_str());
-        
 
 	std::string filter(m_filter);
 	if (filter.length() > 0)
