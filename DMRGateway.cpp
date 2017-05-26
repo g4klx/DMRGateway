@@ -60,9 +60,10 @@ static void sigHandler(int signum)
 
 enum DMRGW_STATUS {
 	DMRGWS_NONE,
-	DMRGWS_NETWORK1,
-	DMRGWS_NETWORK2,
-	DMRGWS_REFLECTOR
+	DMRGWS_DMRNETWORK1,
+	DMRGWS_DMRNETWORK2,
+	DMRGWS_XLXREFLECTOR1,
+	DMRGWS_XLXREFLECTOR2
 };
 
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
@@ -121,13 +122,20 @@ m_conf(confFile),
 m_repeater(NULL),
 m_dmrNetwork1(NULL),
 m_dmrNetwork2(NULL),
-m_xlxNetwork(NULL),
-m_reflector(4000U),
-m_xlxSlot(0U),
-m_xlxTG(0U),
-m_xlxBase(0U),
-m_rptRewrite(NULL),
-m_xlxRewrite(NULL),
+m_xlxNetwork1(NULL),
+m_xlxNetwork2(NULL),
+m_xlx1Reflector(4000U),
+m_xlx1Slot(0U),
+m_xlx1TG(0U),
+m_xlx1Base(0U),
+m_rpt1Rewrite(NULL),
+m_xlx1Rewrite(NULL),
+m_xlx2Reflector(4000U),
+m_xlx2Slot(0U),
+m_xlx2TG(0U),
+m_xlx2Base(0U),
+m_rpt2Rewrite(NULL),
+m_xlx2Rewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
@@ -149,8 +157,10 @@ CDMRGateway::~CDMRGateway()
 	for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
 
-	delete m_rptRewrite;
-	delete m_xlxRewrite;
+	delete m_rpt1Rewrite;
+	delete m_xlx1Rewrite;
+	delete m_rpt2Rewrite;
+	delete m_xlx2Rewrite;
 }
 
 int CDMRGateway::run()
@@ -267,16 +277,23 @@ int CDMRGateway::run()
 	}
 
 
-	if (m_conf.getXLXNetworkEnabled()) {
-		ret = createXLXNetwork();
+	if (m_conf.getXLXNetwork1Enabled()) {
+		ret = createXLXNetwork1();
+		if (!ret)
+			return 1;
+	}
+
+	if (m_conf.getXLXNetwork2Enabled()) {
+		ret = createXLXNetwork2();
 		if (!ret)
 			return 1;
 	}
 
 	unsigned int timeout = m_conf.getTimeout();
 
-	CVoice* voice = NULL;
-	if (m_conf.getVoiceEnabled() && m_xlxNetwork != NULL) {
+	CVoice* voice1 = NULL;
+	CVoice* voice2 = NULL;
+	if (m_conf.getVoiceEnabled() && (m_xlxNetwork1 != NULL || m_xlxNetwork2 != NULL)) {
 		std::string language  = m_conf.getVoiceLanguage();
 		std::string directory = m_conf.getVoiceDirectory();
 
@@ -285,12 +302,22 @@ int CDMRGateway::run()
 		LogInfo("    Language: %s", language.c_str());
 		LogInfo("    Directory: %s", directory.c_str());
 
-		voice = new CVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
+		if (m_xlxNetwork1 != NULL) {
+			voice1 = new CVoice(directory, language, m_repeater->getId(), m_xlx1Slot, m_xlx1TG);
+			bool ret = voice1->open();
+			if (!ret) {
+				delete voice1;
+				voice1 = NULL;
+			}
+		}
 
-		bool ret = voice->open();
-		if (!ret) {
-			delete voice;
-			voice = NULL;
+		if (m_xlxNetwork2 != NULL) {
+			voice2 = new CVoice(directory, language, m_repeater->getId(), m_xlx2Slot, m_xlx2TG);
+			bool ret = voice2->open();
+			if (!ret) {
+				delete voice2;
+				voice2 = NULL;
+			}
 		}
 	}
 
@@ -318,38 +345,74 @@ int CDMRGateway::run()
 			unsigned int dstId = data.getDstId();
 			FLCO flco = data.getFLCO();
 
-			if (flco == FLCO_GROUP && slotNo == m_xlxSlot && dstId == m_xlxTG) {
-				m_xlxRewrite->process(data);
-				m_xlxNetwork->write(data);
-				status[slotNo] = DMRGWS_REFLECTOR;
+			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
+				m_xlx1Rewrite->process(data);
+				m_xlxNetwork1->write(data);
+				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= m_xlxBase && dstId <= (m_xlxBase + 26U)) {
+			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
+				m_xlx2Rewrite->process(data);
+				m_xlxNetwork2->write(data);
+				status[slotNo] = DMRGWS_XLXREFLECTOR2;
+				timer[slotNo]->start();
+			} else if (flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base && dstId <= (m_xlx1Base + 26U)) {
 				dstId += 4000U;
-				dstId -= m_xlxBase;
+				dstId -= m_xlx1Base;
 
-				if (dstId != m_reflector) {
+				if (dstId != m_xlx1Reflector) {
 					if (dstId == 4000U)
-						LogMessage("Unlinking");
+						LogMessage("XLX-1, Unlinking");
 					else
-						LogMessage("Linking to reflector %u", dstId);
+						LogMessage("XLX-1, Linking to reflector %u", dstId);
 
-					m_reflector = dstId;
+					m_xlx1Reflector = dstId;
 					changed = true;
 				}
 
 				data.setSlotNo(XLX_SLOT);
-				m_xlxNetwork->write(data);
-				status[slotNo] = DMRGWS_REFLECTOR;
+				m_xlxNetwork1->write(data);
+				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 
-				if (voice != NULL) {
+				if (voice1 != NULL) {
 					unsigned char type = data.getDataType();
 					if (type == DT_TERMINATOR_WITH_LC) {
 						if (changed) {
-							if (m_reflector == 4000U)
-								voice->unlinked();
+							if (m_xlx1Reflector == 4000U)
+								voice1->unlinked();
 							else
-								voice->linkedTo(m_reflector);
+								voice1->linkedTo(m_xlx1Reflector);
+							changed = false;
+						}
+					}
+				}
+			} else if (flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base && dstId <= (m_xlx2Base + 26U)) {
+				dstId += 4000U;
+				dstId -= m_xlx2Base;
+
+				if (dstId != m_xlx1Reflector) {
+					if (dstId == 4000U)
+						LogMessage("XLX-2, Unlinking");
+					else
+						LogMessage("XLX-2, Linking to reflector %u", dstId);
+
+					m_xlx2Reflector = dstId;
+					changed = true;
+				}
+
+				data.setSlotNo(XLX_SLOT);
+				m_xlxNetwork2->write(data);
+				status[slotNo] = DMRGWS_XLXREFLECTOR2;
+				timer[slotNo]->start();
+
+				if (voice2 != NULL) {
+					unsigned char type = data.getDataType();
+					if (type == DT_TERMINATOR_WITH_LC) {
+						if (changed) {
+							if (m_xlx2Reflector == 4000U)
+								voice2->unlinked();
+							else
+								voice2->linkedTo(m_xlx2Reflector);
 							changed = false;
 						}
 					}
@@ -369,9 +432,9 @@ int CDMRGateway::run()
 
 					if (rewritten) {
 						unsigned int slotNo = data.getSlotNo();
-						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK1) {
+						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 							m_dmrNetwork1->write(data);
-							status[slotNo] = DMRGWS_NETWORK1;
+							status[slotNo] = DMRGWS_DMRNETWORK1;
 							timer[slotNo]->start();
 						}
 					}
@@ -390,9 +453,9 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							unsigned int slotNo = data.getSlotNo();
-							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
-								status[slotNo] = DMRGWS_NETWORK2;
+								status[slotNo] = DMRGWS_DMRNETWORK2;
 								timer[slotNo]->start();
 							}
 						}
@@ -401,20 +464,40 @@ int CDMRGateway::run()
 			}
 		}
 
-		if (m_xlxNetwork != NULL) {
-			ret = m_xlxNetwork->read(data);
+		if (m_xlxNetwork1 != NULL) {
+			ret = m_xlxNetwork1->read(data);
 			if (ret) {
-				if (status[m_xlxSlot] == DMRGWS_NONE || status[m_xlxSlot] == DMRGWS_REFLECTOR) {
-					bool ret = m_rptRewrite->process(data);
+				if (status[m_xlx1Slot] == DMRGWS_NONE || status[m_xlx1Slot] == DMRGWS_XLXREFLECTOR1) {
+					bool ret = m_rpt1Rewrite->process(data);
 					if (ret) {
 						m_repeater->write(data);
-						status[m_xlxSlot] = DMRGWS_REFLECTOR;
-						timer[m_xlxSlot]->start();
+						status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
+						timer[m_xlx1Slot]->start();
 					} else {
 						unsigned int slotNo = data.getSlotNo();
 						unsigned int dstId  = data.getDstId();
 						FLCO flco           = data.getFLCO();
-						LogWarning("XLX, Unexpected data from slot %u %s%u", slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
+						LogWarning("XLX-1, Unexpected data from slot %u %s%u", slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
+					}
+				}
+			}
+		}
+
+		if (m_xlxNetwork2 != NULL) {
+			ret = m_xlxNetwork2->read(data);
+			if (ret) {
+				if (status[m_xlx2Slot] == DMRGWS_NONE || status[m_xlx2Slot] == DMRGWS_XLXREFLECTOR2) {
+					bool ret = m_rpt2Rewrite->process(data);
+					if (ret) {
+						m_repeater->write(data);
+						status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
+						timer[m_xlx2Slot]->start();
+					}
+					else {
+						unsigned int slotNo = data.getSlotNo();
+						unsigned int dstId = data.getDstId();
+						FLCO flco = data.getFLCO();
+						LogWarning("XLX-2, Unexpected data from slot %u %s%u", slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
 					}
 				}
 			}
@@ -438,13 +521,10 @@ int CDMRGateway::run()
 					unsigned int dstId  = data.getDstId();
 					FLCO flco           = data.getFLCO();
 
-					// Stop the DMR network from using the same TG and slot as XLX after rewriting
-					if (flco != FLCO_GROUP || slotNo != m_xlxSlot || dstId != m_xlxTG) {
-						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK1) {
-							m_repeater->write(data);
-							status[slotNo] = DMRGWS_NETWORK1;
-							timer[slotNo]->start();
-						}
+					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+						m_repeater->write(data);
+						status[slotNo] = DMRGWS_DMRNETWORK1;
+						timer[slotNo]->start();
 					}
 				}
 			}
@@ -468,13 +548,10 @@ int CDMRGateway::run()
 					unsigned int dstId  = data.getDstId();
 					FLCO flco           = data.getFLCO();
 
-					// Stop the DMR network from using the same TG and slot as XLX after rewriting
-					if (flco != FLCO_GROUP || slotNo != m_xlxSlot || dstId != m_xlxTG) {
-						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_NETWORK2) {
-							m_repeater->write(data);
-							status[slotNo] = DMRGWS_NETWORK2;
-							timer[slotNo]->start();
-						}
+					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+						m_repeater->write(data);
+						status[slotNo] = DMRGWS_DMRNETWORK2;
+						timer[slotNo]->start();
 					}
 				}
 			}
@@ -484,8 +561,10 @@ int CDMRGateway::run()
 		unsigned int length;
 		ret = m_repeater->readPosition(buffer, length);
 		if (ret) {
-			if (m_xlxNetwork != NULL)
-				m_xlxNetwork->writePosition(buffer, length);
+			if (m_xlxNetwork1 != NULL)
+				m_xlxNetwork1->writePosition(buffer, length);
+			if (m_xlxNetwork2 != NULL)
+				m_xlxNetwork2->writePosition(buffer, length);
 			if (m_dmrNetwork1 != NULL)
 				m_dmrNetwork1->writePosition(buffer, length);
 			if (m_dmrNetwork2 != NULL)
@@ -493,20 +572,31 @@ int CDMRGateway::run()
 		}
 		ret = m_repeater->readTalkerAlias(buffer, length);
 		if (ret) {
-			if (m_xlxNetwork != NULL)
-				m_xlxNetwork->writeTalkerAlias(buffer, length);
+			if (m_xlxNetwork1 != NULL)
+				m_xlxNetwork1->writeTalkerAlias(buffer, length);
+			if (m_xlxNetwork2 != NULL)
+				m_xlxNetwork2->writeTalkerAlias(buffer, length);
 			if (m_dmrNetwork1 != NULL)
 				m_dmrNetwork1->writeTalkerAlias(buffer, length);
 			if (m_dmrNetwork2 != NULL)
 				m_dmrNetwork2->writeTalkerAlias(buffer, length);
 		}
 
-		if (voice != NULL) {
-			ret = voice->read(data);
+		if (voice1 != NULL) {
+			ret = voice1->read(data);
 			if (ret) {
 				m_repeater->write(data);
-				status[m_xlxSlot] = DMRGWS_REFLECTOR;
-				timer[m_xlxSlot]->start();
+				status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
+				timer[m_xlx1Slot]->start();
+			}
+		}
+
+		if (voice2 != NULL) {
+			ret = voice2->read(data);
+			if (ret) {
+				m_repeater->write(data);
+				status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
+				timer[m_xlx2Slot]->start();
 			}
 		}
 
@@ -521,11 +611,17 @@ int CDMRGateway::run()
 		if (m_dmrNetwork2 != NULL)
 			m_dmrNetwork2->clock(ms);
 
-		if (m_xlxNetwork != NULL)
-			m_xlxNetwork->clock(ms);
+		if (m_xlxNetwork1 != NULL)
+			m_xlxNetwork1->clock(ms);
 
-		if (voice != NULL)
-			voice->clock(ms);
+		if (m_xlxNetwork2 != NULL)
+			m_xlxNetwork2->clock(ms);
+
+		if (voice1 != NULL)
+			voice1->clock(ms);
+
+		if (voice2 != NULL)
+			voice2->clock(ms);
 
 		for (unsigned int i = 1U; i < 3U; i++) {
 			timer[i]->clock(ms);
@@ -541,7 +637,8 @@ int CDMRGateway::run()
 
 	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 
-	delete voice;
+	delete voice1;
+	delete voice2;
 
 	m_repeater->close();
 	delete m_repeater;
@@ -556,9 +653,14 @@ int CDMRGateway::run()
 		delete m_dmrNetwork2;
 	}
 
-	if (m_xlxNetwork != NULL) {
-		m_xlxNetwork->close();
-		delete m_xlxNetwork;
+	if (m_xlxNetwork1 != NULL) {
+		m_xlxNetwork1->close();
+		delete m_xlxNetwork1;
+	}
+
+	if (m_xlxNetwork2 != NULL) {
+		m_xlxNetwork2->close();
+		delete m_xlxNetwork2;
 	}
 
 	delete timer[1U];
@@ -765,19 +867,19 @@ bool CDMRGateway::createDMRNetwork2()
 	return true;
 }
 
-bool CDMRGateway::createXLXNetwork()
+bool CDMRGateway::createXLXNetwork1()
 {
-	std::string address  = m_conf.getXLXNetworkAddress();
-	unsigned int port    = m_conf.getXLXNetworkPort();
-	unsigned int local   = m_conf.getXLXNetworkLocal();
-	unsigned int id      = m_conf.getXLXNetworkId();
-	std::string password = m_conf.getXLXNetworkPassword();
-	bool debug           = m_conf.getXLXNetworkDebug();
+	std::string address  = m_conf.getXLXNetwork1Address();
+	unsigned int port    = m_conf.getXLXNetwork1Port();
+	unsigned int local   = m_conf.getXLXNetwork1Local();
+	unsigned int id      = m_conf.getXLXNetwork1Id();
+	std::string password = m_conf.getXLXNetwork1Password();
+	bool debug           = m_conf.getXLXNetwork1Debug();
 
 	if (id == 0U)
 		id = m_repeater->getId();
 
-	LogInfo("XLX Network Parameters");
+	LogInfo("XLX Network 1 Parameters");
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
@@ -786,36 +888,91 @@ bool CDMRGateway::createXLXNetwork()
 	else
 		LogInfo("    Local: random");
 
-	m_xlxNetwork = new CDMRNetwork(address, port, local, id, password, "XLX", debug);
+	m_xlxNetwork1 = new CDMRNetwork(address, port, local, id, password, "XLX-1", debug);
 
-	std::string options = m_conf.getXLXNetworkOptions();
+	std::string options = m_conf.getXLXNetwork1Options();
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
-		m_xlxNetwork->setOptions(options);
+		m_xlxNetwork1->setOptions(options);
 	}
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);
 
-	m_xlxNetwork->setConfig(config, len);
+	m_xlxNetwork1->setConfig(config, len);
 
-	bool ret = m_xlxNetwork->open();
+	bool ret = m_xlxNetwork1->open();
 	if (!ret) {
-		delete m_xlxNetwork;
-		m_xlxNetwork = NULL;
+		delete m_xlxNetwork1;
+		m_xlxNetwork1 = NULL;
 		return false;
 	}
 
-	m_xlxSlot = m_conf.getXLXNetworkSlot();
-	m_xlxTG   = m_conf.getXLXNetworkTG();
-	m_xlxBase = m_conf.getXLXNetworkBase();
+	m_xlx1Slot = m_conf.getXLXNetwork1Slot();
+	m_xlx1TG   = m_conf.getXLXNetwork1TG();
+	m_xlx1Base = m_conf.getXLXNetwork1Base();
 
-	LogInfo("    Slot: %u", m_xlxSlot);
-	LogInfo("    TG: %u", m_xlxTG);
-	LogInfo("    Base: %u", m_xlxBase);
+	LogInfo("    Slot: %u", m_xlx1Slot);
+	LogInfo("    TG: %u", m_xlx1TG);
+	LogInfo("    Base: %u", m_xlx1Base);
 
-	m_rptRewrite = new CRewriteTG("XLX", XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG, 1U);
-	m_xlxRewrite = new CRewriteTG("XLX", m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG, 1U);
+	m_rpt1Rewrite = new CRewriteTG("XLX-1", XLX_SLOT, XLX_TG, m_xlx1Slot, m_xlx1TG, 1U);
+	m_xlx1Rewrite = new CRewriteTG("XLX-1", m_xlx1Slot, m_xlx1TG, XLX_SLOT, XLX_TG, 1U);
+
+	return true;
+}
+
+bool CDMRGateway::createXLXNetwork2()
+{
+	std::string address  = m_conf.getXLXNetwork2Address();
+	unsigned int port    = m_conf.getXLXNetwork2Port();
+	unsigned int local   = m_conf.getXLXNetwork2Local();
+	unsigned int id      = m_conf.getXLXNetwork2Id();
+	std::string password = m_conf.getXLXNetwork2Password();
+	bool debug           = m_conf.getXLXNetwork2Debug();
+
+	if (id == 0U)
+		id = m_repeater->getId();
+
+	LogInfo("XLX Network 2 Parameters");
+	LogInfo("    Id: %u", id);
+	LogInfo("    Address: %s", address.c_str());
+	LogInfo("    Port: %u", port);
+	if (local > 0U)
+		LogInfo("    Local: %u", local);
+	else
+		LogInfo("    Local: random");
+
+	m_xlxNetwork2 = new CDMRNetwork(address, port, local, id, password, "XLX-2", debug);
+
+	std::string options = m_conf.getXLXNetwork2Options();
+	if (!options.empty()) {
+		LogInfo("    Options: %s", options.c_str());
+		m_xlxNetwork2->setOptions(options);
+	}
+
+	unsigned char config[400U];
+	unsigned int len = m_repeater->getConfig(config);
+
+	m_xlxNetwork2->setConfig(config, len);
+
+	bool ret = m_xlxNetwork2->open();
+	if (!ret) {
+		delete m_xlxNetwork2;
+		m_xlxNetwork2 = NULL;
+		return false;
+	}
+
+	m_xlx2Slot = m_conf.getXLXNetwork2Slot();
+	m_xlx2TG   = m_conf.getXLXNetwork2TG();
+	m_xlx2Base = m_conf.getXLXNetwork2Base();
+
+	LogInfo("    Slot: %u", m_xlx2Slot);
+	LogInfo("    TG: %u", m_xlx2TG);
+	LogInfo("    Base: %u", m_xlx2Base);
+
+	m_rpt2Rewrite = new CRewriteTG("XLX-2", XLX_SLOT, XLX_TG, m_xlx2Slot, m_xlx2TG, 1U);
+	m_xlx2Rewrite = new CRewriteTG("XLX-2", m_xlx2Slot, m_xlx2TG, XLX_SLOT, XLX_TG, 1U);
 
 	return true;
 }

@@ -41,13 +41,20 @@ private:
 	IRepeaterProtocol* m_repeater;
 	CDMRNetwork*       m_dmrNetwork1;
 	CDMRNetwork*       m_dmrNetwork2;
-	CDMRNetwork*       m_xlxNetwork;
-	unsigned int       m_reflector;
-	unsigned int       m_xlxSlot;
-	unsigned int       m_xlxTG;
-	unsigned int       m_xlxBase;
-	CRewriteTG*        m_rptRewrite;
-	CRewriteTG*        m_xlxRewrite;
+	CDMRNetwork*       m_xlxNetwork1;
+	CDMRNetwork*       m_xlxNetwork2;
+	unsigned int       m_xlx1Reflector;
+	unsigned int       m_xlx1Slot;
+	unsigned int       m_xlx1TG;
+	unsigned int       m_xlx1Base;
+	CRewriteTG*        m_rpt1Rewrite;
+	CRewriteTG*        m_xlx1Rewrite;
+	unsigned int       m_xlx2Reflector;
+	unsigned int       m_xlx2Slot;
+	unsigned int       m_xlx2TG;
+	unsigned int       m_xlx2Base;
+	CRewriteTG*        m_rpt2Rewrite;
+	CRewriteTG*        m_xlx2Rewrite;
 	std::vector<IRewrite*> m_dmr1NetRewrites;
 	std::vector<IRewrite*> m_dmr1RFRewrites;
 	std::vector<IRewrite*> m_dmr2NetRewrites;
@@ -56,7 +63,8 @@ private:
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
-	bool createXLXNetwork();
+	bool createXLXNetwork1();
+	bool createXLXNetwork2();
 };
 
 #endif
