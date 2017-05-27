@@ -49,5 +49,5 @@ bool CPassAllTG::process(CDMRData& data)
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_GROUP || slotNo == m_slot;
+	return flco == FLCO_GROUP && slotNo == m_slot;
 }

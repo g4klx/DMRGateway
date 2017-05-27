@@ -49,5 +49,5 @@ bool CPassAllPC::process(CDMRData& data)
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_USER_USER || slotNo == m_slot;
+	return flco == FLCO_USER_USER && slotNo == m_slot;
 }
