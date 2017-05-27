@@ -26,6 +26,7 @@
 #include "Rewrite.h"
 #include "Conf.h"
 #include "DMRLookup.h"
+#include "APRSHelper.h"
 
 #include <string>
 
@@ -38,7 +39,11 @@ public:
 	int run();
 
 private:
+	std::string        m_callsign;
+	std::string        m_suffix;
 	CConf              m_conf;
+
+	CAPRSHelper*       m_aprshelper;
 	IRepeaterProtocol* m_repeater;
 	CDMRNetwork*       m_dmrNetwork1;
 	CDMRNetwork*       m_dmrNetwork2;
@@ -54,10 +59,12 @@ private:
 	std::vector<IRewrite*> m_dmr2RFRewrites;
 	CDMRLookup*        m_lookup;
 
+
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
 	bool createXLXNetwork();
+	void createAPRSHelper();
 };
 
 #endif

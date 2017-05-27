@@ -43,9 +43,9 @@ CAPRSHelper::~CAPRSHelper()
 	delete[] m_buffer;    
 }
 
-void CAPRSHelper::open()
+bool CAPRSHelper::open()
 {
-    m_writer.open();    
+    return m_writer.open();
 }
 
 void CAPRSHelper::send(std::string callsign, float latitude, float longitude, int altitude )

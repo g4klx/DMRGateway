@@ -28,7 +28,7 @@ public:
 	CAPRSHelper(const std::string& callsign, const std::string& suffix, const std::string& password, const std::string& address, unsigned int port);
 	~CAPRSHelper();
 
-	void open();
+	bool open();
 
     void send(std::string callsign, float latitude, float longitude, int altitude);
     

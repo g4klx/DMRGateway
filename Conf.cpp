@@ -31,6 +31,7 @@ enum SECTION {
   SECTION_GENERAL,
   SECTION_LOG,
   SECTION_DMRID_LOOKUP,
+  SECTION_APRS_FI,
   SECTION_VOICE,
   SECTION_DMR_NETWORK_1,
   SECTION_DMR_NETWORK_2,
@@ -55,6 +56,16 @@ m_logFilePath(),
 m_logFileRoot(),
 m_dmrIdLookupFile(),
 m_dmrIdLookupTime(0U),
+m_aprsEnabled(false),
+m_aprsServer(),
+m_aprsPort(0U),
+m_aprsPassword(),
+m_rxFrequency(0U),
+m_txFrequency(0U),
+m_power(0U),
+m_latitude(0.0F),
+m_longitude(0.0F),
+m_height(0),
 m_dmrNetwork1Enabled(false),
 m_dmrNetwork1Id(0U),
 m_dmrNetwork1Address(),
@@ -116,6 +127,8 @@ bool CConf::read()
 			section = SECTION_LOG;
 		else if (::strncmp(buffer, "[DMR Id Lookup]", 15U) == 0)
 		    section = SECTION_DMRID_LOOKUP;
+		 else if (::strncmp(buffer, "[aprs.fi]", 5U) == 0)
+		  section = SECTION_APRS_FI;
 		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
 			section = SECTION_VOICE;
 		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
@@ -141,7 +154,17 @@ bool CConf::read()
 		if (section == SECTION_GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
-			else if (::strcmp(key, "Timeout") == 0)
+			if (::strcmp(key, "Callsign") == 0) {
+				// Convert the callsign to upper case
+				for (unsigned int i = 0U; value[i] != 0; i++)
+					value[i] = ::toupper(value[i]);
+				m_callsign = value;
+		    } else if (::strcmp(key, "Suffix") == 0) {
+				// Convert the callsign to upper case
+				for (unsigned int i = 0U; value[i] != 0; i++)
+					value[i] = ::toupper(value[i]);
+				m_suffix = value;
+			}else if (::strcmp(key, "Timeout") == 0)
 				m_timeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptAddress") == 0)
 				m_rptAddress = value;
@@ -167,6 +190,15 @@ bool CConf::read()
 				m_dmrIdLookupFile = value;
 			else if (::strcmp(key, "Time") == 0)
 				m_dmrIdLookupTime = (unsigned int)::atoi(value);
+		} else if (section == SECTION_APRS_FI) {
+			if (::strcmp(key, "Enable") == 0)
+				m_aprsEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Server") == 0)
+				m_aprsServer = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_aprsPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Password") == 0)
+				m_aprsPassword = value;
 		} else if (section == SECTION_VOICE) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_voiceEnabled = ::atoi(value) == 1;
@@ -351,10 +383,21 @@ bool CConf::read()
 	return true;
 }
 
+std::string CConf::getCallsign() const
+{
+  return m_callsign;
+}
+
+std::string CConf::getSuffix() const
+{
+	return m_suffix;
+}
+
 bool CConf::getDaemon() const
 {
 	return m_daemon;
 }
+
 
 std::string CConf::getRptAddress() const
 {
@@ -405,6 +448,7 @@ std::string CConf::getLogFileRoot() const
 {
 	return m_logFileRoot;
 }
+
 std::string CConf::getDMRIdLookupFile() const
 {
 	return m_dmrIdLookupFile;
@@ -414,6 +458,27 @@ unsigned int CConf::getDMRIdLookupTime() const
 {
 	return m_dmrIdLookupTime;
 }
+
+bool CConf::getAPRSEnabled() const
+{
+	return m_aprsEnabled;
+}
+
+std::string CConf::getAPRSServer() const
+{
+	return m_aprsServer;
+}
+
+unsigned int CConf::getAPRSPort() const
+{
+	return m_aprsPort;
+}
+
+std::string CConf::getAPRSPassword() const
+{
+	return m_aprsPassword;
+}
+
 
 bool CConf::getVoiceEnabled() const
 {

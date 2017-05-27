@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   MD-390/RT8 Modifications (C) 2017, John Ronan, EI7IG
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -53,7 +54,6 @@ const unsigned int XLX_TG   = 9U;
 static bool m_killed = false;
 static int  m_signal = 0;
 
-CAPRSHelper* m_aprshelper = NULL;
 CDMRLookup* m_lookup = NULL;
 
 #if !defined(_WIN32) && !defined(_WIN64)
@@ -123,7 +123,9 @@ int main(int argc, char** argv)
 }
 
 CDMRGateway::CDMRGateway(const std::string& confFile) :
+m_callsign(),
 m_conf(confFile),
+m_aprshelper(NULL),
 m_repeater(NULL),
 m_dmrNetwork1(NULL),
 m_dmrNetwork2(NULL),
@@ -236,6 +238,8 @@ int CDMRGateway::run()
 		}
 	}
 #endif
+   	m_callsign = m_conf.getCallsign();
+	m_suffix   = m_conf.getSuffix();
 
 	LogInfo(HEADER1);
 	LogInfo(HEADER2);
@@ -245,15 +249,7 @@ int CDMRGateway::run()
 	LogMessage("DMRGateway-%s is starting", VERSION);
 	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
     
-	//
-	std::string callsign = "EI7IG";
-	std::string suffix = "7";
-	std::string password = "18146";
-    std::string address = "ireland.aprs2.net";
-	int port = 14580;    
-
-	m_aprshelper = new CAPRSHelper(callsign, suffix, password, address, port);
-	m_aprshelper->open();
+	CDMRGateway::createAPRSHelper();
 
 	// For DMR we try to map IDs to callsigns
 	std::string lookupFile  = m_conf.getDMRIdLookupFile();
@@ -890,4 +886,22 @@ bool CDMRGateway::createXLXNetwork()
 	m_xlxRewrite = new CRewriteTG("XLX", m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG, 1U);
 
 	return true;
+}
+
+void CDMRGateway::createAPRSHelper()
+{
+	if (!m_conf.getAPRSEnabled())
+		return;
+
+	std::string hostname = m_conf.getAPRSServer();
+	unsigned int port    = m_conf.getAPRSPort();
+	std::string password = m_conf.getAPRSPassword();
+
+	m_aprshelper = new CAPRSHelper(m_callsign, m_suffix, password, hostname, port);
+	
+	bool ret = m_aprshelper->open();
+	if (!ret) {
+		delete m_aprshelper;
+		m_aprshelper = NULL;
+	}
 }

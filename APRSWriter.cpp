@@ -43,7 +43,7 @@ m_height(0)
 
 	if (!suffix.empty()) {
 		m_callsign.append("-");
-		m_callsign.append(suffix.substr(0U, 1U));
+		m_callsign.append(suffix.substr(0U, 2U));
 	}
 
 	m_thread = new CAPRSWriterThread(m_callsign, password, address, port);
@@ -71,7 +71,6 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 {
 	assert(source != NULL);
 	assert(type != NULL);
-	assert(altitude > 0);
 
 	char callsign[11U];
 	::memcpy(callsign, source, YSF_CALLSIGN_LENGTH);
@@ -114,7 +113,7 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 	}
 
 	char output[300U];
-	::sprintf(output, "%s-D>APDPRS,DMR*,qAR,%s:!%s%c/%s%c%c/A=%06.0f %s via DRMGateway",
+	::sprintf(output, "%s-D>APDPRS,DMR*,qAR,%s:!%s%c/%s%c%c/A=%06.0f %s via MMDVM",
 		callsign, m_callsign.c_str(),
 		lat, (fLatitude < 0.0F) ? 'S' : 'N',
 		lon, (fLongitude < 0.0F) ? 'W' : 'E',
