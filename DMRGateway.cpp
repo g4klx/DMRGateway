@@ -380,7 +380,7 @@ int CDMRGateway::run()
 						longSign = -1;
 
 					uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
-					uint8_t latMin = payload[2U] & 0x6F;
+					uint8_t latMin = payload[2U] & 0x3F;
 					float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
 					uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
 					uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
