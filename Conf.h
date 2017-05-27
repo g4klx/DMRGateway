@@ -76,6 +76,10 @@ public:
 	std::string  getLogFilePath() const;
 	std::string  getLogFileRoot() const;
 
+	// The DMR Id section
+	std::string  getDMRIdLookupFile() const;
+	unsigned int getDMRIdLookupTime() const;
+
 	// The Voice section
 	bool         getVoiceEnabled() const;
 	std::string  getVoiceLanguage() const;
@@ -137,6 +141,9 @@ private:
 	unsigned int m_logFileLevel;
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
+
+	std::string  m_dmrIdLookupFile;
+  	unsigned int m_dmrIdLookupTime;
 
 	bool         m_dmrNetwork1Enabled;
 	unsigned int m_dmrNetwork1Id;

@@ -25,6 +25,7 @@
 #include "RewriteTG.h"
 #include "Rewrite.h"
 #include "Conf.h"
+#include "DMRLookup.h"
 
 #include <string>
 
@@ -51,6 +52,7 @@ private:
 	std::vector<IRewrite*> m_dmr1RFRewrites;
 	std::vector<IRewrite*> m_dmr2NetRewrites;
 	std::vector<IRewrite*> m_dmr2RFRewrites;
+	CDMRLookup*        m_lookup;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();

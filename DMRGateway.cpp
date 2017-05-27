@@ -28,6 +28,7 @@
 #include "GitVersion.h"
 #include "BPTC19696.h"
 #include "APRSHelper.h"
+#include "DMRLookup.h"
 
 #include <cstdio>
 #include <vector>
@@ -53,9 +54,7 @@ static bool m_killed = false;
 static int  m_signal = 0;
 
 CAPRSHelper* m_aprshelper = NULL;
-
-// Global.. Fixme
-char source[10];
+CDMRLookup* m_lookup = NULL;
 
 #if !defined(_WIN32) && !defined(_WIN64)
 static void sigHandler(int signum)
@@ -137,7 +136,8 @@ m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
-m_dmr2RFRewrites()
+m_dmr2RFRewrites(),
+m_lookup(NULL)
 {
 }
 
@@ -157,6 +157,10 @@ CDMRGateway::~CDMRGateway()
 
 	delete m_rptRewrite;
 	delete m_xlxRewrite;
+	if (m_lookup != NULL)
+		m_lookup->stop();
+	if (m_aprshelper != NULL)
+		m_aprshelper->close();
 }
 
 int CDMRGateway::run()
@@ -251,6 +255,18 @@ int CDMRGateway::run()
 	m_aprshelper = new CAPRSHelper(callsign, suffix, password, address, port);
 	m_aprshelper->open();
 
+	// For DMR we try to map IDs to callsigns
+	std::string lookupFile  = m_conf.getDMRIdLookupFile();
+	unsigned int reloadTime = m_conf.getDMRIdLookupTime();
+
+	LogInfo("DMR Id Lookups");
+	LogInfo("    File: %s", lookupFile.length() > 0U ? lookupFile.c_str() : "None");
+	if (reloadTime > 0U)
+		LogInfo("    Reload: %u hours", reloadTime);
+
+	m_lookup = new CDMRLookup(lookupFile, reloadTime);
+	m_lookup->read();
+	
 	ret = createMMDVM();
 	if (!ret)
 		return 1;
@@ -338,41 +354,14 @@ int CDMRGateway::run()
 
 			unsigned char type = data.getDataType();
 
-			// Probably RT8 Packet
-			if (type == DT_DATA_HEADER) {
-				LogDebug("Data Header    : src is %u, dest is %u", srcId, dstId);
-				unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
-				CBPTC19696 bptc;
-				data.getData(buffer);
-				unsigned char payload[12U];
-				bptc.decode(buffer, payload);
-				LogDebug("payload is %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9], payload[10], payload[11]);
-				
-				if ( ((payload[1U] & 0x05U) == 0x05U) && ((payload[8U] & 0x03U) == 0x00U) )
-				{
-					LogDebug("UDT/NMEA Frame, Slot %d, 1 Appended data block to come.", slotNo);
-					// Store Source and destination ID's  per slot
-				}
-				// Store Slot
-				// Need a way to lookup callsigns, next packet should be position packet
-				// Case 1 Data transmission frame 1 contains callsign.
-				if (srcId == 2720050) {
-					strcpy(source,"EI7IG");
-					LogDebug("Setting Callsign to %s", source);
-				}
-			}
 			if (type == DT_RATE_12_DATA)
 			{
 				int8_t latSign=0;
 				int8_t longSign=0;
 
-				std::string src="EI3RCW";
-				// Test Only
-				if (srcId == 272999 || srcId == 272050){
-					// Lookup Callsign
-					src = "EI7IG";	
-				}
 				LogDebug("1/2 Rate Header slot %d: src is %u, dest is %u", slotNo, srcId, dstId);
+
+				std::string src = m_lookup->find(srcId);
 
 				CBPTC19696 bptc;
 				unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
@@ -382,30 +371,30 @@ int CDMRGateway::run()
 				unsigned char payload[12U];
 				bptc.decode(buffer, payload);
 
-				if ((payload[0U] & 0x40U) >> 6)
-					latSign = 1;
-				else
-					latSign = -1;
-
-				if ((payload[0U] & 0x20U) >> 5)
-					longSign = 1;
-				else
-					longSign = -1;
-
-				uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
-				uint8_t latMin = payload[2U] & 0x6F;
-				float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
-				uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
-				uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
-				float lonSec = ((payload[6U] & 0x0F) << 8) + (payload[7U] << 2) + ((payload[8U] & 0xA0) >>6);
-				uint8_t alt = ( ((payload[8U] & 0x3F) << 8 ) + payload[9U]);
-
+				// Have we a GPS fix
 				if ((payload[0U] & 0x10U) >> 4){
+					if ((payload[0U] & 0x40U) >> 6)
+						latSign = 1;
+					else
+						latSign = -1;
+
+					if ((payload[0U] & 0x20U) >> 5)
+						longSign = 1;
+					else
+						longSign = -1;
+
+					uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
+					uint8_t latMin = payload[2U] & 0x6F;
+					float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
+					uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
+					uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
+					float lonSec = ((payload[6U] & 0x0F) << 8) + (payload[7U] << 2) + ((payload[8U] & 0xA0) >>6);
+					int altitude = ( ((payload[8U] & 0x3F) << 8 ) + payload[9U]);
+
 					float latitude = latDeg + (latMin + latSec/10000)/60;
 					float longitude = lonDeg + (lonMin + lonSec/10000)/60;
-
-					// Send it!
-					m_aprshelper->send(src.c_str(), latitude * latSign, longitude * longSign);
+					LogDebug("Sending GPS position from %d", srcId);
+					m_aprshelper->send(src.c_str(), latitude * latSign, longitude * longSign, altitude);
 				}
 				else
 					LogDebug("No GPS Fix");
