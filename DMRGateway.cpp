@@ -520,9 +520,6 @@ int CDMRGateway::run()
 
 				if (rewritten) {
 					unsigned int slotNo = data.getSlotNo();
-					unsigned int dstId  = data.getDstId();
-					FLCO flco           = data.getFLCO();
-
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
@@ -547,9 +544,6 @@ int CDMRGateway::run()
 
 				if (rewritten) {
 					unsigned int slotNo = data.getSlotNo();
-					unsigned int dstId  = data.getDstId();
-					FLCO flco           = data.getFLCO();
-
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
