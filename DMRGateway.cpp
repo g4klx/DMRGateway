@@ -384,7 +384,7 @@ int CDMRGateway::run()
 					float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
 					uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
 					uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
-					float lonSec = ((payload[6U] & 0x0F) << 8) + (payload[7U] << 2) + ((payload[8U] & 0xA0) >>6);
+					float lonSec = ((payload[6U] & 0x0F) << 10) + (payload[7U] << 2) + ((payload[8U] & 0xC0) >>6);
 					int altitude = ( ((payload[8U] & 0x3F) << 8 ) + payload[9U]);
 
 					float latitude = latDeg + (latMin + latSec/10000)/60;
