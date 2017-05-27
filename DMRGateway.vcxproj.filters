@@ -113,6 +113,12 @@
     <ClInclude Include="RewriteType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PassAllPC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PassAllTG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -206,6 +212,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RewriteType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PassAllPC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PassAllTG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

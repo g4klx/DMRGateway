@@ -94,6 +94,8 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork1PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork1TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork1SrcRewrites() const;
+	std::vector<unsigned int>       getDMRNetwork1PassAllPC() const;
+	std::vector<unsigned int>       getDMRNetwork1PassAllTG() const;
 
 	// The DMR Network 2 section
 	bool         getDMRNetwork2Enabled() const;
@@ -108,6 +110,8 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork2PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork2TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork2SrcRewrites() const;
+	std::vector<unsigned int>       getDMRNetwork2PassAllPC() const;
+	std::vector<unsigned int>       getDMRNetwork2PassAllTG() const;
 
 	// The XLX Network 1 section
 	bool         getXLXNetwork1Enabled() const;
@@ -166,6 +170,8 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork1PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork1TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork1SrcRewrites;
+	std::vector<unsigned int>       m_dmrNetwork1PassAllPC;
+	std::vector<unsigned int>       m_dmrNetwork1PassAllTG;
 
 	bool         m_dmrNetwork2Enabled;
 	unsigned int m_dmrNetwork2Id;
@@ -179,6 +185,8 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork2PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork2TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork2SrcRewrites;
+	std::vector<unsigned int>       m_dmrNetwork2PassAllPC;
+	std::vector<unsigned int>       m_dmrNetwork2PassAllTG;
 
 	bool         m_xlxNetwork1Enabled;
 	unsigned int m_xlxNetwork1Id;

@@ -21,6 +21,8 @@
 #include "DMRGateway.h"
 #include "StopWatch.h"
 #include "RewritePC.h"
+#include "PassAllPC.h"
+#include "PassAllTG.h"
 #include "Version.h"
 #include "Thread.h"
 #include "Voice.h"
@@ -778,6 +780,28 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork2PassAllTG();
+	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
+		LogInfo("    Pass All TG: %u", *it);
+
+		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-1", *it);
+		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-1", *it);
+
+		m_dmr1RFRewrites.push_back(rfPassAllTG);
+		m_dmr1NetRewrites.push_back(netPassAllTG);
+	}
+
+	std::vector<unsigned int> pcPassAll = m_conf.getDMRNetwork2PassAllPC();
+	for (std::vector<unsigned int>::const_iterator it = pcPassAll.begin(); it != pcPassAll.end(); ++it) {
+		LogInfo("    Pass All PC: %u", *it);
+
+		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-1", *it);
+		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-1", *it);
+
+		m_dmr1RFRewrites.push_back(rfPassAllPC);
+		m_dmr1NetRewrites.push_back(netPassAllPC);
+	}
+
 	return true;
 }
 
@@ -862,6 +886,28 @@ bool CDMRGateway::createDMRNetwork2()
 		CRewriteSrc* rewrite = new CRewriteSrc("DMR-2", (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
 
 		m_dmr2NetRewrites.push_back(rewrite);
+	}
+
+	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork2PassAllTG();
+	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
+		LogInfo("    Pass All TG: %u", *it);
+
+		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-2", *it);
+		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-2", *it);
+
+		m_dmr2RFRewrites.push_back(rfPassAllTG);
+		m_dmr2NetRewrites.push_back(netPassAllTG);
+	}
+
+	std::vector<unsigned int> pcPassAll = m_conf.getDMRNetwork2PassAllPC();
+	for (std::vector<unsigned int>::const_iterator it = pcPassAll.begin(); it != pcPassAll.end(); ++it) {
+		LogInfo("    Pass All PC: %u", *it);
+
+		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-2", *it);
+		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-2", *it);
+
+		m_dmr2RFRewrites.push_back(rfPassAllPC);
+		m_dmr2NetRewrites.push_back(netPassAllPC);
 	}
 
 	return true;

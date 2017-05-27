@@ -65,6 +65,8 @@ m_dmrNetwork1TGRewrites(),
 m_dmrNetwork1PCRewrites(),
 m_dmrNetwork1TypeRewrites(),
 m_dmrNetwork1SrcRewrites(),
+m_dmrNetwork1PassAllPC(),
+m_dmrNetwork1PassAllTG(),
 m_dmrNetwork2Enabled(false),
 m_dmrNetwork2Id(0U),
 m_dmrNetwork2Address(),
@@ -77,6 +79,8 @@ m_dmrNetwork2TGRewrites(),
 m_dmrNetwork2PCRewrites(),
 m_dmrNetwork2TypeRewrites(),
 m_dmrNetwork2SrcRewrites(),
+m_dmrNetwork2PassAllPC(),
+m_dmrNetwork2PassAllTG(),
 m_xlxNetwork1Enabled(false),
 m_xlxNetwork1Id(0U),
 m_xlxNetwork1Address(),
@@ -302,6 +306,12 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strcmp(key, "PassAllPC") == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork1PassAllPC.push_back(slotNo);
+			} else if (::strcmp(key, "PassAllTG") == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork1PassAllTG.push_back(slotNo);
 			}
 		} else if (section == SECTION_DMR_NETWORK_2) {
 			if (::strcmp(key, "Enabled") == 0)
@@ -378,6 +388,12 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strcmp(key, "PassAllPC") == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork2PassAllPC.push_back(slotNo);
+			} else if (::strcmp(key, "PassAllTG") == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork2PassAllTG.push_back(slotNo);
 			}
 		}
 	}
@@ -627,6 +643,16 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork1SrcRewrites() const
 	return m_dmrNetwork1SrcRewrites;
 }
 
+std::vector<unsigned int> CConf::getDMRNetwork1PassAllPC() const
+{
+	return m_dmrNetwork1PassAllPC;
+}
+
+std::vector<unsigned int> CConf::getDMRNetwork1PassAllTG() const
+{
+	return m_dmrNetwork1PassAllTG;
+}
+
 bool CConf::getDMRNetwork2Enabled() const
 {
 	return m_dmrNetwork2Enabled;
@@ -685,4 +711,14 @@ std::vector<CTypeRewriteStruct> CConf::getDMRNetwork2TypeRewrites() const
 std::vector<CSrcRewriteStruct> CConf::getDMRNetwork2SrcRewrites() const
 {
 	return m_dmrNetwork2SrcRewrites;
+}
+
+std::vector<unsigned int> CConf::getDMRNetwork2PassAllPC() const
+{
+	return m_dmrNetwork2PassAllPC;
+}
+
+std::vector<unsigned int> CConf::getDMRNetwork2PassAllTG() const
+{
+	return m_dmrNetwork2PassAllTG;
 }

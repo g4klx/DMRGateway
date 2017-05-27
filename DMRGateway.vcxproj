@@ -168,6 +168,8 @@
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MMDVMNetwork.h" />
+    <ClInclude Include="PassAllPC.h" />
+    <ClInclude Include="PassAllTG.h" />
     <ClInclude Include="QR1676.h" />
     <ClInclude Include="RepeaterProtocol.h" />
     <ClInclude Include="Rewrite.h" />
@@ -203,6 +205,8 @@
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MMDVMNetwork.cpp" />
+    <ClCompile Include="PassAllPC.cpp" />
+    <ClCompile Include="PassAllTG.cpp" />
     <ClCompile Include="QR1676.cpp" />
     <ClCompile Include="RepeaterProtocol.cpp" />
     <ClCompile Include="Rewrite.cpp" />
