@@ -43,7 +43,7 @@ m_exit(false),
 m_connected(false),
 m_APRSReadCallback(NULL),
 m_filter(),
-m_clientName("YSFGateway")
+m_clientName("DMRGateway")
 {
 	assert(!callsign.empty());
 	assert(!password.empty());
