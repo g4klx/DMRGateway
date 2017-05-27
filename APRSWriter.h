@@ -33,7 +33,7 @@ public:
 
 	void setInfo(unsigned int txFrequency, unsigned int rxFrequency, float latitude, float longitude, int height);
 
-	void write(const unsigned char* source, const char* type, unsigned char radio, float latitude, float longitude);
+	void write(const unsigned char* source, const char* type, unsigned char radio, float latitude, float longitude, int altitude);
 
 	void clock(unsigned int ms);
 

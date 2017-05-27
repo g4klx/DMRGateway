@@ -48,7 +48,7 @@ void CAPRSHelper::open()
     m_writer.open();    
 }
 
-void CAPRSHelper::send(std::string callsign, float latitude, float longitude )
+void CAPRSHelper::send(std::string callsign, float latitude, float longitude, int altitude )
 {    
     unsigned char source[10U];    
     copy( callsign.begin(), callsign.end(), source );
@@ -68,7 +68,7 @@ void CAPRSHelper::send(std::string callsign, float latitude, float longitude )
     //  lat
     //  long
     //::sprintf(m_buffer[4U], 0x28U);
-    m_writer.write(source, type, 0x28U, latitude, longitude); 
+    m_writer.write(source, type, 0x28U, latitude, longitude, altitude); 
 }
     
 void CAPRSHelper::close()

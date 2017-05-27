@@ -30,7 +30,7 @@ public:
 
 	void open();
 
-    void send(std::string callsign, float latitude, float longitude );
+    void send(std::string callsign, float latitude, float longitude, int altitude);
     
 	void close();
 
