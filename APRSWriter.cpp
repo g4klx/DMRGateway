@@ -95,10 +95,6 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 	char lon[20U];
 	::sprintf(lon, "%08.2lf", longitude);
 
-	// Need to find out if Altitude can be negative on these handhelds
-	char alt[7U]; 
-	::sprintf(alt, "%06.0f", altitude * 3.28084);;
-
 	char symbol;
 	switch (radio) {
 	case 0x24U:
@@ -118,11 +114,11 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 	}
 
 	char output[300U];
-	::sprintf(output, "%s-D>APDPRS,DMR*,qAR,%s:!%s%c/%s%c%c /A=%s %s via DRMGateway",
+	::sprintf(output, "%s-D>APDPRS,DMR*,qAR,%s:!%s%c/%s%c%c/A=%06.0f %s via DRMGateway",
 		callsign, m_callsign.c_str(),
 		lat, (fLatitude < 0.0F) ? 'S' : 'N',
 		lon, (fLongitude < 0.0F) ? 'W' : 'E',
-		symbol, alt, type);
+		symbol, float(altitude) * 3.28F, type);
 
 	m_thread->write(output);
 }
