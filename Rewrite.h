@@ -25,7 +25,8 @@ class IRewrite {
 public:
 	virtual ~IRewrite() = 0;
 
-	virtual bool process(CDMRData& data) = 0;
+	virtual bool processRF(CDMRData& data) = 0;
+	virtual bool processNet(CDMRData& data) = 0;
 
 private:
 };

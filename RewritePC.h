@@ -29,7 +29,8 @@ public:
 	CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range);
 	virtual ~CRewritePC();
 
-	virtual bool process(CDMRData& data);
+	virtual bool processRF(CDMRData& data);
+	virtual bool processNet(CDMRData& data);
 
 private:
 	const char*      m_name;
@@ -41,6 +42,7 @@ private:
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
+	bool process(CDMRData& data);
 	void processHeader(CDMRData& data, unsigned int dstId, unsigned char dataType);
 	void processVoice(CDMRData& data, unsigned int dstId);
 };

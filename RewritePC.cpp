@@ -42,6 +42,16 @@ CRewritePC::~CRewritePC()
 {
 }
 
+bool CRewritePC::processRF(CDMRData& data)
+{
+	return process(data);
+}
+
+bool CRewritePC::processNet(CDMRData& data)
+{
+	return process(data);
+}
+
 bool CRewritePC::process(CDMRData& data)
 {
 	FLCO flco = data.getFLCO();

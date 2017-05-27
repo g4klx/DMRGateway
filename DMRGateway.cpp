@@ -346,12 +346,12 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
-				m_xlx1Rewrite->process(data);
+				m_xlx1Rewrite->processRF(data);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
-				m_xlx2Rewrite->process(data);
+				m_xlx2Rewrite->processRF(data);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
 				timer[slotNo]->start();
@@ -423,7 +423,7 @@ int CDMRGateway::run()
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
 					for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
-						bool ret = (*it)->process(data);
+						bool ret = (*it)->processRF(data);
 						if (ret) {
 							rewritten = true;
 							break;
@@ -444,7 +444,7 @@ int CDMRGateway::run()
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data);
+							bool ret = (*it)->processRF(data);
 							if (ret) {
 								rewritten = true;
 								break;
@@ -468,7 +468,7 @@ int CDMRGateway::run()
 			ret = m_xlxNetwork1->read(data);
 			if (ret) {
 				if (status[m_xlx1Slot] == DMRGWS_NONE || status[m_xlx1Slot] == DMRGWS_XLXREFLECTOR1) {
-					bool ret = m_rpt1Rewrite->process(data);
+					bool ret = m_rpt1Rewrite->processNet(data);
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
@@ -487,7 +487,7 @@ int CDMRGateway::run()
 			ret = m_xlxNetwork2->read(data);
 			if (ret) {
 				if (status[m_xlx2Slot] == DMRGWS_NONE || status[m_xlx2Slot] == DMRGWS_XLXREFLECTOR2) {
-					bool ret = m_rpt2Rewrite->process(data);
+					bool ret = m_rpt2Rewrite->processNet(data);
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
@@ -509,7 +509,7 @@ int CDMRGateway::run()
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
-					bool ret = (*it)->process(data);
+					bool ret = (*it)->processNet(data);
 					if (ret) {
 						rewritten = true;
 						break;
@@ -536,7 +536,7 @@ int CDMRGateway::run()
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
-					bool ret = (*it)->process(data);
+					bool ret = (*it)->processNet(data);
 					if (ret) {
 						rewritten = true;
 						break;

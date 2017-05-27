@@ -42,6 +42,16 @@ CRewriteTG::~CRewriteTG()
 {
 }
 
+bool CRewriteTG::processRF(CDMRData& data)
+{
+	return process(data);
+}
+
+bool CRewriteTG::processNet(CDMRData& data)
+{
+	return process(data);
+}
+
 bool CRewriteTG::process(CDMRData& data)
 {
 	FLCO flco = data.getFLCO();
