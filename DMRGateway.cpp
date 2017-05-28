@@ -371,6 +371,7 @@ int CDMRGateway::run()
 					changed = true;
 				}
 
+				data.setDstId(dstId);
 				data.setSlotNo(XLX_SLOT);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
@@ -402,6 +403,7 @@ int CDMRGateway::run()
 					changed = true;
 				}
 
+				data.setDstId(dstId);
 				data.setSlotNo(XLX_SLOT);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
