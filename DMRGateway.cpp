@@ -253,7 +253,7 @@ int CDMRGateway::run()
 
 	LogMessage("Waiting for MMDVM to connect.....");
 
-	for (;;) {
+	while (!m_killed) {
 		unsigned char config[400U];
 		unsigned int len = m_repeater->getConfig(config);
 		if (len > 0U)
@@ -262,6 +262,13 @@ int CDMRGateway::run()
 		m_repeater->clock(10U);
 
 		CThread::sleep(10U);
+	}
+
+	if (m_killed) {
+		LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
+		m_repeater->close();
+		delete m_repeater;
+		return 0;
 	}
 
 	LogMessage("MMDVM has connected");
