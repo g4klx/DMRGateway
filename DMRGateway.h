@@ -65,6 +65,7 @@ private:
 	bool createDMRNetwork2();
 	bool createXLXNetwork1();
 	bool createXLXNetwork2();
+	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 };
 
 #endif

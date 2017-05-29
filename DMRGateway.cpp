@@ -17,15 +17,19 @@
  */
 
 #include "RewriteType.h"
+#include "DMRSlotType.h"
 #include "RewriteSrc.h"
 #include "DMRGateway.h"
 #include "StopWatch.h"
 #include "RewritePC.h"
 #include "PassAllPC.h"
 #include "PassAllTG.h"
+#include "DMRFullLC.h"
 #include "Version.h"
 #include "Thread.h"
+#include "DMRLC.h"
 #include "Voice.h"
+#include "Sync.h"
 #include "Log.h"
 #include "GitVersion.h"
 
@@ -48,6 +52,8 @@ const char* DEFAULT_INI_FILE = "/etc/DMRGateway.ini";
 
 const unsigned int XLX_SLOT = 2U;
 const unsigned int XLX_TG   = 9U;
+
+const unsigned char COLOR_CODE = 3U;
 
 static bool m_killed = false;
 static int  m_signal = 0;
@@ -351,6 +357,7 @@ int CDMRGateway::run()
 		bool ret = m_repeater->read(data);
 		if (ret) {
 			unsigned int slotNo = data.getSlotNo();
+			unsigned int srcId = data.getSrcId();
 			unsigned int dstId = data.getDstId();
 			FLCO flco = data.getFLCO();
 
@@ -369,18 +376,20 @@ int CDMRGateway::run()
 				dstId -= m_xlx1Base;
 
 				if (dstId != m_xlx1Reflector) {
-					if (dstId == 4000U)
+					if (dstId == 4000U) {
 						LogMessage("XLX-1, Unlinking");
-					else
-						LogMessage("XLX-1, Linking to reflector %u", dstId);
+					} else {
+						if (m_xlx1Reflector != 4000U)
+							writeXLXLink(srcId, 4000U, m_xlxNetwork1);
 
+						LogMessage("XLX-1, Linking to reflector %u", dstId);
+					}
+
+					writeXLXLink(srcId, dstId, m_xlxNetwork1);
 					m_xlx1Reflector = dstId;
 					changed = true;
 				}
 
-				data.setDstId(dstId);
-				data.setSlotNo(XLX_SLOT);
-				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 
@@ -400,19 +409,21 @@ int CDMRGateway::run()
 				dstId += 4000U;
 				dstId -= m_xlx2Base;
 
-				if (dstId != m_xlx1Reflector) {
-					if (dstId == 4000U)
+				if (dstId != m_xlx2Reflector) {
+					if (dstId == 4000U) {
 						LogMessage("XLX-2, Unlinking");
-					else
-						LogMessage("XLX-2, Linking to reflector %u", dstId);
+					} else {
+						if (m_xlx2Reflector != 4000U)
+							writeXLXLink(srcId, 4000U, m_xlxNetwork2);
 
+						LogMessage("XLX-2, Linking to reflector %u", dstId);
+					}
+
+					writeXLXLink(srcId, dstId, m_xlxNetwork2);
 					m_xlx2Reflector = dstId;
 					changed = true;
 				}
 
-				data.setDstId(dstId);
-				data.setSlotNo(XLX_SLOT);
-				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
 				timer[slotNo]->start();
 
@@ -1024,4 +1035,59 @@ bool CDMRGateway::createXLXNetwork2()
 	m_xlx2Rewrite = new CRewriteTG("XLX-2", m_xlx2Slot, m_xlx2TG, XLX_SLOT, XLX_TG, 1U);
 
 	return true;
+}
+
+void CDMRGateway::writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network)
+{
+	assert(network != NULL);
+
+	unsigned int streamId = ::rand() + 1U;
+
+	CDMRData data;
+
+	data.setSlotNo(XLX_SLOT);
+	data.setFLCO(FLCO_USER_USER);
+	data.setSrcId(srcId);
+	data.setDstId(dstId);
+	data.setDataType(DT_VOICE_LC_HEADER);
+	data.setN(0U);
+	data.setStreamId(streamId);
+
+	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+
+	CDMRLC lc;
+	lc.setSrcId(srcId);
+	lc.setDstId(dstId);
+	lc.setFLCO(FLCO_USER_USER);
+
+	CDMRFullLC fullLC;
+	fullLC.encode(lc, buffer, DT_VOICE_LC_HEADER);
+
+	CDMRSlotType slotType;
+	slotType.setColorCode(COLOR_CODE);
+	slotType.setDataType(DT_VOICE_LC_HEADER);
+	slotType.getData(buffer);
+
+	CSync::addDMRDataSync(buffer, true);
+
+	data.setData(buffer);
+
+	for (unsigned int i = 0U; i < 3U; i++) {
+		data.setSeqNo(i);
+		network->write(data);
+	}
+
+	data.setDataType(DT_TERMINATOR_WITH_LC);
+
+	fullLC.encode(lc, buffer, DT_TERMINATOR_WITH_LC);
+
+	slotType.setDataType(DT_TERMINATOR_WITH_LC);
+	slotType.getData(buffer);
+
+	data.setData(buffer);
+
+	for (unsigned int i = 0U; i < 2U; i++) {
+		data.setSeqNo(i + 3U);
+		network->write(data);
+	}
 }
