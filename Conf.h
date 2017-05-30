@@ -62,6 +62,8 @@ public:
 	bool read();
 
 	// The General section
+	std::string  getCallsign() const;
+    std::string  getSuffix() const;
 	bool         getDaemon() const;
 	unsigned int getTimeout() const;
 	std::string  getRptAddress() const;
@@ -75,6 +77,17 @@ public:
 	unsigned int getLogFileLevel() const;
 	std::string  getLogFilePath() const;
 	std::string  getLogFileRoot() const;
+
+	// The DMR Id section
+	std::string  getDMRIdLookupFile() const;
+	unsigned int getDMRIdLookupTime() const;
+
+
+	// The aprs.fi section
+	bool         getAPRSEnabled() const;
+	std::string  getAPRSServer() const;
+	unsigned int getAPRSPort() const;
+	std::string  getAPRSPassword() const;
 
 	// The Voice section
 	bool         getVoiceEnabled() const;
@@ -143,6 +156,8 @@ public:
 
 private:
 	std::string  m_file;
+	std:: string m_callsign;
+	std:: string m_suffix;
 	bool         m_daemon;
 	std::string  m_rptAddress;
 	unsigned int m_rptPort;
@@ -159,6 +174,14 @@ private:
 	unsigned int m_logFileLevel;
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
+
+	std::string  m_dmrIdLookupFile;
+  	unsigned int m_dmrIdLookupTime;
+
+	bool         m_aprsEnabled;
+	std::string  m_aprsServer;
+	unsigned int m_aprsPort;
+	std::string  m_aprsPassword;
 
 	bool         m_dmrNetwork1Enabled;
 	unsigned int m_dmrNetwork1Id;

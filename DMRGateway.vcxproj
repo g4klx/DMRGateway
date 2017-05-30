@@ -152,6 +152,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="APRSHelper.h" />
+    <ClInclude Include="APRSWriter.h" />
+    <ClInclude Include="APRSWriterThread.h" />
     <ClInclude Include="BPTC19696.h" />
     <ClInclude Include="Conf.h" />
     <ClInclude Include="CRC.h" />
@@ -162,12 +165,14 @@
     <ClInclude Include="DMRFullLC.h" />
     <ClInclude Include="DMRGateway.h" />
     <ClInclude Include="DMRLC.h" />
+    <ClInclude Include="DMRLookup.h" />
     <ClInclude Include="DMRNetwork.h" />
     <ClInclude Include="DMRSlotType.h" />
     <ClInclude Include="Golay2087.h" />
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MMDVMNetwork.h" />
+    <ClInclude Include="Mutex.h" />
     <ClInclude Include="PassAllPC.h" />
     <ClInclude Include="PassAllTG.h" />
     <ClInclude Include="QR1676.h" />
@@ -182,6 +187,7 @@
     <ClInclude Include="SHA256.h" />
     <ClInclude Include="StopWatch.h" />
     <ClInclude Include="Sync.h" />
+    <ClInclude Include="TCPSocket.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="UDPSocket.h" />
@@ -190,6 +196,9 @@
     <ClInclude Include="Voice.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="APRSHelper.cpp" />
+    <ClCompile Include="APRSWriter.cpp" />
+    <ClCompile Include="APRSWriterThread.cpp" />
     <ClCompile Include="BPTC19696.cpp" />
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="CRC.cpp" />
@@ -199,12 +208,14 @@
     <ClCompile Include="DMRFullLC.cpp" />
     <ClCompile Include="DMRGateway.cpp" />
     <ClCompile Include="DMRLC.cpp" />
+    <ClCompile Include="DMRLookup.cpp" />
     <ClCompile Include="DMRNetwork.cpp" />
     <ClCompile Include="DMRSlotType.cpp" />
     <ClCompile Include="Golay2087.cpp" />
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MMDVMNetwork.cpp" />
+    <ClCompile Include="Mutex.cpp" />
     <ClCompile Include="PassAllPC.cpp" />
     <ClCompile Include="PassAllTG.cpp" />
     <ClCompile Include="QR1676.cpp" />
@@ -218,6 +229,7 @@
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="StopWatch.cpp" />
     <ClCompile Include="Sync.cpp" />
+    <ClCompile Include="TCPSocket.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UDPSocket.cpp" />

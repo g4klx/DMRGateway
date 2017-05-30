@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   MD-390/RT8 Modifications (C) 2017, John Ronan, EI7IG
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,6 +33,9 @@
 #include "Sync.h"
 #include "Log.h"
 #include "GitVersion.h"
+#include "BPTC19696.h"
+#include "APRSHelper.h"
+#include "DMRLookup.h"
 
 #include <cstdio>
 #include <vector>
@@ -57,6 +61,8 @@ const unsigned char COLOR_CODE = 3U;
 
 static bool m_killed = false;
 static int  m_signal = 0;
+
+CDMRLookup* m_lookup = NULL;
 
 #if !defined(_WIN32) && !defined(_WIN64)
 static void sigHandler(int signum)
@@ -126,7 +132,9 @@ int main(int argc, char** argv)
 }
 
 CDMRGateway::CDMRGateway(const std::string& confFile) :
+m_callsign(),
 m_conf(confFile),
+m_aprsHelper(NULL),
 m_repeater(NULL),
 m_dmrNetwork1(NULL),
 m_dmrNetwork2(NULL),
@@ -153,7 +161,8 @@ m_xlx2Rewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
-m_dmr2RFRewrites()
+m_dmr2RFRewrites(),
+m_lookup(NULL)
 {
 }
 
@@ -250,6 +259,8 @@ int CDMRGateway::run()
 		}
 	}
 #endif
+   	m_callsign = m_conf.getCallsign();
+	m_suffix   = m_conf.getSuffix();
 
 	LogInfo(HEADER1);
 	LogInfo(HEADER2);
@@ -258,7 +269,21 @@ int CDMRGateway::run()
 
 	LogMessage("DMRGateway-%s is starting", VERSION);
 	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
+    
+	CDMRGateway::createAPRSHelper();
 
+	// For DMR we try to map IDs to callsigns
+	std::string lookupFile  = m_conf.getDMRIdLookupFile();
+	unsigned int reloadTime = m_conf.getDMRIdLookupTime();
+
+	LogInfo("DMR Id Lookups");
+	LogInfo("    File: %s", lookupFile.length() > 0U ? lookupFile.c_str() : "None");
+	if (reloadTime > 0U)
+		LogInfo("    Reload: %u hours", reloadTime);
+
+	m_lookup = new CDMRLookup(lookupFile, reloadTime);
+	m_lookup->read();
+	
 	ret = createMMDVM();
 	if (!ret)
 		return 1;
@@ -402,6 +427,8 @@ int CDMRGateway::run()
 
 		bool ret = m_repeater->read(data);
 		if (ret) {
+			extractGPSData(data);
+
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int srcId = data.getSrcId();
 			unsigned int dstId = data.getDstId();
@@ -727,6 +754,12 @@ int CDMRGateway::run()
 
 	delete timer[1U];
 	delete timer[2U];
+
+	if (m_aprsHelper != NULL)
+		m_aprsHelper->close();
+
+	if (m_lookup != NULL)
+		m_lookup->stop();
 
 	return 0;
 }
@@ -1141,5 +1174,76 @@ void CDMRGateway::writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwo
 	for (unsigned int i = 0U; i < 2U; i++) {
 		data.setSeqNo(i + 3U);
 		network->write(data);
+	}
+}
+
+void CDMRGateway::createAPRSHelper()
+{
+	if (!m_conf.getAPRSEnabled())
+		return;
+
+	std::string hostname = m_conf.getAPRSServer();
+	unsigned int port    = m_conf.getAPRSPort();
+	std::string password = m_conf.getAPRSPassword();
+
+	m_aprsHelper = new CAPRSHelper(m_callsign, m_suffix, password, hostname, port);
+	
+	bool ret = m_aprsHelper->open();
+	if (!ret) {
+		delete m_aprsHelper;
+		m_aprsHelper = NULL;
+	}
+}
+
+void CDMRGateway::extractGPSData(const CDMRData& data)
+{
+	unsigned int slotNo = data.getSlotNo();
+	unsigned int srcId  = data.getSrcId();
+	unsigned int dstId  = data.getDstId();
+	FLCO flco           = data.getFLCO();
+
+	unsigned char type = data.getDataType();
+	if (type == DT_RATE_12_DATA) {
+		int8_t latSign = 0;
+		int8_t longSign = 0;
+
+		LogDebug("1/2 Rate Header slot %d: src is %u, dest is %s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
+
+		std::string src = m_lookup->find(srcId);
+
+		CBPTC19696 bptc;
+		unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+
+		data.getData(buffer);
+
+		unsigned char payload[12U];
+		bptc.decode(buffer, payload);
+
+		// Have we a GPS fix
+		if ((payload[0U] & 0x10U) >> 4) {
+			if ((payload[0U] & 0x40U) >> 6)
+				latSign = 1;
+			else
+				latSign = -1;
+
+			if ((payload[0U] & 0x20U) >> 5)
+				longSign = 1;
+			else
+				longSign = -1;
+
+			uint8_t latDeg = ((payload[1U] & 0x1F) << 2) + ((payload[2U] & 0xC0) >> 6);
+			uint8_t latMin = payload[2U] & 0x3F;
+			float latSec = (payload[3U] << 6) + (payload[4U] & 0xFC);
+			uint8_t lonDeg = ((payload[4U] & 0x03) << 6) + ((payload[5U] & 0xFC) >> 2);
+			uint8_t lonMin = ((payload[5U] & 0x03) << 4) + ((payload[6U] & 0xF0) >> 4);
+			float lonSec = ((payload[6U] & 0x0F) << 10) + (payload[7U] << 2) + ((payload[8U] & 0xC0) >> 6);
+			int altitude = (((payload[8U] & 0x3F) << 8) + payload[9U]);
+
+			float latitude = latDeg + (latMin + latSec / 10000) / 60;
+			float longitude = lonDeg + (lonMin + lonSec / 10000) / 60;
+			LogDebug("Sending GPS position from %d", srcId);
+
+			m_aprsHelper->send(src.c_str(), latitude * latSign, longitude * longSign, altitude);
+		}
 	}
 }
