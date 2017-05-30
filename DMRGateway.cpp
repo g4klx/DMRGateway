@@ -132,16 +132,22 @@ m_dmrNetwork1(NULL),
 m_dmrNetwork2(NULL),
 m_xlxNetwork1(NULL),
 m_xlxNetwork2(NULL),
+m_xlx1Id(0U),
 m_xlx1Reflector(4000U),
 m_xlx1Slot(0U),
 m_xlx1TG(0U),
 m_xlx1Base(0U),
+m_xlx1Startup(4000U),
+m_xlx1Connected(false),
 m_rpt1Rewrite(NULL),
 m_xlx1Rewrite(NULL),
+m_xlx2Id(0U),
 m_xlx2Reflector(4000U),
 m_xlx2Slot(0U),
 m_xlx2TG(0U),
 m_xlx2Base(0U),
+m_xlx2Startup(4000U),
+m_xlx2Connected(false),
 m_rpt2Rewrite(NULL),
 m_xlx2Rewrite(NULL),
 m_dmr1NetRewrites(),
@@ -352,6 +358,46 @@ int CDMRGateway::run()
 	bool changed = false;
 
 	while (!m_killed) {
+		if (m_xlxNetwork1 != NULL) {
+			bool connected = m_xlxNetwork1->isConnected();
+			if (connected && !m_xlx1Connected) {
+				if (m_xlx1Startup != 4000U) {
+					writeXLXLink(m_xlx1Id, m_xlx1Startup, m_xlxNetwork1);
+					if (voice1 != NULL)
+						voice1->linkedTo(m_xlx1Startup);
+				}
+
+				m_xlx1Reflector = m_xlx1Startup;
+				m_xlx1Connected = true;
+			} else if (!connected && m_xlx1Connected) {
+				if (m_xlx1Reflector != 4000U && voice1 != NULL)
+					voice1->unlinked();
+
+				m_xlx1Reflector = 4000U;
+				m_xlx1Connected = false;
+			}
+		}
+
+		if (m_xlxNetwork2 != NULL) {
+			bool connected = m_xlxNetwork2->isConnected();
+			if (connected && !m_xlx2Connected) {
+				if (m_xlx2Startup != 4000U) {
+					writeXLXLink(m_xlx2Id, m_xlx2Startup, m_xlxNetwork2);
+					if (voice2 != NULL)
+						voice2->linkedTo(m_xlx2Startup);
+				}
+
+				m_xlx2Reflector = m_xlx2Startup;
+				m_xlx2Connected = true;
+			} else if (!connected && m_xlx2Connected) {
+				if (m_xlx2Reflector != 4000U && voice2 != NULL)
+					voice2->unlinked();
+
+				m_xlx2Reflector = 4000U;
+				m_xlx2Connected = false;
+			}
+		}
+
 		CDMRData data;
 
 		bool ret = m_repeater->read(data);
@@ -932,15 +978,15 @@ bool CDMRGateway::createXLXNetwork1()
 	std::string address  = m_conf.getXLXNetwork1Address();
 	unsigned int port    = m_conf.getXLXNetwork1Port();
 	unsigned int local   = m_conf.getXLXNetwork1Local();
-	unsigned int id      = m_conf.getXLXNetwork1Id();
+	m_xlx1Id             = m_conf.getXLXNetwork1Id();
 	std::string password = m_conf.getXLXNetwork1Password();
 	bool debug           = m_conf.getXLXNetwork1Debug();
 
-	if (id == 0U)
-		id = m_repeater->getId();
+	if (m_xlx1Id == 0U)
+		m_xlx1Id = m_repeater->getId();
 
 	LogInfo("XLX Network 1 Parameters");
-	LogInfo("    Id: %u", id);
+	LogInfo("    Id: %u", m_xlx1Id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
 	if (local > 0U)
@@ -948,7 +994,7 @@ bool CDMRGateway::createXLXNetwork1()
 	else
 		LogInfo("    Local: random");
 
-	m_xlxNetwork1 = new CDMRNetwork(address, port, local, id, password, "XLX-1", debug);
+	m_xlxNetwork1 = new CDMRNetwork(address, port, local, m_xlx1Id, password, "XLX-1", debug);
 
 	std::string options = m_conf.getXLXNetwork1Options();
 	if (!options.empty()) {
@@ -968,13 +1014,16 @@ bool CDMRGateway::createXLXNetwork1()
 		return false;
 	}
 
-	m_xlx1Slot = m_conf.getXLXNetwork1Slot();
-	m_xlx1TG   = m_conf.getXLXNetwork1TG();
-	m_xlx1Base = m_conf.getXLXNetwork1Base();
+	m_xlx1Slot    = m_conf.getXLXNetwork1Slot();
+	m_xlx1TG      = m_conf.getXLXNetwork1TG();
+	m_xlx1Base    = m_conf.getXLXNetwork1Base();
+	m_xlx1Startup = m_conf.getXLXNetwork1Startup();
 
 	LogInfo("    Slot: %u", m_xlx1Slot);
 	LogInfo("    TG: %u", m_xlx1TG);
 	LogInfo("    Base: %u", m_xlx1Base);
+	if (m_xlx1Startup != 4000U)
+		LogInfo("    Startup: %u", m_xlx1Startup);
 
 	m_rpt1Rewrite = new CRewriteTG("XLX-1", XLX_SLOT, XLX_TG, m_xlx1Slot, m_xlx1TG, 1U);
 	m_xlx1Rewrite = new CRewriteTG("XLX-1", m_xlx1Slot, m_xlx1TG, XLX_SLOT, XLX_TG, 1U);
@@ -987,15 +1036,15 @@ bool CDMRGateway::createXLXNetwork2()
 	std::string address  = m_conf.getXLXNetwork2Address();
 	unsigned int port    = m_conf.getXLXNetwork2Port();
 	unsigned int local   = m_conf.getXLXNetwork2Local();
-	unsigned int id      = m_conf.getXLXNetwork2Id();
+	m_xlx2Id             = m_conf.getXLXNetwork2Id();
 	std::string password = m_conf.getXLXNetwork2Password();
 	bool debug           = m_conf.getXLXNetwork2Debug();
 
-	if (id == 0U)
-		id = m_repeater->getId();
+	if (m_xlx2Id == 0U)
+		m_xlx2Id = m_repeater->getId();
 
 	LogInfo("XLX Network 2 Parameters");
-	LogInfo("    Id: %u", id);
+	LogInfo("    Id: %u", m_xlx2Id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
 	if (local > 0U)
@@ -1003,7 +1052,7 @@ bool CDMRGateway::createXLXNetwork2()
 	else
 		LogInfo("    Local: random");
 
-	m_xlxNetwork2 = new CDMRNetwork(address, port, local, id, password, "XLX-2", debug);
+	m_xlxNetwork2 = new CDMRNetwork(address, port, local, m_xlx2Id, password, "XLX-2", debug);
 
 	std::string options = m_conf.getXLXNetwork2Options();
 	if (!options.empty()) {
@@ -1023,13 +1072,16 @@ bool CDMRGateway::createXLXNetwork2()
 		return false;
 	}
 
-	m_xlx2Slot = m_conf.getXLXNetwork2Slot();
-	m_xlx2TG   = m_conf.getXLXNetwork2TG();
-	m_xlx2Base = m_conf.getXLXNetwork2Base();
+	m_xlx2Slot    = m_conf.getXLXNetwork2Slot();
+	m_xlx2TG      = m_conf.getXLXNetwork2TG();
+	m_xlx2Base    = m_conf.getXLXNetwork2Base();
+	m_xlx2Startup = m_conf.getXLXNetwork2Startup();
 
 	LogInfo("    Slot: %u", m_xlx2Slot);
 	LogInfo("    TG: %u", m_xlx2TG);
 	LogInfo("    Base: %u", m_xlx2Base);
+	if (m_xlx2Startup != 4000U)
+		LogInfo("    Startup: %u", m_xlx2Startup);
 
 	m_rpt2Rewrite = new CRewriteTG("XLX-2", XLX_SLOT, XLX_TG, m_xlx2Slot, m_xlx2TG, 1U);
 	m_xlx2Rewrite = new CRewriteTG("XLX-2", m_xlx2Slot, m_xlx2TG, XLX_SLOT, XLX_TG, 1U);

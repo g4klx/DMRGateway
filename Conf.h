@@ -123,6 +123,7 @@ public:
 	unsigned int getXLXNetwork1Slot() const;
 	unsigned int getXLXNetwork1TG() const;
 	unsigned int getXLXNetwork1Base() const;
+	unsigned int getXLXNetwork1Startup() const;
 	std::string  getXLXNetwork1Options() const;
 	bool         getXLXNetwork1Debug() const;
 
@@ -136,6 +137,7 @@ public:
 	unsigned int getXLXNetwork2Slot() const;
 	unsigned int getXLXNetwork2TG() const;
 	unsigned int getXLXNetwork2Base() const;
+	unsigned int getXLXNetwork2Startup() const;
 	std::string  getXLXNetwork2Options() const;
 	bool         getXLXNetwork2Debug() const;
 
@@ -197,6 +199,7 @@ private:
 	unsigned int m_xlxNetwork1Slot;
 	unsigned int m_xlxNetwork1TG;
 	unsigned int m_xlxNetwork1Base;
+	unsigned int m_xlxNetwork1Startup;
 	std::string  m_xlxNetwork1Options;
 	bool         m_xlxNetwork1Debug;
 
@@ -209,6 +212,7 @@ private:
 	unsigned int m_xlxNetwork2Slot;
 	unsigned int m_xlxNetwork2TG;
 	unsigned int m_xlxNetwork2Base;
+	unsigned int m_xlxNetwork2Startup;
 	std::string  m_xlxNetwork2Options;
 	bool         m_xlxNetwork2Debug;
 };

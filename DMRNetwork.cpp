@@ -258,6 +258,11 @@ bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int lengt
 	return write(buffer, length);
 }
 
+bool CDMRNetwork::isConnected() const
+{
+	return m_status == RUNNING;
+}
+
 void CDMRNetwork::close()
 {
 	LogMessage("%s, Closing DMR Network", m_name);

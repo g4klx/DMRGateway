@@ -90,6 +90,7 @@ m_xlxNetwork1Password(),
 m_xlxNetwork1Slot(1U),
 m_xlxNetwork1TG(8U),
 m_xlxNetwork1Base(84000U),
+m_xlxNetwork1Startup(4000U),
 m_xlxNetwork1Options(),
 m_xlxNetwork1Debug(false),
 m_xlxNetwork2Enabled(false),
@@ -101,6 +102,7 @@ m_xlxNetwork2Password(),
 m_xlxNetwork2Slot(1U),
 m_xlxNetwork2TG(7U),
 m_xlxNetwork2Base(74000U),
+m_xlxNetwork2Startup(4000U),
 m_xlxNetwork2Options(),
 m_xlxNetwork2Debug(false)
 {
@@ -204,6 +206,8 @@ bool CConf::read()
 				m_xlxNetwork1TG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Base") == 0)
 				m_xlxNetwork1Base = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Startup") == 0)
+				m_xlxNetwork1Startup = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Options") == 0)
 				m_xlxNetwork1Options = value;
 			else if (::strcmp(key, "Debug") == 0)
@@ -227,6 +231,8 @@ bool CConf::read()
 				m_xlxNetwork2TG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Base") == 0)
 				m_xlxNetwork2Base = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Startup") == 0)
+				m_xlxNetwork2Startup = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Options") == 0)
 				m_xlxNetwork2Options = value;
 			else if (::strcmp(key, "Debug") == 0)
@@ -513,6 +519,11 @@ unsigned int CConf::getXLXNetwork1Base() const
 	return m_xlxNetwork1Base;
 }
 
+unsigned int CConf::getXLXNetwork1Startup() const
+{
+	return m_xlxNetwork1Startup;
+}
+
 std::string CConf::getXLXNetwork1Password() const
 {
 	return m_xlxNetwork1Password;
@@ -566,6 +577,11 @@ unsigned int CConf::getXLXNetwork2TG() const
 unsigned int CConf::getXLXNetwork2Base() const
 {
 	return m_xlxNetwork2Base;
+}
+
+unsigned int CConf::getXLXNetwork2Startup() const
+{
+	return m_xlxNetwork2Startup;
 }
 
 std::string CConf::getXLXNetwork2Password() const

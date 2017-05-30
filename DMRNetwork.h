@@ -51,6 +51,8 @@ public:
 
 	void clock(unsigned int ms);
 
+	bool isConnected() const;
+
 	void close();
 
 private: 
