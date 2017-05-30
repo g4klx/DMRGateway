@@ -794,7 +794,7 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(rewrite);
 	}
 
-	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork2PassAllTG();
+	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork1PassAllTG();
 	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
 		LogInfo("    Pass All TG: %u", *it);
 
@@ -805,7 +805,7 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(netPassAllTG);
 	}
 
-	std::vector<unsigned int> pcPassAll = m_conf.getDMRNetwork2PassAllPC();
+	std::vector<unsigned int> pcPassAll = m_conf.getDMRNetwork1PassAllPC();
 	for (std::vector<unsigned int>::const_iterator it = pcPassAll.begin(); it != pcPassAll.end(); ++it) {
 		LogInfo("    Pass All PC: %u", *it);
 
