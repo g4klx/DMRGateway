@@ -425,7 +425,7 @@ int CDMRGateway::run()
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
 				timer[slotNo]->start();
-			} else if ((dstId <= (m_xlx1Base + 26U) || dstId == (m_xlx1Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base) { //
+			} else if ((dstId <= (m_xlx1Base + 26U) || dstId == (m_xlx1Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base) {
 				dstId += 4000U;
 				dstId -= m_xlx1Base;
 
@@ -466,7 +466,7 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if ((dstId <= (m_xlx2Base + 26U) || dstId == (m_xlx2Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base) { //
+			} else if ((dstId <= (m_xlx2Base + 26U) || dstId == (m_xlx2Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base) {
 				dstId += 4000U;
 				dstId -= m_xlx2Base;
 
