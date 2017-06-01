@@ -424,6 +424,9 @@ int CDMRGateway::run()
 				if (dstId != m_xlx1Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-1, Unlinking");
+					} elseif (dstId == 5000U) {
+						// Status XLX-1 here
+						voice1->linkedTo(m_xlx1Reflector);
 					} else {
 						if (m_xlx1Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork1);
@@ -458,6 +461,9 @@ int CDMRGateway::run()
 				if (dstId != m_xlx2Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-2, Unlinking");
+					} elseif (dstId == 5000U) {
+						// Status XLX-2 here
+						voice2->linkedTo(m_xlx1Reflector);
 					} else {
 						if (m_xlx2Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork2);
