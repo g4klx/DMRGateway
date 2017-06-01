@@ -433,7 +433,7 @@ int CDMRGateway::run()
 					if (dstId == 4000U) {
 						LogMessage("XLX-1, Unlinking");
 					} else if (dstId == 5000U) {
-						if (m_xlx1Reflector != 4000)
+						if (m_xlx1Reflector != 4000U)
 							voice1->linkedTo(m_xlx1Reflector);
 						else
 							voice1->unlinked();
@@ -474,7 +474,7 @@ int CDMRGateway::run()
 					if (dstId == 4000U) {
 						LogMessage("XLX-2, Unlinking");
 					} else if (dstId == 5000U) {
-						if (m_xlx2Reflector != 4000)
+						if (m_xlx2Reflector != 4000U)
 							voice2->linkedTo(m_xlx2Reflector);
 						else
 							voice2->unlinked();
