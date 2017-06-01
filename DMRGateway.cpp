@@ -425,13 +425,18 @@ int CDMRGateway::run()
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base && dstId <= (m_xlx1Base + 26U)) {
+			} else if ((dstId <= (m_xlx1Base + 26U) || dstId == (m_xlx1Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base) {
 				dstId += 4000U;
 				dstId -= m_xlx1Base;
 
 				if (dstId != m_xlx1Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-1, Unlinking");
+					} else if (dstId == 5000U) {
+						if (m_xlx1Reflector != 4000U)
+							voice1->linkedTo(m_xlx1Reflector);
+						else
+							voice1->unlinked();
 					} else {
 						if (m_xlx1Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork1);
@@ -439,9 +444,11 @@ int CDMRGateway::run()
 						LogMessage("XLX-1, Linking to reflector %u", dstId);
 					}
 
-					writeXLXLink(srcId, dstId, m_xlxNetwork1);
-					m_xlx1Reflector = dstId;
-					changed = true;
+					if (dstId != 5000U ) {
+						writeXLXLink(srcId, dstId, m_xlxNetwork1);
+						m_xlx1Reflector = dstId;
+						changed = true;
+					}
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
@@ -459,13 +466,18 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base && dstId <= (m_xlx2Base + 26U)) {
+			} else if ((dstId <= (m_xlx2Base + 26U) || dstId == (m_xlx2Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base) {
 				dstId += 4000U;
 				dstId -= m_xlx2Base;
 
 				if (dstId != m_xlx2Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-2, Unlinking");
+					} else if (dstId == 5000U) {
+						if (m_xlx2Reflector != 4000U)
+							voice2->linkedTo(m_xlx2Reflector);
+						else
+							voice2->unlinked();
 					} else {
 						if (m_xlx2Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork2);
@@ -473,9 +485,11 @@ int CDMRGateway::run()
 						LogMessage("XLX-2, Linking to reflector %u", dstId);
 					}
 
-					writeXLXLink(srcId, dstId, m_xlxNetwork2);
-					m_xlx2Reflector = dstId;
-					changed = true;
+					if (dstId != 5000U ) {
+						writeXLXLink(srcId, dstId, m_xlxNetwork2);
+						m_xlx2Reflector = dstId;
+						changed = true;
+					}
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
