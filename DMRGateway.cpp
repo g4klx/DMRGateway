@@ -363,6 +363,7 @@ int CDMRGateway::run()
 			if (connected && !m_xlx1Connected) {
 				if (m_xlx1Startup != 4000U) {
 					writeXLXLink(m_xlx1Id, m_xlx1Startup, m_xlxNetwork1);
+					LogMessage("XLX-1, Linking to reflector %u at startup", m_xlx1Startup);
 					if (voice1 != NULL)
 						voice1->linkedTo(m_xlx1Startup);
 				}
@@ -370,8 +371,11 @@ int CDMRGateway::run()
 				m_xlx1Reflector = m_xlx1Startup;
 				m_xlx1Connected = true;
 			} else if (!connected && m_xlx1Connected) {
-				if (m_xlx1Reflector != 4000U && voice1 != NULL)
-					voice1->unlinked();
+				if (m_xlx1Reflector != 4000U) {
+					LogMessage("XLX-1, Unlinking due to loss of connection");
+					if (voice1 != NULL)
+						voice1->unlinked();
+				}
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
@@ -383,6 +387,7 @@ int CDMRGateway::run()
 			if (connected && !m_xlx2Connected) {
 				if (m_xlx2Startup != 4000U) {
 					writeXLXLink(m_xlx2Id, m_xlx2Startup, m_xlxNetwork2);
+					LogMessage("XLX-2, Linking to reflector %u at startup", m_xlx2Startup);
 					if (voice2 != NULL)
 						voice2->linkedTo(m_xlx2Startup);
 				}
@@ -390,8 +395,11 @@ int CDMRGateway::run()
 				m_xlx2Reflector = m_xlx2Startup;
 				m_xlx2Connected = true;
 			} else if (!connected && m_xlx2Connected) {
-				if (m_xlx2Reflector != 4000U && voice2 != NULL)
-					voice2->unlinked();
+				if (m_xlx2Reflector != 4000U) {
+					LogMessage("XLX-2, Unlinking due to loss of connection");
+					if (voice2 != NULL)
+						voice2->unlinked();
+				}
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
