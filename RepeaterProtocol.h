@@ -45,6 +45,8 @@ public:
 
 	virtual void clock(unsigned int ms) = 0;
 
+	virtual bool writeBeacon() = 0;
+
 	virtual void close() = 0;
 
 private:

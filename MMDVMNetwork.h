@@ -50,6 +50,8 @@ public:
 
 	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length);
 
+	virtual bool writeBeacon();
+
 	virtual void clock(unsigned int ms);
 
 	virtual void close();

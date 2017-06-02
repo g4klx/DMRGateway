@@ -615,6 +615,10 @@ int CDMRGateway::run()
 					}
 				}
 			}
+
+			ret = m_dmrNetwork1->wantsBeacon();
+			if (ret)
+				m_repeater->writeBeacon();
 		}
 
 		if (m_dmrNetwork2 != NULL) {
@@ -639,6 +643,10 @@ int CDMRGateway::run()
 					}
 				}
 			}
+
+			ret = m_dmrNetwork2->wantsBeacon();
+			if (ret)
+				m_repeater->writeBeacon();
 		}
 
 		unsigned char buffer[50U];

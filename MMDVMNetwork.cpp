@@ -244,6 +244,15 @@ bool CMMDVMNetwork::readTalkerAlias(unsigned char* data, unsigned int& length)
 	return true;
 }
 
+bool CMMDVMNetwork::writeBeacon()
+{
+	unsigned char buffer[20U];
+	::memcpy(buffer + 0U, "RPTSBKN", 7U);
+	::memcpy(buffer + 7U, m_netId, 4U);
+
+	return m_socket.write(buffer, 11U, m_rptAddress, m_rptPort);
+}
+
 void CMMDVMNetwork::close()
 {
 	LogMessage("DMR, Closing MMDVM Network");
