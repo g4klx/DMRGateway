@@ -268,7 +268,7 @@ int CDMRGateway::run()
 	while (!m_killed) {
 		unsigned char config[400U];
 		unsigned int len = m_repeater->getConfig(config);
-		if (len > 0U)
+		if (len > 0U && m_repeater->getId() > 1000U)
 			break;
 
 		m_repeater->clock(10U);
