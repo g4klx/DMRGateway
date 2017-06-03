@@ -43,6 +43,12 @@ CAPRSHelper::~CAPRSHelper()
 	delete[] m_buffer;    
 }
 
+void CAPRSHelper::setInfo(unsigned int txFrequency, unsigned int rxFrequency, float latitude, float longitude, int height)
+{
+    m_writer.setInfo(rxFrequency, rxFrequency, latitude, longitude, height);
+}
+
+
 bool CAPRSHelper::open()
 {
     return m_writer.open();
@@ -70,7 +76,12 @@ void CAPRSHelper::send(std::string callsign, float latitude, float longitude, in
     //::sprintf(m_buffer[4U], 0x28U);
     m_writer.write(source, type, 0x28U, latitude, longitude, altitude); 
 }
-    
+
+void CAPRSHelper::clock(unsigned int ms)
+{
+    m_writer.clock(ms);
+}
+
 void CAPRSHelper::close()
 {
     m_writer.close();
