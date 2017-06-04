@@ -38,7 +38,6 @@ public:
 
 private:
 	CConf              m_conf;
-	bool               m_ruleTrace;
 	IRepeaterProtocol* m_repeater;
 	CDMRNetwork*       m_dmrNetwork1;
 	CDMRNetwork*       m_dmrNetwork2;
@@ -68,8 +67,8 @@ private:
 	std::vector<IRewrite*> m_dmr2RFRewrites;
 
 	bool createMMDVM();
-	bool createDMRNetwork1();
-	bool createDMRNetwork2();
+	bool createDMRNetwork1(bool trace);
+	bool createDMRNetwork2(bool trace);
 	bool createXLXNetwork1();
 	bool createXLXNetwork2();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
