@@ -19,13 +19,15 @@
 #include "PassAllPC.h"
 
 #include "DMRDefines.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
-CPassAllPC::CPassAllPC(const char* name, unsigned int slot) :
+CPassAllPC::CPassAllPC(const char* name, unsigned int slot, bool trace) :
 m_name(name),
-m_slot(slot)
+m_slot(slot),
+m_trace(trace)
 {
 	assert(slot == 1U || slot == 2U);
 }
@@ -36,12 +38,22 @@ CPassAllPC::~CPassAllPC()
 
 bool CPassAllPC::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CPassAllPC::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CPassAllPC::process(CDMRData& data)

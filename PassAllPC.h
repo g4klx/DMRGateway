@@ -24,7 +24,7 @@
 
 class CPassAllPC : public IRewrite {
 public:
-	CPassAllPC(const char* name, unsigned int slot);
+	CPassAllPC(const char* name, unsigned int slot, bool trace);
 	virtual ~CPassAllPC();
 
 	virtual bool processRF(CDMRData& data);
@@ -33,6 +33,7 @@ public:
 private:
 	const char*  m_name;
 	unsigned int m_slot;
+	bool         m_trace;
 
 	bool process(CDMRData& data);
 };

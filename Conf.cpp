@@ -45,6 +45,7 @@ m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
 m_localPort(62031U),
 m_timeout(10U),
+m_ruleTrace(false),
 m_debug(false),
 m_voiceEnabled(true),
 m_voiceLanguage("en_GB"),
@@ -169,6 +170,8 @@ bool CConf::read()
 				m_localAddress = value;
 			else if (::strcmp(key, "LocalPort") == 0)
 				m_localPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RuleTrace") == 0)
+				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_debug = ::atoi(value) == 1;
 		} else if (section == SECTION_LOG) {
@@ -437,6 +440,11 @@ unsigned int CConf::getLocalPort() const
 unsigned int CConf::getTimeout() const
 {
 	return m_timeout;
+}
+
+bool CConf::getRuleTrace() const
+{
+	return m_ruleTrace;
 }
 
 bool CConf::getDebug() const

@@ -26,7 +26,7 @@
 
 class CRewriteSrc : public IRewrite {
 public:
-	CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range);
+	CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range, bool trace);
 	virtual ~CRewriteSrc();
 
 	virtual bool processRF(CDMRData& data);
@@ -39,6 +39,7 @@ private:
 	unsigned int     m_fromIdEnd;
 	unsigned int     m_toSlot;
 	unsigned int     m_toTG;
+	bool             m_trace;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 

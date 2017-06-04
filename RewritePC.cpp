@@ -20,17 +20,19 @@
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
-CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range) :
+CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range, bool trace) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
 m_fromIdEnd(fromId + range),
 m_toSlot(toSlot),
 m_toIdStart(toId),
+m_trace(trace),
 m_lc(FLCO_USER_USER, 0U, 0U),
 m_embeddedLC()
 {
@@ -44,12 +46,22 @@ CRewritePC::~CRewritePC()
 
 bool CRewritePC::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewritePC %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewritePC::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewritePC %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewritePC::process(CDMRData& data)

@@ -38,6 +38,7 @@ public:
 
 private:
 	CConf              m_conf;
+	bool               m_ruleTrace;
 	IRepeaterProtocol* m_repeater;
 	CDMRNetwork*       m_dmrNetwork1;
 	CDMRNetwork*       m_dmrNetwork2;

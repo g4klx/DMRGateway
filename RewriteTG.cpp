@@ -20,17 +20,19 @@
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
-CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range) :
+CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range, bool trace) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTGStart(fromTG),
 m_fromTGEnd(fromTG + range),
 m_toSlot(toSlot),
 m_toTGStart(toTG),
+m_trace(trace),
 m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
@@ -44,18 +46,28 @@ CRewriteTG::~CRewriteTG()
 
 bool CRewriteTG::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteTG %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteTG::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteTG %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteTG::process(CDMRData& data)
 {
-	FLCO flco = data.getFLCO();
-	unsigned int dstId = data.getDstId();
+	FLCO flco           = data.getFLCO();
+	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
 	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId >= m_fromTGEnd)

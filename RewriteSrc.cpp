@@ -25,13 +25,14 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteSrc::CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range) :
+CRewriteSrc::CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range, bool trace) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
 m_fromIdEnd(fromId + range),
 m_toSlot(toSlot),
 m_toTG(toTG),
+m_trace(trace),
 m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
@@ -47,12 +48,22 @@ CRewriteSrc::~CRewriteSrc()
 
 bool CRewriteSrc::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteSrc %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteSrc::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteSrc %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteSrc::process(CDMRData& data)

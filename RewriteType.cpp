@@ -25,12 +25,13 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId) :
+CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId, bool trace) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTG(fromTG),
 m_toSlot(toSlot),
 m_toId(toId),
+m_trace(trace),
 m_lc(FLCO_USER_USER, 0U, toId),
 m_embeddedLC()
 {
@@ -44,18 +45,28 @@ CRewriteType::~CRewriteType()
 
 bool CRewriteType::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: %s", m_name, m_fromSlot, m_fromTG, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteType::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: %s", m_name, m_fromSlot, m_fromTG, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CRewriteType::process(CDMRData& data)
 {
-	FLCO flco = data.getFLCO();
-	unsigned int dstId = data.getDstId();
+	FLCO flco           = data.getFLCO();
+	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
 	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG)

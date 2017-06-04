@@ -19,13 +19,15 @@
 #include "PassAllTG.h"
 
 #include "DMRDefines.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
-CPassAllTG::CPassAllTG(const char* name, unsigned int slot) :
+CPassAllTG::CPassAllTG(const char* name, unsigned int slot, bool trace) :
 m_name(name),
-m_slot(slot)
+m_slot(slot),
+m_trace(trace)
 {
 	assert(slot == 1U || slot == 2U);
 }
@@ -36,12 +38,22 @@ CPassAllTG::~CPassAllTG()
 
 bool CPassAllTG::processRF(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CPassAllTG::processNet(CDMRData& data)
 {
-	return process(data);
+	bool ret = process(data);
+
+	if (m_trace)
+		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }
 
 bool CPassAllTG::process(CDMRData& data)

@@ -26,7 +26,7 @@
 
 class CRewriteTG : public IRewrite {
 public:
-	CRewriteTG(const char*name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range);
+	CRewriteTG(const char*name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range, bool trace);
 	virtual ~CRewriteTG();
 
 	virtual bool processRF(CDMRData& data);
@@ -39,6 +39,7 @@ private:
 	unsigned int     m_fromTGEnd;
 	unsigned int     m_toSlot;
 	unsigned int     m_toTGStart;
+	bool             m_trace;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
