@@ -151,7 +151,7 @@ void CAPRSWriter::sendIdFrames()
 	if (m_txFrequency != 0U) {
 		float offset = float(int(m_rxFrequency) - int(m_txFrequency)) / 1000000.0F;
 		::sprintf(desc, "MMDVM Voice %.5LfMHz %c%.4lfMHz",
-			(long double)(m_txFrequency) / 1000000.0F,
+			(long double)(m_txFrequency) / 1000000.0L,
 			offset < 0.0F ? '-' : '+',
 			::fabs(offset));
 	} else {
