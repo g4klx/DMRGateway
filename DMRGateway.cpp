@@ -270,7 +270,6 @@ int CDMRGateway::run()
 	LogMessage("DMRGateway-%s is starting", VERSION);
 	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
     
-	CDMRGateway::createAPRSHelper();
 
 	// For DMR we try to map IDs to callsigns
 	std::string lookupFile  = m_conf.getDMRIdLookupFile();
@@ -309,6 +308,8 @@ int CDMRGateway::run()
 	}
 
 	LogMessage("MMDVM has connected");
+
+	CDMRGateway::createAPRSHelper();
 
 	if (m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
@@ -712,6 +713,9 @@ int CDMRGateway::run()
 		if (voice2 != NULL)
 			voice2->clock(ms);
 
+		if (m_aprsHelper != NULL)
+			m_aprsHelper->clock(ms);
+
 		for (unsigned int i = 1U; i < 3U; i++) {
 			timer[i]->clock(ms);
 			if (timer[i]->isRunning() && timer[i]->hasExpired()) {
@@ -1037,7 +1041,6 @@ bool CDMRGateway::createXLXNetwork1()
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);
-
 	m_xlxNetwork1->setConfig(config, len);
 
 	bool ret = m_xlxNetwork1->open();
@@ -1182,17 +1185,45 @@ void CDMRGateway::createAPRSHelper()
 	if (!m_conf.getAPRSEnabled())
 		return;
 
+	unsigned char config[400U];
+	unsigned int len = m_repeater->getConfig(config);
+
+	if (len == 0U)
+		return;
+
 	std::string hostname = m_conf.getAPRSServer();
 	unsigned int port    = m_conf.getAPRSPort();
 	std::string password = m_conf.getAPRSPassword();
 
 	m_aprsHelper = new CAPRSHelper(m_callsign, m_suffix, password, hostname, port);
-	
+
+	char myRxFreq[10];
+	snprintf(myRxFreq, 10, "%s", config + 8);
+	unsigned int rxFrequency = atoi(myRxFreq);
+
+	char myTxFreq[10];
+	snprintf(myTxFreq, 10, "%s", config + 17);
+	unsigned int txFrequency = atoi(myTxFreq);
+
+	char myLat[9];
+	snprintf(myLat, 9, "%s", config + 30);
+	float latitude = atof(myLat);
+
+	char myLon[10];
+	snprintf(myLon, 10, "%s", config + 38);
+	float longitude = atof(myLon);
+
+	char myHeight[4];
+	snprintf(myHeight, 4, "%s", config + 47 );
+	int height = atoi(myHeight);
+
 	bool ret = m_aprsHelper->open();
 	if (!ret) {
 		delete m_aprsHelper;
 		m_aprsHelper = NULL;
 	}
+
+	m_aprsHelper->setInfo(txFrequency, rxFrequency, latitude, longitude, height);
 }
 
 void CDMRGateway::extractGPSData(const CDMRData& data)
