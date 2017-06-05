@@ -72,6 +72,8 @@ private:
 	std::vector<IRewrite*> m_dmr2NetRewrites;
 	std::vector<IRewrite*> m_dmr2RFRewrites;
 	CDMRLookup*        m_lookup;
+	bool               m_lastSlot1HadNMEA;
+	bool               m_lastSlot2HadNMEA;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
@@ -79,7 +81,10 @@ private:
 	bool createXLXNetwork1();
 	bool createXLXNetwork2();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
+	void checkForGPSData(const CDMRData& data);
 	void extractGPSData(const CDMRData& data);
+	bool isGPSData(const CDMRData& data);
+
 	void createAPRSHelper();
 };
 

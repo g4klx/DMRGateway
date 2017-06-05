@@ -428,7 +428,12 @@ int CDMRGateway::run()
 
 		bool ret = m_repeater->read(data);
 		if (ret) {
-			extractGPSData(data);
+			// Check if NMEA Data coming
+			checkForGPSData(data);
+
+			// Do we have GPS data?
+			if (isGPSData(data))
+				extractGPSData(data);
 
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int srcId = data.getSrcId();
@@ -1225,6 +1230,55 @@ void CDMRGateway::createAPRSHelper()
 
 	m_aprsHelper->setInfo(txFrequency, rxFrequency, latitude, longitude, height);
 }
+
+void CDMRGateway::checkForGPSData(const CDMRData& data)
+{
+	unsigned int slotNo = data.getSlotNo();
+	unsigned char type = data.getDataType();
+	
+	if (type == DT_DATA_HEADER) {
+		CBPTC19696 bptc;
+		unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+
+		data.getData(buffer);
+
+		unsigned char payload[12U];
+		bptc.decode(buffer, payload);
+		if ( ((payload[1U] & 0x05U) == 0x05U) && ((payload[8U] & 0x03U) == 0x00U) )
+				{
+					LogDebug("UDT/NMEA Frame, Slot %d, 1 Appended data block outstanding", slotNo);
+					// Store Source and destination ID's  per slot
+					if (slotNo == 1)
+					{	
+						m_lastSlot1HadNMEA = true;
+						LogDebug("Recording that Slot1 has NMEA Data outstanding");
+					}
+					if (slotNo == 2){
+						m_lastSlot2HadNMEA = true;
+						LogDebug("Recording that Slot2 has NMEA Data outstanding");
+
+					}
+				}
+	}
+}
+
+bool CDMRGateway::isGPSData(const CDMRData& data)
+{
+	unsigned char type = data.getDataType();
+	
+	if (type == DT_RATE_12_DATA) {
+		if (m_lastSlot1HadNMEA == true){
+			m_lastSlot1HadNMEA = false;
+			return true;
+		} else if (m_lastSlot2HadNMEA == true)
+		{
+			m_lastSlot2HadNMEA = false;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void CDMRGateway::extractGPSData(const CDMRData& data)
 {
