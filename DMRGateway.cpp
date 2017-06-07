@@ -99,6 +99,7 @@ int main(int argc, char** argv)
 	}
 
 #if !defined(_WIN32) && !defined(_WIN64)
+	::signal(SIGINT,  sigHandler);
 	::signal(SIGTERM, sigHandler);
 	::signal(SIGHUP,  sigHandler);
 #endif
@@ -113,11 +114,14 @@ int main(int argc, char** argv)
 
 		delete host;
 
+		if (m_signal == 2)
+			::LogInfo("DMRGateway-%s exited on receipt of SIGINT", VERSION);
+
 		if (m_signal == 15)
-			::LogInfo("Caught SIGTERM, exiting");
+			::LogInfo("DMRGateway-%s exited on receipt of SIGTERM", VERSION);
 
 		if (m_signal == 1)
-			::LogInfo("Caught SIGHUP, restarting");
+			::LogInfo("DMRGateway-%s restarted on receipt of SIGHUP", VERSION);
 	} while (m_signal == 1);
 
 	::LogFinalise();
@@ -277,7 +281,7 @@ int CDMRGateway::run()
 	}
 
 	if (m_killed) {
-		LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
+//		LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 		m_repeater->close();
 		delete m_repeater;
 		return 0;
@@ -759,7 +763,7 @@ int CDMRGateway::run()
 			CThread::sleep(10U);
 	}
 
-	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
+//	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 
 	delete voice1;
 	delete voice2;
