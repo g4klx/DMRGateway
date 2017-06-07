@@ -24,10 +24,9 @@
 #include <cstdio>
 #include <cassert>
 
-CPassAllTG::CPassAllTG(const char* name, unsigned int slot, bool trace) :
+CPassAllTG::CPassAllTG(const char* name, unsigned int slot) :
 m_name(name),
-m_slot(slot),
-m_trace(trace)
+m_slot(slot)
 {
 	assert(slot == 1U || slot == 2U);
 }
@@ -36,30 +35,15 @@ CPassAllTG::~CPassAllTG()
 {
 }
 
-bool CPassAllTG::processRF(CDMRData& data)
-{
-	bool ret = process(data);
-
-	if (m_trace)
-		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
-
-	return ret;
-}
-
-bool CPassAllTG::processNet(CDMRData& data)
-{
-	bool ret = process(data);
-
-	if (m_trace)
-		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
-
-	return ret;
-}
-
-bool CPassAllTG::process(CDMRData& data)
+bool CPassAllTG::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_GROUP && slotNo == m_slot;
+	bool ret = (flco == FLCO_GROUP && slotNo == m_slot);
+
+	if (trace)
+		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }

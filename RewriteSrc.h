@@ -26,11 +26,10 @@
 
 class CRewriteSrc : public IRewrite {
 public:
-	CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range, bool trace);
+	CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range);
 	virtual ~CRewriteSrc();
 
-	virtual bool processRF(CDMRData& data);
-	virtual bool processNet(CDMRData& data);
+	virtual bool process(CDMRData& data, bool trace);
 
 private:
 	const char*      m_name;
@@ -39,11 +38,9 @@ private:
 	unsigned int     m_fromIdEnd;
 	unsigned int     m_toSlot;
 	unsigned int     m_toTG;
-	bool             m_trace;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
 
-	bool process(CDMRData& data);
 	void processHeader(CDMRData& data, unsigned char dataType);
 	void processVoice(CDMRData& data);
 };

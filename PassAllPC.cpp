@@ -24,10 +24,9 @@
 #include <cstdio>
 #include <cassert>
 
-CPassAllPC::CPassAllPC(const char* name, unsigned int slot, bool trace) :
+CPassAllPC::CPassAllPC(const char* name, unsigned int slot) :
 m_name(name),
-m_slot(slot),
-m_trace(trace)
+m_slot(slot)
 {
 	assert(slot == 1U || slot == 2U);
 }
@@ -36,30 +35,15 @@ CPassAllPC::~CPassAllPC()
 {
 }
 
-bool CPassAllPC::processRF(CDMRData& data)
-{
-	bool ret = process(data);
-
-	if (m_trace)
-		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
-
-	return ret;
-}
-
-bool CPassAllPC::processNet(CDMRData& data)
-{
-	bool ret = process(data);
-
-	if (m_trace)
-		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
-
-	return ret;
-}
-
-bool CPassAllPC::process(CDMRData& data)
+bool CPassAllPC::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_USER_USER && slotNo == m_slot;
+	bool ret = (flco == FLCO_USER_USER && slotNo == m_slot);
+
+	if (trace)
+		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }

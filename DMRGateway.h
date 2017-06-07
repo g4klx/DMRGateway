@@ -69,8 +69,8 @@ private:
 	std::vector<IRewrite*> m_dmr2Passalls;
 
 	bool createMMDVM();
-	bool createDMRNetwork1(bool trace);
-	bool createDMRNetwork2(bool trace);
+	bool createDMRNetwork1();
+	bool createDMRNetwork2();
 	bool createXLXNetwork1();
 	bool createXLXNetwork2();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
