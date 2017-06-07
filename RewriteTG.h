@@ -39,6 +39,7 @@ private:
 	unsigned int     m_fromTGEnd;
 	unsigned int     m_toSlot;
 	unsigned int     m_toTGStart;
+	unsigned int     m_toTGEnd;
 	bool             m_trace;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;

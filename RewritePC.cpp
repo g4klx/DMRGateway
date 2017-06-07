@@ -29,9 +29,10 @@ CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fro
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
-m_fromIdEnd(fromId + range),
+m_fromIdEnd(fromId + range - 1U),
 m_toSlot(toSlot),
 m_toIdStart(toId),
+m_toIdEnd(toId + range - 1U),
 m_trace(trace),
 m_lc(FLCO_USER_USER, 0U, 0U),
 m_embeddedLC()
@@ -49,7 +50,10 @@ bool CRewritePC::processRF(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewritePC %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name, m_toSlot, m_toIdStart, m_toIdEnd);
 
 	return ret;
 }
@@ -59,7 +63,10 @@ bool CRewritePC::processNet(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewritePC %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name, m_toSlot, m_toIdStart, m_toIdEnd);
 
 	return ret;
 }
@@ -70,7 +77,7 @@ bool CRewritePC::process(CDMRData& data)
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId >= m_fromIdEnd)
+	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId > m_fromIdEnd)
 		return false;
 
 	if (m_fromSlot != m_toSlot)
