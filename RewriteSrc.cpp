@@ -29,7 +29,7 @@ CRewriteSrc::CRewriteSrc(const char* name, unsigned int fromSlot, unsigned int f
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
-m_fromIdEnd(fromId + range),
+m_fromIdEnd(fromId + range - 1U),
 m_toSlot(toSlot),
 m_toTG(toTG),
 m_trace(trace),
@@ -72,7 +72,7 @@ bool CRewriteSrc::process(CDMRData& data)
 	unsigned int srcId = data.getSrcId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || srcId < m_fromIdStart || srcId >= m_fromIdEnd)
+	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || srcId < m_fromIdStart || srcId > m_fromIdEnd)
 		return false;
 
 	if (m_fromSlot != m_toSlot)

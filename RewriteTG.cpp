@@ -29,7 +29,7 @@ CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fro
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTGStart(fromTG),
-m_fromTGEnd(fromTG + range),
+m_fromTGEnd(fromTG + range - 1U),
 m_toSlot(toSlot),
 m_toTGStart(toTG),
 m_trace(trace),
@@ -70,7 +70,7 @@ bool CRewriteTG::process(CDMRData& data)
 	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId >= m_fromTGEnd)
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd)
 		return false;
 
 	if (m_fromSlot != m_toSlot)
