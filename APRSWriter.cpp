@@ -18,6 +18,8 @@
 
 #include "APRSWriter.h"
 
+#include "DMRDefines.h"
+
 #include <cstdio>
 #include <cassert>
 #include <cstring>
@@ -41,7 +43,7 @@ m_height(0)
 
 	if (!suffix.empty()) {
 		m_callsign.append("-");
-		m_callsign.append(suffix.substr(0U, 2U));
+		m_callsign.append(suffix.substr(0U, 1U));
 	}
 
 	m_thread = new CAPRSWriterThread(m_callsign, password, address, port);
@@ -62,6 +64,7 @@ void CAPRSWriter::setInfo(unsigned int txFrequency, unsigned int rxFrequency, fl
 
 bool CAPRSWriter::open()
 {
+	m_idTimer.start();
 	return m_thread->start();
 }
 
@@ -71,8 +74,8 @@ void CAPRSWriter::write(const unsigned char* source, const char* type, unsigned 
 	assert(type != NULL);
 
 	char callsign[11U];
-	::memcpy(callsign, source, 10U);
-	callsign[10U] = 0x00U;
+	::memcpy(callsign, source, DMR_CALLSIGN_LENGTH);
+	callsign[DMR_CALLSIGN_LENGTH] = 0x00U;
 
 	size_t n = ::strspn(callsign, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 	callsign[n] = 0x00U;
@@ -147,8 +150,8 @@ void CAPRSWriter::sendIdFrames()
 	char desc[100U];
 	if (m_txFrequency != 0U) {
 		float offset = float(int(m_rxFrequency) - int(m_txFrequency)) / 1000000.0F;
-		::sprintf(desc, "MMDVM Voice %.5lfMHz %c%.4lfMHz",
-			float(m_txFrequency) / 1000000.0F,
+		::sprintf(desc, "MMDVM Voice %.5LfMHz %c%.4lfMHz",
+			(long double)(m_txFrequency) / 1000000.0L,
 			offset < 0.0F ? '-' : '+',
 			::fabs(offset));
 	} else {
@@ -177,10 +180,11 @@ void CAPRSWriter::sendIdFrames()
 	longitude = (tempLong - longitude) * 60.0 + longitude * 100.0;
 
 	char lat[20U];
-	::sprintf(lat, "%04.2lf", latitude);
+	::sprintf(lat, "%07.2lf", latitude);
 
 	char lon[20U];
-	::sprintf(lon, "%05.2lf", longitude);
+
+	::sprintf(lon, "%08.2lf", longitude);
 
 	std::string server = m_callsign;
 	size_t pos = server.find_first_of('-');
@@ -197,6 +201,5 @@ void CAPRSWriter::sendIdFrames()
 		float(m_height) * 3.28F, band, desc);
 
 	m_thread->write(output);
-
 	m_idTimer.start();
 }

@@ -28,10 +28,16 @@ public:
 	CAPRSHelper(const std::string& callsign, const std::string& suffix, const std::string& password, const std::string& address, unsigned int port);
 	~CAPRSHelper();
 
+    void setInfo(unsigned int txFrequency, unsigned int rxFrequency, float latitude, float longitude, int height);
+
 	bool open();
+
+    void clock(unsigned int ms);
 
     void send(std::string callsign, float latitude, float longitude, int altitude);
     
+    void reset();
+
 	void close();
 
 private:

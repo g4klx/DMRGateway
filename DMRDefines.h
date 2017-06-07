@@ -37,6 +37,8 @@ const unsigned int DMR_EMBEDDED_SIGNALLING_LENGTH_BYTES = 4U;
 const unsigned int DMR_AMBE_LENGTH_BITS  = 108U * 2U;
 const unsigned int DMR_AMBE_LENGTH_BYTES = 27U;
 
+const unsigned int  DMR_CALLSIGN_LENGTH   = 10U;
+
 const unsigned char BS_SOURCED_AUDIO_SYNC[]   = {0x07U, 0x55U, 0xFDU, 0x7DU, 0xF7U, 0x5FU, 0x70U};
 const unsigned char BS_SOURCED_DATA_SYNC[]    = {0x0DU, 0xFFU, 0x57U, 0xD7U, 0x5DU, 0xF5U, 0xD0U};
 

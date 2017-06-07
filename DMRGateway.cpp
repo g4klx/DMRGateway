@@ -270,7 +270,6 @@ int CDMRGateway::run()
 	LogMessage("DMRGateway-%s is starting", VERSION);
 	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
     
-	CDMRGateway::createAPRSHelper();
 
 	// For DMR we try to map IDs to callsigns
 	std::string lookupFile  = m_conf.getDMRIdLookupFile();
@@ -309,6 +308,8 @@ int CDMRGateway::run()
 	}
 
 	LogMessage("MMDVM has connected");
+
+	CDMRGateway::createAPRSHelper();
 
 	if (m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
@@ -427,7 +428,12 @@ int CDMRGateway::run()
 
 		bool ret = m_repeater->read(data);
 		if (ret) {
-			extractGPSData(data);
+			// Check if NMEA Data coming
+			checkForGPSData(data);
+
+			// Do we have GPS data?
+			if (isGPSData(data))
+				extractGPSData(data);
 
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int srcId = data.getSrcId();
@@ -711,6 +717,9 @@ int CDMRGateway::run()
 
 		if (voice2 != NULL)
 			voice2->clock(ms);
+
+		if (m_aprsHelper != NULL)
+			m_aprsHelper->clock(ms);
 
 		for (unsigned int i = 1U; i < 3U; i++) {
 			timer[i]->clock(ms);
@@ -1037,7 +1046,6 @@ bool CDMRGateway::createXLXNetwork1()
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);
-
 	m_xlxNetwork1->setConfig(config, len);
 
 	bool ret = m_xlxNetwork1->open();
@@ -1182,18 +1190,95 @@ void CDMRGateway::createAPRSHelper()
 	if (!m_conf.getAPRSEnabled())
 		return;
 
+	unsigned char config[400U];
+	unsigned int len = m_repeater->getConfig(config);
+
+	if (len == 0U)
+		return;
+
 	std::string hostname = m_conf.getAPRSServer();
 	unsigned int port    = m_conf.getAPRSPort();
 	std::string password = m_conf.getAPRSPassword();
 
 	m_aprsHelper = new CAPRSHelper(m_callsign, m_suffix, password, hostname, port);
-	
+
+	char myRxFreq[10];
+	snprintf(myRxFreq, 10, "%s", config + 8);
+	unsigned int rxFrequency = atoi(myRxFreq);
+
+	char myTxFreq[10];
+	snprintf(myTxFreq, 10, "%s", config + 17);
+	unsigned int txFrequency = atoi(myTxFreq);
+
+	char myLat[9];
+	snprintf(myLat, 9, "%s", config + 30);
+	float latitude = atof(myLat);
+
+	char myLon[10];
+	snprintf(myLon, 10, "%s", config + 38);
+	float longitude = atof(myLon);
+
+	char myHeight[4];
+	snprintf(myHeight, 4, "%s", config + 47 );
+	int height = atoi(myHeight);
+
 	bool ret = m_aprsHelper->open();
 	if (!ret) {
 		delete m_aprsHelper;
 		m_aprsHelper = NULL;
 	}
+
+	m_aprsHelper->setInfo(txFrequency, rxFrequency, latitude, longitude, height);
 }
+
+void CDMRGateway::checkForGPSData(const CDMRData& data)
+{
+	unsigned int slotNo = data.getSlotNo();
+	unsigned char type = data.getDataType();
+	
+	if (type == DT_DATA_HEADER) {
+		CBPTC19696 bptc;
+		unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+
+		data.getData(buffer);
+
+		unsigned char payload[12U];
+		bptc.decode(buffer, payload);
+		if ( ((payload[1U] & 0x05U) == 0x05U) && ((payload[8U] & 0x03U) == 0x00U) )
+				{
+					LogDebug("UDT/NMEA Frame, Slot %d, 1 Appended data block outstanding", slotNo);
+					// Store Source and destination ID's  per slot
+					if (slotNo == 1)
+					{	
+						m_lastSlot1HadNMEA = true;
+						LogDebug("Recording that Slot1 has NMEA Data outstanding");
+					}
+					if (slotNo == 2){
+						m_lastSlot2HadNMEA = true;
+						LogDebug("Recording that Slot2 has NMEA Data outstanding");
+
+					}
+				}
+	}
+}
+
+bool CDMRGateway::isGPSData(const CDMRData& data)
+{
+	unsigned char type = data.getDataType();
+	
+	if (type == DT_RATE_12_DATA) {
+		if (m_lastSlot1HadNMEA == true){
+			m_lastSlot1HadNMEA = false;
+			return true;
+		} else if (m_lastSlot2HadNMEA == true)
+		{
+			m_lastSlot2HadNMEA = false;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void CDMRGateway::extractGPSData(const CDMRData& data)
 {
