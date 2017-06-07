@@ -157,7 +157,9 @@ m_xlx2Rewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
-m_dmr2RFRewrites()
+m_dmr2RFRewrites(),
+m_dmr1Passalls(),
+m_dmr2Passalls()
 {
 }
 
@@ -174,6 +176,12 @@ CDMRGateway::~CDMRGateway()
 	
 	for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
+
+	for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it)
+		delete *it;
+
+	for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it)
+		delete *it;
 
 	delete m_rpt1Rewrite;
 	delete m_xlx1Rewrite;
@@ -565,6 +573,46 @@ int CDMRGateway::run()
 					}
 				}
 
+				if (!rewritten) {
+					if (m_dmrNetwork1 != NULL) {
+						for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
+							bool ret = (*it)->processRF(data);
+							if (ret) {
+								rewritten = true;
+								break;
+							}
+						}
+
+						if (rewritten) {
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+								m_dmrNetwork1->write(data);
+								status[slotNo] = DMRGWS_DMRNETWORK1;
+								timer[slotNo]->start();
+							}
+						}
+					}
+				}
+
+				if (!rewritten) {
+					if (m_dmrNetwork2 != NULL) {
+						for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
+							bool ret = (*it)->processRF(data);
+							if (ret) {
+								rewritten = true;
+								break;
+							}
+						}
+
+						if (rewritten) {
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+								m_dmrNetwork2->write(data);
+								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->start();
+							}
+						}
+					}
+				}
+
 				if (!rewritten && ruleTrace)
 					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
@@ -763,8 +811,6 @@ int CDMRGateway::run()
 			CThread::sleep(10U);
 	}
 
-//	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
-
 	delete voice1;
 	delete voice2;
 
@@ -913,7 +959,7 @@ bool CDMRGateway::createDMRNetwork1(bool trace)
 		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-1", *it, trace);
 		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-1", *it, trace);
 
-		m_dmr1RFRewrites.push_back(rfPassAllTG);
+		m_dmr1Passalls.push_back(rfPassAllTG);
 		m_dmr1NetRewrites.push_back(netPassAllTG);
 	}
 
@@ -924,7 +970,7 @@ bool CDMRGateway::createDMRNetwork1(bool trace)
 		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-1", *it, trace);
 		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-1", *it, trace);
 
-		m_dmr1RFRewrites.push_back(rfPassAllPC);
+		m_dmr1Passalls.push_back(rfPassAllPC);
 		m_dmr1NetRewrites.push_back(netPassAllPC);
 	}
 
@@ -1021,7 +1067,7 @@ bool CDMRGateway::createDMRNetwork2(bool trace)
 		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-2", *it, trace);
 		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-2", *it, trace);
 
-		m_dmr2RFRewrites.push_back(rfPassAllTG);
+		m_dmr2Passalls.push_back(rfPassAllTG);
 		m_dmr2NetRewrites.push_back(netPassAllTG);
 	}
 
@@ -1032,7 +1078,7 @@ bool CDMRGateway::createDMRNetwork2(bool trace)
 		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-2", *it, trace);
 		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-2", *it, trace);
 
-		m_dmr2RFRewrites.push_back(rfPassAllPC);
+		m_dmr2Passalls.push_back(rfPassAllPC);
 		m_dmr2NetRewrites.push_back(netPassAllPC);
 	}
 
