@@ -51,7 +51,10 @@ bool CRewriteSrc::processRF(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewriteSrc %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewriteSrc from %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewriteSrc to %s Slot=%u Dst=TG%u", m_name, m_toSlot, m_toTG);
 
 	return ret;
 }
@@ -61,7 +64,10 @@ bool CRewriteSrc::processNet(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewriteSrc %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewriteSrc from %s Slot=%u Src=%u-%u: %s", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewriteSrc to %s Slot=%u Dst=TG%u", m_name, m_toSlot, m_toTG);
 
 	return ret;
 }

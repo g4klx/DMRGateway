@@ -32,6 +32,7 @@ m_fromTGStart(fromTG),
 m_fromTGEnd(fromTG + range - 1U),
 m_toSlot(toSlot),
 m_toTGStart(toTG),
+m_toTGEnd(toTG + range - 1U),
 m_trace(trace),
 m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
@@ -49,7 +50,10 @@ bool CRewriteTG::processRF(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewriteTG %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name, m_toSlot, m_toTGStart, m_toTGEnd);
 
 	return ret;
 }
@@ -59,7 +63,10 @@ bool CRewriteTG::processNet(CDMRData& data)
 	bool ret = process(data);
 
 	if (m_trace)
-		LogDebug("Rule Trace,\tRewriteTG %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: %s", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd, ret ? "matched" : "not matched");
+		
+	if (m_trace && ret) 
+		LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name, m_toSlot, m_toTGStart, m_toTGEnd);
 
 	return ret;
 }
