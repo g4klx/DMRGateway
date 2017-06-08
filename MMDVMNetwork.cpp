@@ -260,12 +260,8 @@ void CMMDVMNetwork::close()
 
 	LogMessage("DMR, Closing MMDVM Network");
 
-	buffer[0U]  = 'M';
-	buffer[1U]  = 'S';
-	buffer[2U]  = 'T';
-	buffer[3U]  = 'N';
-	buffer[4U]  = 'A';
-	buffer[5U]  = 'K';
+	::memcpy(buffer + 0U, "MSTCL", 5U);
+	::memcpy(buffer + 5U, m_netId, 4U);
 
 	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
 	m_socket.close();
