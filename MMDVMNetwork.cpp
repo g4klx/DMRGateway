@@ -94,7 +94,7 @@ unsigned int CMMDVMNetwork::getId() const
 
 bool CMMDVMNetwork::open()
 {
-	LogMessage("DMR, Opening MMDVM Network");
+	LogMessage("MMDVM Network, Opening");
 
 	return m_socket.open();
 }
@@ -258,18 +258,13 @@ void CMMDVMNetwork::close()
 	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
 	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);
 
-	LogMessage("DMR, Closing MMDVM Network");
+	LogMessage("MMDVM Network, Closing");
 
-	buffer[0U]  = 'M';
-	buffer[1U]  = 'S';
-	buffer[2U]  = 'T';
-	buffer[3U]  = 'N';
-	buffer[4U]  = 'A';
-	buffer[5U]  = 'K';
+	::memcpy(buffer + 0U, "MSTCL", 5U);
+	::memcpy(buffer + 5U, m_netId, 4U);
 
 	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
 	m_socket.close();
-
 }
 
 void CMMDVMNetwork::clock(unsigned int ms)
@@ -278,7 +273,7 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	unsigned int port;
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
 	if (length < 0) {
-		LogError("DMR, Socket has failed, reopening");
+		LogError("MMDVM Network, Socket has failed, reopening");
 		close();
 		open();
 		return;
@@ -317,6 +312,8 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			::memcpy(ack + 0U, "RPTACK", 6U);
 			::memcpy(ack + 6U, m_netId, 4U);
 			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
+			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
 			m_configLen = length - 8U;
 			m_configData = new unsigned char[m_configLen];
