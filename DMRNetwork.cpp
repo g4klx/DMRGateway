@@ -324,7 +324,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			m_rxData.addData(m_buffer, len);
 		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
 			if (m_status == RUNNING) {
-				LogWarning("%s, The master is restarting, logging back in", m_name);
+				LogWarning("%s, Login to the master has failed, retrying login ...", m_name);
 				m_status = WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
@@ -332,7 +332,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				/* Once the modem death spiral has been prevented in Modem.cpp
 				   the Network sometimes times out and reaches here.
 				   We want it to reconnect so... */
-				LogError("%s, Login to the master has failed, retrying ...", m_name);
+				LogError("%s, Login to the master has failed, retrying network ...", m_name);
 				close();
 				open();
 				return;
