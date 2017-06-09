@@ -364,6 +364,18 @@ int CDMRGateway::run()
 	status[1U] = DMRGWS_NONE;
 	status[2U] = DMRGWS_NONE;
 
+	unsigned int rfSrcId[3U];
+	unsigned int rfDstId[3U];
+	rfSrcId[1U] = rfSrcId[2U] = rfDstId[1U] = rfDstId[2U] = 0U;
+
+	unsigned int dmr1SrcId[3U];
+	unsigned int dmr1DstId[3U];
+	dmr1SrcId[1U] = dmr1SrcId[2U] = dmr1DstId[1U] = dmr1DstId[2U] = 0U;
+
+	unsigned int dmr2SrcId[3U];
+	unsigned int dmr2DstId[3U];
+	dmr2SrcId[1U] = dmr2SrcId[2U] = dmr2DstId[1U] = dmr2DstId[2U] = 0U;
+
 	CStopWatch stopWatch;
 	stopWatch.start();
 
@@ -527,7 +539,14 @@ int CDMRGateway::run()
 				unsigned int dstId  = data.getDstId();
 				FLCO flco           = data.getFLCO();
 
-				if (ruleTrace)
+				bool trace = false;
+				if (ruleTrace && (srcId != rfSrcId[slotNo] || dstId != rfDstId[slotNo])) {
+					rfSrcId[slotNo] = srcId;
+					rfDstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
 					LogDebug("Rule Trace, RF transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
 
 				bool rewritten = false;
@@ -535,7 +554,7 @@ int CDMRGateway::run()
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
 					for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
-						bool ret = (*it)->process(data, ruleTrace);
+						bool ret = (*it)->process(data, trace);
 						if (ret) {
 							rewritten = true;
 							break;
@@ -555,7 +574,7 @@ int CDMRGateway::run()
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data, ruleTrace);
+							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
 								break;
@@ -575,7 +594,7 @@ int CDMRGateway::run()
 				if (!rewritten) {
 					if (m_dmrNetwork1 != NULL) {
 						for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, ruleTrace);
+							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
 								break;
@@ -595,7 +614,7 @@ int CDMRGateway::run()
 				if (!rewritten) {
 					if (m_dmrNetwork2 != NULL) {
 						for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, ruleTrace);
+							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
 								break;
@@ -612,7 +631,7 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten && ruleTrace)
+				if (!rewritten && trace)
 					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
 		}
@@ -664,13 +683,20 @@ int CDMRGateway::run()
 				unsigned int dstId  = data.getDstId();
 				FLCO flco           = data.getFLCO();
 
-				if (ruleTrace)
+				bool trace = false;
+				if (ruleTrace && (srcId != dmr1SrcId[slotNo] || dstId != dmr1DstId[slotNo])) {
+					dmr1SrcId[slotNo] = srcId;
+					dmr1DstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
 					LogDebug("Rule Trace, network 1 transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
 
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
-					bool ret = (*it)->process(data, ruleTrace);
+					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;
 						break;
@@ -685,7 +711,7 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten && ruleTrace)
+				if (!rewritten && trace)
 					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
 
@@ -702,13 +728,20 @@ int CDMRGateway::run()
 				unsigned int dstId  = data.getDstId();
 				FLCO flco           = data.getFLCO();
 
-				if (ruleTrace)
+				bool trace = false;
+				if (ruleTrace && (srcId != dmr2SrcId[slotNo] || dstId != dmr2DstId[slotNo])) {
+					dmr2SrcId[slotNo] = srcId;
+					dmr2DstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
 					LogDebug("Rule Trace, network 2 transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
 
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
-					bool ret = (*it)->process(data, ruleTrace);
+					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;
 						break;
@@ -723,7 +756,7 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten && ruleTrace)
+				if (!rewritten && trace)
 					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
 
