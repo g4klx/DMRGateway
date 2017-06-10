@@ -20,6 +20,7 @@
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
@@ -28,9 +29,10 @@ CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fro
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTGStart(fromTG),
-m_fromTGEnd(fromTG + range),
+m_fromTGEnd(fromTG + range - 1U),
 m_toSlot(toSlot),
 m_toTGStart(toTG),
+m_toTGEnd(toTG + range - 1U),
 m_lc(FLCO_GROUP, 0U, toTG),
 m_embeddedLC()
 {
@@ -42,24 +44,17 @@ CRewriteTG::~CRewriteTG()
 {
 }
 
-bool CRewriteTG::processRF(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CRewriteTG::processNet(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CRewriteTG::process(CDMRData& data)
+bool CRewriteTG::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId >= m_fromTGEnd)
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		return false;
+	}
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
@@ -86,6 +81,11 @@ bool CRewriteTG::process(CDMRData& data)
 			// Not sure what to do
 			break;
 		}
+	}
+
+	if (trace) {
+		LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: matched", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd);
+		LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name, m_toSlot, m_toTGStart, m_toTGEnd);
 	}
 
 	return true;

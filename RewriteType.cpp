@@ -42,24 +42,17 @@ CRewriteType::~CRewriteType()
 {
 }
 
-bool CRewriteType::processRF(CDMRData& data)
+bool CRewriteType::process(CDMRData& data, bool trace)
 {
-	return process(data);
-}
-
-bool CRewriteType::processNet(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CRewriteType::process(CDMRData& data)
-{
-	FLCO flco = data.getFLCO();
-	unsigned int dstId = data.getDstId();
+	FLCO flco           = data.getFLCO();
+	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG)
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: not matched", m_name, m_fromSlot, m_fromTG);
 		return false;
+	}
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
@@ -84,6 +77,9 @@ bool CRewriteType::process(CDMRData& data)
 		// Not sure what to do
 		break;
 	}
+
+	if (trace)
+		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: matched", m_name, m_fromSlot, m_fromTG);
 
 	return true;
 }

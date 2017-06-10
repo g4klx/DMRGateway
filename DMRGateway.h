@@ -71,6 +71,8 @@ private:
 	std::vector<IRewrite*> m_dmr1RFRewrites;
 	std::vector<IRewrite*> m_dmr2NetRewrites;
 	std::vector<IRewrite*> m_dmr2RFRewrites;
+	std::vector<IRewrite*> m_dmr1Passalls;
+	std::vector<IRewrite*> m_dmr2Passalls;
 	CDMRLookup*        m_lookup;
 	bool               m_lastSlot1HadNMEA;
 	bool               m_lastSlot2HadNMEA;

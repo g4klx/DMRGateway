@@ -19,6 +19,7 @@
 #include "PassAllTG.h"
 
 #include "DMRDefines.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
@@ -34,20 +35,15 @@ CPassAllTG::~CPassAllTG()
 {
 }
 
-bool CPassAllTG::processRF(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CPassAllTG::processNet(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CPassAllTG::process(CDMRData& data)
+bool CPassAllTG::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_GROUP && slotNo == m_slot;
+	bool ret = (flco == FLCO_GROUP && slotNo == m_slot);
+
+	if (trace)
+		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }

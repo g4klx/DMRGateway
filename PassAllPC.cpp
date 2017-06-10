@@ -19,6 +19,7 @@
 #include "PassAllPC.h"
 
 #include "DMRDefines.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
@@ -34,20 +35,15 @@ CPassAllPC::~CPassAllPC()
 {
 }
 
-bool CPassAllPC::processRF(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CPassAllPC::processNet(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CPassAllPC::process(CDMRData& data)
+bool CPassAllPC::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	return flco == FLCO_USER_USER && slotNo == m_slot;
+	bool ret = (flco == FLCO_USER_USER && slotNo == m_slot);
+
+	if (trace)
+		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+
+	return ret;
 }

@@ -27,14 +27,11 @@ public:
 	CPassAllTG(const char* name, unsigned int slot);
 	virtual ~CPassAllTG();
 
-	virtual bool processRF(CDMRData& data);
-	virtual bool processNet(CDMRData& data);
+	virtual bool process(CDMRData& data, bool trace);
 
 private:
 	const char*  m_name;
 	unsigned int m_slot;
-
-	bool process(CDMRData& data);
 };
 
 

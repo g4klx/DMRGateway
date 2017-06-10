@@ -105,6 +105,7 @@ int main(int argc, char** argv)
 	}
 
 #if !defined(_WIN32) && !defined(_WIN64)
+	::signal(SIGINT,  sigHandler);
 	::signal(SIGTERM, sigHandler);
 	::signal(SIGHUP,  sigHandler);
 #endif
@@ -119,11 +120,14 @@ int main(int argc, char** argv)
 
 		delete host;
 
+		if (m_signal == 2)
+			::LogInfo("DMRGateway-%s exited on receipt of SIGINT", VERSION);
+
 		if (m_signal == 15)
-			::LogInfo("Caught SIGTERM, exiting");
+			::LogInfo("DMRGateway-%s exited on receipt of SIGTERM", VERSION);
 
 		if (m_signal == 1)
-			::LogInfo("Caught SIGHUP, restarting");
+			::LogInfo("DMRGateway-%s restarted on receipt of SIGHUP", VERSION);
 	} while (m_signal == 1);
 
 	::LogFinalise();
@@ -162,7 +166,11 @@ m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr2NetRewrites(),
 m_dmr2RFRewrites(),
-m_lookup(NULL)
+m_dmr1Passalls(),
+m_dmr2Passalls(),
+m_lookup(NULL),
+m_lastSlot1HadNMEA(false),
+m_lastSlot2HadNMEA(false)
 {
 }
 
@@ -179,6 +187,12 @@ CDMRGateway::~CDMRGateway()
 	
 	for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
+
+	for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it)
+		delete *it;
+
+	for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it)
+		delete *it;
 
 	delete m_rpt1Rewrite;
 	delete m_xlx1Rewrite;
@@ -292,7 +306,7 @@ int CDMRGateway::run()
 	while (!m_killed) {
 		unsigned char config[400U];
 		unsigned int len = m_repeater->getConfig(config);
-		if (len > 0U)
+		if (len > 0U && m_repeater->getId() > 1000U)
 			break;
 
 		m_repeater->clock(10U);
@@ -301,7 +315,6 @@ int CDMRGateway::run()
 	}
 
 	if (m_killed) {
-		LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 		m_repeater->close();
 		delete m_repeater;
 		return 0;
@@ -309,7 +322,10 @@ int CDMRGateway::run()
 
 	LogMessage("MMDVM has connected");
 
-	CDMRGateway::createAPRSHelper();
+	createAPRSHelper();
+
+	bool ruleTrace = m_conf.getRuleTrace();
+	LogInfo("Rule trace: %s", ruleTrace ? "yes" : "no");
 
 	if (m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
@@ -376,6 +392,18 @@ int CDMRGateway::run()
 	status[1U] = DMRGWS_NONE;
 	status[2U] = DMRGWS_NONE;
 
+	unsigned int rfSrcId[3U];
+	unsigned int rfDstId[3U];
+	rfSrcId[1U] = rfSrcId[2U] = rfDstId[1U] = rfDstId[2U] = 0U;
+
+	unsigned int dmr1SrcId[3U];
+	unsigned int dmr1DstId[3U];
+	dmr1SrcId[1U] = dmr1SrcId[2U] = dmr1DstId[1U] = dmr1DstId[2U] = 0U;
+
+	unsigned int dmr2SrcId[3U];
+	unsigned int dmr2DstId[3U];
+	dmr2SrcId[1U] = dmr2SrcId[2U] = dmr2DstId[1U] = dmr2DstId[2U] = 0U;
+
 	CStopWatch stopWatch;
 	stopWatch.start();
 
@@ -389,6 +417,7 @@ int CDMRGateway::run()
 			if (connected && !m_xlx1Connected) {
 				if (m_xlx1Startup != 4000U) {
 					writeXLXLink(m_xlx1Id, m_xlx1Startup, m_xlxNetwork1);
+					LogMessage("XLX-1, Linking to reflector %u at startup", m_xlx1Startup);
 					if (voice1 != NULL)
 						voice1->linkedTo(m_xlx1Startup);
 				}
@@ -396,8 +425,11 @@ int CDMRGateway::run()
 				m_xlx1Reflector = m_xlx1Startup;
 				m_xlx1Connected = true;
 			} else if (!connected && m_xlx1Connected) {
-				if (m_xlx1Reflector != 4000U && voice1 != NULL)
-					voice1->unlinked();
+				if (m_xlx1Reflector != 4000U) {
+					LogMessage("XLX-1, Unlinking due to loss of connection");
+					if (voice1 != NULL)
+						voice1->unlinked();
+				}
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
@@ -409,6 +441,7 @@ int CDMRGateway::run()
 			if (connected && !m_xlx2Connected) {
 				if (m_xlx2Startup != 4000U) {
 					writeXLXLink(m_xlx2Id, m_xlx2Startup, m_xlxNetwork2);
+					LogMessage("XLX-2, Linking to reflector %u at startup", m_xlx2Startup);
 					if (voice2 != NULL)
 						voice2->linkedTo(m_xlx2Startup);
 				}
@@ -416,8 +449,11 @@ int CDMRGateway::run()
 				m_xlx2Reflector = m_xlx2Startup;
 				m_xlx2Connected = true;
 			} else if (!connected && m_xlx2Connected) {
-				if (m_xlx2Reflector != 4000U && voice2 != NULL)
-					voice2->unlinked();
+				if (m_xlx2Reflector != 4000U) {
+					LogMessage("XLX-2, Unlinking due to loss of connection");
+					if (voice2 != NULL)
+						voice2->unlinked();
+				}
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
@@ -441,22 +477,27 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
-				m_xlx1Rewrite->processRF(data);
+				m_xlx1Rewrite->process(data, false);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
-				m_xlx2Rewrite->processRF(data);
+				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base && dstId <= (m_xlx1Base + 26U)) {
+			} else if ((dstId <= (m_xlx1Base + 26U) || dstId == (m_xlx1Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base) {
 				dstId += 4000U;
 				dstId -= m_xlx1Base;
 
 				if (dstId != m_xlx1Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-1, Unlinking");
+					} else if (dstId == 5000U) {
+						if (m_xlx1Reflector != 4000U)
+							voice1->linkedTo(m_xlx1Reflector);
+						else
+							voice1->unlinked();
 					} else {
 						if (m_xlx1Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork1);
@@ -464,9 +505,11 @@ int CDMRGateway::run()
 						LogMessage("XLX-1, Linking to reflector %u", dstId);
 					}
 
-					writeXLXLink(srcId, dstId, m_xlxNetwork1);
-					m_xlx1Reflector = dstId;
-					changed = true;
+					if (dstId != 5000U ) {
+						writeXLXLink(srcId, dstId, m_xlxNetwork1);
+						m_xlx1Reflector = dstId;
+						changed = true;
+					}
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
@@ -484,13 +527,18 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base && dstId <= (m_xlx2Base + 26U)) {
+			} else if ((dstId <= (m_xlx2Base + 26U) || dstId == (m_xlx2Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx2Slot && dstId >= m_xlx2Base) {
 				dstId += 4000U;
 				dstId -= m_xlx2Base;
 
 				if (dstId != m_xlx2Reflector) {
 					if (dstId == 4000U) {
 						LogMessage("XLX-2, Unlinking");
+					} else if (dstId == 5000U) {
+						if (m_xlx2Reflector != 4000U)
+							voice2->linkedTo(m_xlx2Reflector);
+						else
+							voice2->unlinked();
 					} else {
 						if (m_xlx2Reflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork2);
@@ -498,9 +546,11 @@ int CDMRGateway::run()
 						LogMessage("XLX-2, Linking to reflector %u", dstId);
 					}
 
-					writeXLXLink(srcId, dstId, m_xlxNetwork2);
-					m_xlx2Reflector = dstId;
-					changed = true;
+					if (dstId != 5000U ) {
+						writeXLXLink(srcId, dstId, m_xlxNetwork2);
+						m_xlx2Reflector = dstId;
+						changed = true;
+					}
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
@@ -519,12 +569,27 @@ int CDMRGateway::run()
 					}
 				}
 			} else {
+				unsigned int slotNo = data.getSlotNo();
+				unsigned int srcId  = data.getSrcId();
+				unsigned int dstId  = data.getDstId();
+				FLCO flco           = data.getFLCO();
+
+				bool trace = false;
+				if (ruleTrace && (srcId != rfSrcId[slotNo] || dstId != rfDstId[slotNo])) {
+					rfSrcId[slotNo] = srcId;
+					rfDstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
+					LogDebug("Rule Trace, RF transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
+
 				bool rewritten = false;
 
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
 					for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
-						bool ret = (*it)->processRF(data);
+						bool ret = (*it)->process(data, trace);
 						if (ret) {
 							rewritten = true;
 							break;
@@ -532,7 +597,6 @@ int CDMRGateway::run()
 					}
 
 					if (rewritten) {
-						unsigned int slotNo = data.getSlotNo();
 						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 							m_dmrNetwork1->write(data);
 							status[slotNo] = DMRGWS_DMRNETWORK1;
@@ -545,7 +609,7 @@ int CDMRGateway::run()
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
-							bool ret = (*it)->processRF(data);
+							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
 								break;
@@ -553,7 +617,6 @@ int CDMRGateway::run()
 						}
 
 						if (rewritten) {
-							unsigned int slotNo = data.getSlotNo();
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
@@ -562,6 +625,49 @@ int CDMRGateway::run()
 						}
 					}
 				}
+
+				if (!rewritten) {
+					if (m_dmrNetwork1 != NULL) {
+						for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
+							bool ret = (*it)->process(data, trace);
+							if (ret) {
+								rewritten = true;
+								break;
+							}
+						}
+
+						if (rewritten) {
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+								m_dmrNetwork1->write(data);
+								status[slotNo] = DMRGWS_DMRNETWORK1;
+								timer[slotNo]->start();
+							}
+						}
+					}
+				}
+
+				if (!rewritten) {
+					if (m_dmrNetwork2 != NULL) {
+						for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
+							bool ret = (*it)->process(data, trace);
+							if (ret) {
+								rewritten = true;
+								break;
+							}
+						}
+
+						if (rewritten) {
+							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+								m_dmrNetwork2->write(data);
+								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->start();
+							}
+						}
+					}
+				}
+
+				if (!rewritten && trace)
+					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
 		}
 
@@ -569,7 +675,7 @@ int CDMRGateway::run()
 			ret = m_xlxNetwork1->read(data);
 			if (ret) {
 				if (status[m_xlx1Slot] == DMRGWS_NONE || status[m_xlx1Slot] == DMRGWS_XLXREFLECTOR1) {
-					bool ret = m_rpt1Rewrite->processNet(data);
+					bool ret = m_rpt1Rewrite->process(data, false);
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
@@ -588,7 +694,7 @@ int CDMRGateway::run()
 			ret = m_xlxNetwork2->read(data);
 			if (ret) {
 				if (status[m_xlx2Slot] == DMRGWS_NONE || status[m_xlx2Slot] == DMRGWS_XLXREFLECTOR2) {
-					bool ret = m_rpt2Rewrite->processNet(data);
+					bool ret = m_rpt2Rewrite->process(data, false);
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
@@ -607,10 +713,25 @@ int CDMRGateway::run()
 		if (m_dmrNetwork1 != NULL) {
 			ret = m_dmrNetwork1->read(data);
 			if (ret) {
+				unsigned int slotNo = data.getSlotNo();
+				unsigned int srcId  = data.getSrcId();
+				unsigned int dstId  = data.getDstId();
+				FLCO flco           = data.getFLCO();
+
+				bool trace = false;
+				if (ruleTrace && (srcId != dmr1SrcId[slotNo] || dstId != dmr1DstId[slotNo])) {
+					dmr1SrcId[slotNo] = srcId;
+					dmr1DstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
+					LogDebug("Rule Trace, network 1 transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
+
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
-					bool ret = (*it)->processNet(data);
+					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;
 						break;
@@ -618,23 +739,44 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
-					unsigned int slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
 						timer[slotNo]->start();
 					}
 				}
+
+				if (!rewritten && trace)
+					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
+
+			ret = m_dmrNetwork1->wantsBeacon();
+			if (ret)
+				m_repeater->writeBeacon();
 		}
 
 		if (m_dmrNetwork2 != NULL) {
 			ret = m_dmrNetwork2->read(data);
 			if (ret) {
+				unsigned int slotNo = data.getSlotNo();
+				unsigned int srcId  = data.getSrcId();
+				unsigned int dstId  = data.getDstId();
+				FLCO flco           = data.getFLCO();
+
+				bool trace = false;
+				if (ruleTrace && (srcId != dmr2SrcId[slotNo] || dstId != dmr2DstId[slotNo])) {
+					dmr2SrcId[slotNo] = srcId;
+					dmr2DstId[slotNo] = dstId;
+					trace = true;
+				}
+
+				if (trace)
+					LogDebug("Rule Trace, network 2 transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
+
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
 				for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
-					bool ret = (*it)->processNet(data);
+					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;
 						break;
@@ -642,14 +784,20 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
-					unsigned int slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
 						timer[slotNo]->start();
 					}
 				}
+
+				if (!rewritten && trace)
+					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
+
+			ret = m_dmrNetwork2->wantsBeacon();
+			if (ret)
+				m_repeater->writeBeacon();
 		}
 
 		unsigned char buffer[50U];
@@ -732,8 +880,6 @@ int CDMRGateway::run()
 		if (ms < 10U)
 			CThread::sleep(10U);
 	}
-
-	LogMessage("DMRGateway-%s is exiting on receipt of SIGHUP1", VERSION);
 
 	delete voice1;
 	delete voice2;
@@ -889,7 +1035,7 @@ bool CDMRGateway::createDMRNetwork1()
 		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-1", *it);
 		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-1", *it);
 
-		m_dmr1RFRewrites.push_back(rfPassAllTG);
+		m_dmr1Passalls.push_back(rfPassAllTG);
 		m_dmr1NetRewrites.push_back(netPassAllTG);
 	}
 
@@ -900,7 +1046,7 @@ bool CDMRGateway::createDMRNetwork1()
 		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-1", *it);
 		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-1", *it);
 
-		m_dmr1RFRewrites.push_back(rfPassAllPC);
+		m_dmr1Passalls.push_back(rfPassAllPC);
 		m_dmr1NetRewrites.push_back(netPassAllPC);
 	}
 
@@ -997,7 +1143,7 @@ bool CDMRGateway::createDMRNetwork2()
 		CPassAllTG* rfPassAllTG  = new CPassAllTG("DMR-2", *it);
 		CPassAllTG* netPassAllTG = new CPassAllTG("DMR-2", *it);
 
-		m_dmr2RFRewrites.push_back(rfPassAllTG);
+		m_dmr2Passalls.push_back(rfPassAllTG);
 		m_dmr2NetRewrites.push_back(netPassAllTG);
 	}
 
@@ -1008,7 +1154,7 @@ bool CDMRGateway::createDMRNetwork2()
 		CPassAllPC* rfPassAllPC  = new CPassAllPC("DMR-2", *it);
 		CPassAllPC* netPassAllPC = new CPassAllPC("DMR-2", *it);
 
-		m_dmr2RFRewrites.push_back(rfPassAllPC);
+		m_dmr2Passalls.push_back(rfPassAllPC);
 		m_dmr2NetRewrites.push_back(netPassAllPC);
 	}
 
@@ -1204,19 +1350,19 @@ void CDMRGateway::createAPRSHelper()
 
 	char myRxFreq[10];
 	snprintf(myRxFreq, 10, "%s", config + 8);
-	unsigned int rxFrequency = atoi(myRxFreq);
+	unsigned int rxFrequency = (unsigned int)::atoi(myRxFreq);
 
 	char myTxFreq[10];
 	snprintf(myTxFreq, 10, "%s", config + 17);
-	unsigned int txFrequency = atoi(myTxFreq);
+	unsigned int txFrequency = (unsigned int)::atoi(myTxFreq);
 
 	char myLat[9];
 	snprintf(myLat, 9, "%s", config + 30);
-	float latitude = atof(myLat);
+	float latitude = float(::atof(myLat));
 
 	char myLon[10];
 	snprintf(myLon, 10, "%s", config + 38);
-	float longitude = atof(myLon);
+	float longitude = float(::atof(myLon));
 
 	char myHeight[4];
 	snprintf(myHeight, 4, "%s", config + 47 );
@@ -1326,7 +1472,7 @@ void CDMRGateway::extractGPSData(const CDMRData& data)
 
 			float latitude = latDeg + (latMin + latSec / 10000) / 60;
 			float longitude = lonDeg + (lonMin + lonSec / 10000) / 60;
-			LogDebug("Sending GPS position from %d", srcId);
+			LogDebug("Sending GPS position from %u", srcId);
 
 			m_aprsHelper->send(src.c_str(), latitude * latSign, longitude * longSign, altitude);
 		}

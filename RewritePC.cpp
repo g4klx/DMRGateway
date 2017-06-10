@@ -20,6 +20,7 @@
 
 #include "DMRDefines.h"
 #include "DMRFullLC.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <cassert>
@@ -28,9 +29,10 @@ CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fro
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
-m_fromIdEnd(fromId + range),
+m_fromIdEnd(fromId + range - 1U),
 m_toSlot(toSlot),
 m_toIdStart(toId),
+m_toIdEnd(toId + range - 1U),
 m_lc(FLCO_USER_USER, 0U, 0U),
 m_embeddedLC()
 {
@@ -42,24 +44,17 @@ CRewritePC::~CRewritePC()
 {
 }
 
-bool CRewritePC::processRF(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CRewritePC::processNet(CDMRData& data)
-{
-	return process(data);
-}
-
-bool CRewritePC::process(CDMRData& data)
+bool CRewritePC::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId >= m_fromIdEnd)
+	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId > m_fromIdEnd) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd);
 		return false;
+	}
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
@@ -86,6 +81,11 @@ bool CRewritePC::process(CDMRData& data)
 			// Not sure what to do
 			break;
 		}
+	}
+
+	if (trace) {
+		LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd);
+		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name, m_toSlot, m_toIdStart, m_toIdEnd);
 	}
 
 	return true;

@@ -70,6 +70,7 @@ public:
 	unsigned int getRptPort() const;
 	std::string  getLocalAddress() const;
 	unsigned int getLocalPort() const;
+	bool         getRuleTrace() const;
 	bool         getDebug() const;
 
 	// The Log section
@@ -164,6 +165,7 @@ private:
 	std::string  m_localAddress;
 	unsigned int m_localPort;
 	unsigned int m_timeout;
+	bool         m_ruleTrace;
 	bool         m_debug;
 
 	bool         m_voiceEnabled;
