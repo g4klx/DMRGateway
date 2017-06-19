@@ -376,6 +376,10 @@ int CDMRGateway::run()
 	unsigned int dmr2DstId[3U];
 	dmr2SrcId[1U] = dmr2SrcId[2U] = dmr2DstId[1U] = dmr2DstId[2U] = 0U;
 
+	//XLX timeouts
+	unsigned int xlx1LastSeenTime[0U];
+	unsigned int xlx2LastSeenTime[0U];
+
 	CStopWatch stopWatch;
 	stopWatch.start();
 
@@ -405,6 +409,9 @@ int CDMRGateway::run()
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
+			} else if (xlx1LastSeenTime - time(NULL) > 600U) {
+				writeXLXLink(m_xlx1Id,m_xlx1Startup,m_xlxNetwork1);
+				LogMessage("XLX-1, Re-linking to startup reflector %u due to inactivity timeout", m_xlx1Startup);
 			}
 		}
 
@@ -429,7 +436,10 @@ int CDMRGateway::run()
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
-			}
+			} else if (xlx2LastSeenTime - time(NULL) > 600U) {
+                                writeXLXLink(m_xlx2Id,m_xlx1Startup,m_xlxNetwork2);
+                                LogMessage("XLX-2, Re-linking to startup reflector %u due to inactivity timeout", m_xlx2Startup);
+                        }
 		}
 
 		CDMRData data;
@@ -442,11 +452,19 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
+				
+				//set lastseen 
+				xlx1LastSeenTime = time(NULL);
+				
 				m_xlx1Rewrite->process(data, false);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
+				
+				//set lastseen
+				xlx2LastSeenTime = time(NULL);
+				
 				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
