@@ -413,7 +413,7 @@ int CDMRGateway::run()
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
-			} else if (xlx1LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx1LastSeenTime)) > (m_xlx1Relink*60) && m_xlx1Reflector != m_xlx1Startup) {
+			} else if (connected && xlx1LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx1LastSeenTime)) > (m_xlx1Relink*60) && m_xlx1Reflector != m_xlx1Startup) {
 				writeXLXLink(m_xlx1Id,m_xlx1Startup,m_xlxNetwork1);
 				LogMessage("XLX-1, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx1Startup, m_xlx1Relink);
 				m_xlx1Reflector = m_xlx1Startup;
@@ -448,7 +448,7 @@ int CDMRGateway::run()
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
-			} else if (xlx2LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx2LastSeenTime)) > (m_xlx2Relink*60) && m_xlx2Reflector != m_xlx2Startup) {
+			} else if (connected && xlx2LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx2LastSeenTime)) > (m_xlx2Relink*60) && m_xlx2Reflector != m_xlx2Startup) {
                                 writeXLXLink(m_xlx2Id,m_xlx2Startup,m_xlxNetwork2);
                                 LogMessage("XLX-2, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx2Startup, m_xlx2Relink);
 				m_xlx2Reflector = m_xlx2Startup;
