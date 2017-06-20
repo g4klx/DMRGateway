@@ -36,6 +36,8 @@
 #include <cstdio>
 #include <vector>
 
+#include <ctime>
+
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>
 #include <unistd.h>
@@ -142,6 +144,7 @@ m_xlx1Slot(0U),
 m_xlx1TG(0U),
 m_xlx1Base(0U),
 m_xlx1Startup(4000U),
+m_xlx1Relink(0U),
 m_xlx1Connected(false),
 m_rpt1Rewrite(NULL),
 m_xlx1Rewrite(NULL),
@@ -151,6 +154,7 @@ m_xlx2Slot(0U),
 m_xlx2TG(0U),
 m_xlx2Base(0U),
 m_xlx2Startup(4000U),
+m_xlx2Relink(0U),
 m_xlx2Connected(false),
 m_rpt2Rewrite(NULL),
 m_xlx2Rewrite(NULL),
@@ -376,6 +380,10 @@ int CDMRGateway::run()
 	unsigned int dmr2DstId[3U];
 	dmr2SrcId[1U] = dmr2SrcId[2U] = dmr2DstId[1U] = dmr2DstId[2U] = 0U;
 
+	//Last seen RF transmissions on XLX, to implement relinking.
+	std::time_t xlx1LastSeenTime = 0;
+	std::time_t xlx2LastSeenTime = 0;
+
 	CStopWatch stopWatch;
 	stopWatch.start();
 
@@ -405,6 +413,17 @@ int CDMRGateway::run()
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
+			} else if (connected && m_xlx1Relink && xlx1LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx1LastSeenTime)) > (m_xlx1Relink*60) && m_xlx1Reflector != m_xlx1Startup) {
+				writeXLXLink(m_xlx1Id,m_xlx1Startup,m_xlxNetwork1);
+				LogMessage("XLX-1, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx1Startup, m_xlx1Relink);
+				m_xlx1Reflector = m_xlx1Startup;
+				if (voice1 != NULL) {
+				    if (m_xlx1Reflector == 4000U) {
+					  voice1->unlinked();
+				    } else {
+					  voice1->linkedTo(m_xlx1Startup);
+				    }
+				}
 			}
 		}
 
@@ -429,7 +448,19 @@ int CDMRGateway::run()
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
-			}
+			} else if (connected && m_xlx2Relink && xlx2LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx2LastSeenTime)) > (m_xlx2Relink*60) && m_xlx2Reflector != m_xlx2Startup) {
+                                writeXLXLink(m_xlx2Id,m_xlx2Startup,m_xlxNetwork2);
+                                LogMessage("XLX-2, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx2Startup, m_xlx2Relink);
+				m_xlx2Reflector = m_xlx2Startup;
+				if (voice1 != NULL) {
+				    if (m_xlx1Reflector == 4000U) {
+					  voice1->unlinked();
+					} else {
+					  voice1->linkedTo(m_xlx2Startup);
+				    
+				    }
+				}
+                        }
 		}
 
 		CDMRData data;
@@ -442,11 +473,19 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
+				
+				//set lastseen 
+				xlx1LastSeenTime = time(NULL);
+				
 				m_xlx1Rewrite->process(data, false);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
 			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
+				
+				//set lastseen
+				xlx2LastSeenTime = time(NULL);
+				
 				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
@@ -473,6 +512,7 @@ int CDMRGateway::run()
 					if (dstId != 5000U ) {
 						writeXLXLink(srcId, dstId, m_xlxNetwork1);
 						m_xlx1Reflector = dstId;
+						xlx1LastSeenTime = time(NULL);
 						changed = true;
 					}
 				}
@@ -514,6 +554,7 @@ int CDMRGateway::run()
 					if (dstId != 5000U ) {
 						writeXLXLink(srcId, dstId, m_xlxNetwork2);
 						m_xlx2Reflector = dstId;
+						xlx2LastSeenTime = time(NULL);
 						changed = true;
 					}
 				}
@@ -1162,12 +1203,17 @@ bool CDMRGateway::createXLXNetwork1()
 	m_xlx1TG      = m_conf.getXLXNetwork1TG();
 	m_xlx1Base    = m_conf.getXLXNetwork1Base();
 	m_xlx1Startup = m_conf.getXLXNetwork1Startup();
+	m_xlx1Relink  = m_conf.getXLXNetwork1Relink();
 
 	LogInfo("    Slot: %u", m_xlx1Slot);
 	LogInfo("    TG: %u", m_xlx1TG);
 	LogInfo("    Base: %u", m_xlx1Base);
 	if (m_xlx1Startup != 4000U)
 		LogInfo("    Startup: %u", m_xlx1Startup);
+	if (m_xlx1Relink)
+		LogInfo("    Relink: %u minutes", m_xlx1Relink);
+	else
+		LogInfo("    Relink: disabled");
 
 	m_rpt1Rewrite = new CRewriteTG("XLX-1", XLX_SLOT, XLX_TG, m_xlx1Slot, m_xlx1TG, 1U);
 	m_xlx1Rewrite = new CRewriteTG("XLX-1", m_xlx1Slot, m_xlx1TG, XLX_SLOT, XLX_TG, 1U);
@@ -1220,12 +1266,17 @@ bool CDMRGateway::createXLXNetwork2()
 	m_xlx2TG      = m_conf.getXLXNetwork2TG();
 	m_xlx2Base    = m_conf.getXLXNetwork2Base();
 	m_xlx2Startup = m_conf.getXLXNetwork2Startup();
+	m_xlx2Relink  = m_conf.getXLXNetwork2Relink();
 
 	LogInfo("    Slot: %u", m_xlx2Slot);
 	LogInfo("    TG: %u", m_xlx2TG);
 	LogInfo("    Base: %u", m_xlx2Base);
 	if (m_xlx2Startup != 4000U)
 		LogInfo("    Startup: %u", m_xlx2Startup);
+	if (m_xlx2Relink)
+		LogInfo("    Relink: %u minutes", m_xlx2Relink);
+	else
+		LogInfo("    Relink: disabled");
 
 	m_rpt2Rewrite = new CRewriteTG("XLX-2", XLX_SLOT, XLX_TG, m_xlx2Slot, m_xlx2TG, 1U);
 	m_xlx2Rewrite = new CRewriteTG("XLX-2", m_xlx2Slot, m_xlx2TG, XLX_SLOT, XLX_TG, 1U);
