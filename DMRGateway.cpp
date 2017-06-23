@@ -63,8 +63,8 @@ static int  m_signal = 0;
 #if !defined(_WIN32) && !defined(_WIN64)
 static void sigHandler(int signum)
 {
-  m_killed = true;
-  m_signal = signum;
+	m_killed = true;
+	m_signal = signum;
 }
 #endif
 
@@ -235,7 +235,7 @@ int CDMRGateway::run()
 		::close(STDOUT_FILENO);
 		::close(STDERR_FILENO);
 
-		//If we are currently root...
+		// If we are currently root...
 		if (getuid() == 0) {
 			struct passwd* user = ::getpwnam("mmdvm");
 			if (user == NULL) {
@@ -244,25 +244,24 @@ int CDMRGateway::run()
 			}
 			
 			uid_t mmdvm_uid = user->pw_uid;
-		    gid_t mmdvm_gid = user->pw_gid;
+			gid_t mmdvm_gid = user->pw_gid;
 
-		    //Set user and group ID's to mmdvm:mmdvm
-		    if (setgid(mmdvm_gid) != 0) {
-			    ::LogWarning("Could not set mmdvm GID, exiting");
-			    return -1;
-		    }
+			//Set user and group ID's to mmdvm:mmdvm
+			if (setgid(mmdvm_gid) != 0) {
+				::LogWarning("Could not set mmdvm GID, exiting");
+				return -1;
+			}
 
 			if (setuid(mmdvm_uid) != 0) {
-			    ::LogWarning("Could not set mmdvm UID, exiting");
-			    return -1;
-		    }
+				::LogWarning("Could not set mmdvm UID, exiting");
+				return -1;
+			}
 		    
-		    //Double check it worked (AKA Paranoia) 
-		    if (setuid(0) != -1){
-			    ::LogWarning("It's possible to regain root - something is wrong!, exiting");
-			    return -1;
-		    }
-		
+			// Double check it worked (AKA Paranoia) 
+			if (setuid(0) != -1){
+				::LogWarning("It's possible to regain root - something is wrong!, exiting");
+				return -1;
+			}
 		}
 	}
 #endif
@@ -413,19 +412,19 @@ int CDMRGateway::run()
 
 				m_xlx1Reflector = 4000U;
 				m_xlx1Connected = false;
-			} else if (connected && m_xlx1Relink && xlx1LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx1LastSeenTime)) > (m_xlx1Relink*60) && m_xlx1Reflector != m_xlx1Startup) {
-				if (m_xlx1Startup != 4000U) {
-				      writeXLXLink(m_xlx1Id,4000U,m_xlxNetwork1);
-				}
-				writeXLXLink(m_xlx1Id,m_xlx1Startup,m_xlxNetwork1);
+			} else if (connected && m_xlx1Relink && xlx1LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx1LastSeenTime)) > (m_xlx1Relink * 60U) && m_xlx1Reflector != m_xlx1Startup) {
+				if (m_xlx1Startup != 4000U)
+					writeXLXLink(m_xlx1Id, 4000U, m_xlxNetwork1);
+
+				writeXLXLink(m_xlx1Id, m_xlx1Startup, m_xlxNetwork1);
 				LogMessage("XLX-1, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx1Startup, m_xlx1Relink);
 				m_xlx1Reflector = m_xlx1Startup;
+
 				if (voice1 != NULL) {
-				    if (m_xlx1Reflector == 4000U) {
-					  voice1->unlinked();
-				    } else {
-					  voice1->linkedTo(m_xlx1Startup);
-				    }
+					if (m_xlx1Reflector == 4000U)
+						voice1->unlinked();
+					else
+						voice1->linkedTo(m_xlx1Startup);
 				}
 			}
 		}
@@ -451,20 +450,19 @@ int CDMRGateway::run()
 
 				m_xlx2Reflector = 4000U;
 				m_xlx2Connected = false;
-			} else if (connected && m_xlx2Relink && xlx2LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx2LastSeenTime)) > (m_xlx2Relink*60) && m_xlx2Reflector != m_xlx2Startup) {
-                                if (m_xlx2Startup != 4000U) {
-				      writeXLXLink(m_xlx2Id,4000U,m_xlxNetwork2);
-				}
-				writeXLXLink(m_xlx2Id,m_xlx2Startup,m_xlxNetwork2);
+			} else if (connected && m_xlx2Relink && xlx2LastSeenTime && (unsigned(time(NULL)) - unsigned(xlx2LastSeenTime)) > (m_xlx2Relink * 60U) && m_xlx2Reflector != m_xlx2Startup) {
+                                if (m_xlx2Startup != 4000U)
+				      writeXLXLink(m_xlx2Id, 4000U, m_xlxNetwork2);
+
+				writeXLXLink(m_xlx2Id, m_xlx2Startup, m_xlxNetwork2);
                                 LogMessage("XLX-2, Re-linking to startup reflector %u due to RF inactivity timeout (%u minutes)", m_xlx2Startup, m_xlx2Relink);
 				m_xlx2Reflector = m_xlx2Startup;
+
 				if (voice1 != NULL) {
-				    if (m_xlx1Reflector == 4000U) {
-					  voice1->unlinked();
-					} else {
-					  voice1->linkedTo(m_xlx2Startup);
-				    
-				    }
+					if (m_xlx1Reflector == 4000U)
+						voice1->unlinked();
+					else
+						voice1->linkedTo(m_xlx2Startup);
 				}
                         }
 		}
@@ -479,19 +477,13 @@ int CDMRGateway::run()
 			FLCO flco = data.getFLCO();
 
 			if (flco == FLCO_GROUP && slotNo == m_xlx1Slot && dstId == m_xlx1TG) {
-				
-				//set lastseen 
 				xlx1LastSeenTime = time(NULL);
-				
 				m_xlx1Rewrite->process(data, false);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
-				
-				//set lastseen
+			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) 
 				xlx2LastSeenTime = time(NULL);
-				
 				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
@@ -1214,8 +1206,10 @@ bool CDMRGateway::createXLXNetwork1()
 	LogInfo("    Slot: %u", m_xlx1Slot);
 	LogInfo("    TG: %u", m_xlx1TG);
 	LogInfo("    Base: %u", m_xlx1Base);
+
 	if (m_xlx1Startup != 4000U)
 		LogInfo("    Startup: %u", m_xlx1Startup);
+
 	if (m_xlx1Relink)
 		LogInfo("    Relink: %u minutes", m_xlx1Relink);
 	else
@@ -1277,8 +1271,10 @@ bool CDMRGateway::createXLXNetwork2()
 	LogInfo("    Slot: %u", m_xlx2Slot);
 	LogInfo("    TG: %u", m_xlx2TG);
 	LogInfo("    Base: %u", m_xlx2Base);
+
 	if (m_xlx2Startup != 4000U)
 		LogInfo("    Startup: %u", m_xlx2Startup);
+
 	if (m_xlx2Relink)
 		LogInfo("    Relink: %u minutes", m_xlx2Relink);
 	else
