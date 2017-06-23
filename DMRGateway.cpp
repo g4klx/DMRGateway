@@ -482,7 +482,7 @@ int CDMRGateway::run()
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
 				timer[slotNo]->start();
-			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) 
+			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
 				xlx2LastSeenTime = time(NULL);
 				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
