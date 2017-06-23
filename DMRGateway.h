@@ -24,6 +24,7 @@
 #include "DMRNetwork.h"
 #include "RewriteTG.h"
 #include "Rewrite.h"
+#include "Timer.h"
 #include "Conf.h"
 
 #include <string>
@@ -49,7 +50,7 @@ private:
 	unsigned int       m_xlx1TG;
 	unsigned int       m_xlx1Base;
 	unsigned int       m_xlx1Startup;
-	unsigned int 	   m_xlx1Relink;
+	CTimer 	           m_xlx1Relink;
 	bool               m_xlx1Connected;
 	CRewriteTG*        m_rpt1Rewrite;
 	CRewriteTG*        m_xlx1Rewrite;
@@ -59,7 +60,7 @@ private:
 	unsigned int       m_xlx2TG;
 	unsigned int       m_xlx2Base;
 	unsigned int       m_xlx2Startup;
-	unsigned int	   m_xlx2Relink;
+	CTimer			   m_xlx2Relink;
 	bool               m_xlx2Connected;
 	CRewriteTG*        m_rpt2Rewrite;
 	CRewriteTG*        m_xlx2Rewrite;
