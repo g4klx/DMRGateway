@@ -41,9 +41,13 @@ private:
 	CConf              m_conf;
 	IRepeaterProtocol* m_repeater;
 	CDMRNetwork*       m_dmrNetwork1;
+	std::string        m_dmr1Name;
 	CDMRNetwork*       m_dmrNetwork2;
+	std::string        m_dmr2Name;
 	CDMRNetwork*       m_xlxNetwork1;
+	std::string        m_xlx1Name;
 	CDMRNetwork*       m_xlxNetwork2;
+	std::string        m_xlx2Name;
 	unsigned int       m_xlx1Id;
 	unsigned int       m_xlx1Reflector;
 	unsigned int       m_xlx1Slot;

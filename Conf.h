@@ -84,6 +84,7 @@ public:
 
 	// The DMR Network 1 section
 	bool         getDMRNetwork1Enabled() const;
+	std::string  getDMRNetwork1Name() const;
 	unsigned int getDMRNetwork1Id() const;
 	std::string  getDMRNetwork1Address() const;
 	unsigned int getDMRNetwork1Port() const;
@@ -100,6 +101,7 @@ public:
 
 	// The DMR Network 2 section
 	bool         getDMRNetwork2Enabled() const;
+	std::string  getDMRNetwork2Name() const;
 	unsigned int getDMRNetwork2Id() const;
 	std::string  getDMRNetwork2Address() const;
 	unsigned int getDMRNetwork2Port() const;
@@ -116,6 +118,7 @@ public:
 
 	// The XLX Network 1 section
 	bool         getXLXNetwork1Enabled() const;
+	std::string  getXLXNetwork1Name() const;
 	unsigned int getXLXNetwork1Id() const;
 	std::string  getXLXNetwork1Address() const;
 	unsigned int getXLXNetwork1Port() const;
@@ -131,6 +134,7 @@ public:
 
 	// The XLX Network 2 section
 	bool         getXLXNetwork2Enabled() const;
+	std::string  getXLXNetwork2Name() const;
 	unsigned int getXLXNetwork2Id() const;
 	std::string  getXLXNetwork2Address() const;
 	unsigned int getXLXNetwork2Port() const;
@@ -165,6 +169,7 @@ private:
 	std::string  m_logFileRoot;
 
 	bool         m_dmrNetwork1Enabled;
+	std::string  m_dmrNetwork1Name;
 	unsigned int m_dmrNetwork1Id;
 	std::string  m_dmrNetwork1Address;
 	unsigned int m_dmrNetwork1Port;
@@ -180,6 +185,7 @@ private:
 	std::vector<unsigned int>       m_dmrNetwork1PassAllTG;
 
 	bool         m_dmrNetwork2Enabled;
+	std::string  m_dmrNetwork2Name;
 	unsigned int m_dmrNetwork2Id;
 	std::string  m_dmrNetwork2Address;
 	unsigned int m_dmrNetwork2Port;
@@ -195,6 +201,7 @@ private:
 	std::vector<unsigned int>       m_dmrNetwork2PassAllTG;
 
 	bool         m_xlxNetwork1Enabled;
+	std::string  m_xlxNetwork1Name;
 	unsigned int m_xlxNetwork1Id;
 	std::string  m_xlxNetwork1Address;
 	unsigned int m_xlxNetwork1Port;
@@ -209,6 +216,7 @@ private:
 	bool         m_xlxNetwork1Debug;
 
 	bool         m_xlxNetwork2Enabled;
+	std::string  m_xlxNetwork2Name;
 	unsigned int m_xlxNetwork2Id;
 	std::string  m_xlxNetwork2Address;
 	unsigned int m_xlxNetwork2Port;

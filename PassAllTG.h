@@ -22,15 +22,17 @@
 #include "Rewrite.h"
 #include "DMRData.h"
 
+#include <string>
+
 class CPassAllTG : public IRewrite {
 public:
-	CPassAllTG(const char* name, unsigned int slot);
+	CPassAllTG(const std::string& name, unsigned int slot);
 	virtual ~CPassAllTG();
 
 	virtual bool process(CDMRData& data, bool trace);
 
 private:
-	const char*  m_name;
+	std::string  m_name;
 	unsigned int m_slot;
 };
 

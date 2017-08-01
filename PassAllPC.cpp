@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <cassert>
 
-CPassAllPC::CPassAllPC(const char* name, unsigned int slot) :
+CPassAllPC::CPassAllPC(const std::string& name, unsigned int slot) :
 m_name(name),
 m_slot(slot)
 {
@@ -43,7 +43,7 @@ bool CPassAllPC::process(CDMRData& data, bool trace)
 	bool ret = (flco == FLCO_USER_USER && slotNo == m_slot);
 
 	if (trace)
-		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name, m_slot, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name.c_str(), m_slot, ret ? "matched" : "not matched");
 
 	return ret;
 }

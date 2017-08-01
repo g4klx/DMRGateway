@@ -55,6 +55,7 @@ m_logFileLevel(0U),
 m_logFilePath(),
 m_logFileRoot(),
 m_dmrNetwork1Enabled(false),
+m_dmrNetwork1Name(),
 m_dmrNetwork1Id(0U),
 m_dmrNetwork1Address(),
 m_dmrNetwork1Port(0U),
@@ -69,6 +70,7 @@ m_dmrNetwork1SrcRewrites(),
 m_dmrNetwork1PassAllPC(),
 m_dmrNetwork1PassAllTG(),
 m_dmrNetwork2Enabled(false),
+m_dmrNetwork2Name(),
 m_dmrNetwork2Id(0U),
 m_dmrNetwork2Address(),
 m_dmrNetwork2Port(0U),
@@ -83,6 +85,7 @@ m_dmrNetwork2SrcRewrites(),
 m_dmrNetwork2PassAllPC(),
 m_dmrNetwork2PassAllTG(),
 m_xlxNetwork1Enabled(false),
+m_xlxNetwork1Name(),
 m_xlxNetwork1Id(0U),
 m_xlxNetwork1Address(),
 m_xlxNetwork1Port(0U),
@@ -96,6 +99,7 @@ m_xlxNetwork1Relink(0U),
 m_xlxNetwork1Options(),
 m_xlxNetwork1Debug(false),
 m_xlxNetwork2Enabled(false),
+m_xlxNetwork2Name(),
 m_xlxNetwork2Id(0U),
 m_xlxNetwork2Address(),
 m_xlxNetwork2Port(0U),
@@ -195,6 +199,8 @@ bool CConf::read()
 		} else if (section == SECTION_XLX_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_xlxNetwork1Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Name") == 0)
+				m_xlxNetwork1Name = value;
 			else if (::strcmp(key, "Id") == 0)
 				m_xlxNetwork1Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
@@ -222,6 +228,8 @@ bool CConf::read()
 		} else if (section == SECTION_XLX_NETWORK_2) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_xlxNetwork2Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Name") == 0)
+				m_xlxNetwork2Name = value;
 			else if (::strcmp(key, "Id") == 0)
 				m_xlxNetwork2Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
@@ -249,6 +257,8 @@ bool CConf::read()
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Name") == 0)
+				m_dmrNetwork1Name = value;
 			else if (::strcmp(key, "Id") == 0)
 				m_dmrNetwork1Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
@@ -331,6 +341,8 @@ bool CConf::read()
 		} else if (section == SECTION_DMR_NETWORK_2) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork2Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Name") == 0)
+				m_dmrNetwork2Name = value;
 			else if (::strcmp(key, "Id") == 0)
 				m_dmrNetwork2Id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Address") == 0)
@@ -498,6 +510,14 @@ bool CConf::getXLXNetwork1Enabled() const
 	return m_xlxNetwork1Enabled;
 }
 
+std::string CConf::getXLXNetwork1Name() const
+{
+	if (m_xlxNetwork1Name.empty())
+		return "XLX-1";
+	else
+		return m_xlxNetwork1Name;
+}
+
 unsigned int CConf::getXLXNetwork1Id() const
 {
 	return m_xlxNetwork1Id;
@@ -563,6 +583,14 @@ bool CConf::getXLXNetwork2Enabled() const
 	return m_xlxNetwork2Enabled;
 }
 
+std::string CConf::getXLXNetwork2Name() const
+{
+	if (m_xlxNetwork2Name.empty())
+		return "XLX-2";
+	else
+		return m_xlxNetwork2Name;
+}
+
 unsigned int CConf::getXLXNetwork2Id() const
 {
 	return m_xlxNetwork2Id;
@@ -626,6 +654,14 @@ bool CConf::getXLXNetwork2Debug() const
 bool CConf::getDMRNetwork1Enabled() const
 {
 	return m_dmrNetwork1Enabled;
+}
+
+std::string CConf::getDMRNetwork1Name() const
+{
+	if (m_dmrNetwork1Name.empty())
+		return "DMR-1";
+	else
+		return m_dmrNetwork1Name;
 }
 
 unsigned int CConf::getDMRNetwork1Id() const
@@ -696,6 +732,14 @@ std::vector<unsigned int> CConf::getDMRNetwork1PassAllTG() const
 bool CConf::getDMRNetwork2Enabled() const
 {
 	return m_dmrNetwork2Enabled;
+}
+
+std::string CConf::getDMRNetwork2Name() const
+{
+	if (m_dmrNetwork2Name.empty())
+		return "DMR-2";
+	else
+		return m_dmrNetwork2Name;
 }
 
 unsigned int CConf::getDMRNetwork2Id() const

@@ -25,7 +25,7 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteType::CRewriteType(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId) :
+CRewriteType::CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTG(fromTG),
@@ -50,7 +50,7 @@ bool CRewriteType::process(CDMRData& data, bool trace)
 
 	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG) {
 		if (trace)
-			LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: not matched", m_name, m_fromSlot, m_fromTG);
+			LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTG);
 		return false;
 	}
 
@@ -79,7 +79,7 @@ bool CRewriteType::process(CDMRData& data, bool trace)
 	}
 
 	if (trace)
-		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: matched", m_name, m_fromSlot, m_fromTG);
+		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTG);
 
 	return true;
 }

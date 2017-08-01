@@ -25,7 +25,7 @@
 #include <cstdio>
 #include <cassert>
 
-CRewritePC::CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range) :
+CRewritePC::CRewritePC(const std::string& name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromIdStart(fromId),
@@ -52,7 +52,7 @@ bool CRewritePC::process(CDMRData& data, bool trace)
 
 	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId > m_fromIdEnd) {
 		if (trace)
-			LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd);
+			LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromIdStart, m_fromIdEnd);
 		return false;
 	}
 
@@ -84,8 +84,8 @@ bool CRewritePC::process(CDMRData& data, bool trace)
 	}
 
 	if (trace) {
-		LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name, m_fromSlot, m_fromIdStart, m_fromIdEnd);
-		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name, m_toSlot, m_toIdStart, m_toIdEnd);
+		LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromIdStart, m_fromIdEnd);
+		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdEnd);
 	}
 
 	return true;

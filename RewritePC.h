@@ -24,15 +24,17 @@
 #include "DMRData.h"
 #include "DMRLC.h"
 
+#include <string>
+
 class CRewritePC : public IRewrite {
 public:
-	CRewritePC(const char* name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range);
+	CRewritePC(const std::string& name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range);
 	virtual ~CRewritePC();
 
 	virtual bool process(CDMRData& data, bool trace);
 
 private:
-	const char*      m_name;
+	std::string      m_name;
 	unsigned int     m_fromSlot;
 	unsigned int     m_fromIdStart;
 	unsigned int     m_fromIdEnd;

@@ -25,7 +25,7 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteTG::CRewriteTG(const char* name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range) :
+CRewriteTG::CRewriteTG(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range) :
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTGStart(fromTG),
@@ -53,9 +53,9 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
 		if (trace) {
 			if (m_fromTGStart == m_fromTGEnd)
-				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u: not matched", m_name, m_fromSlot, m_fromTGStart);
+				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
 			else
-				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd);
+				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		}
 		return false;
 	}
@@ -89,13 +89,13 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 
 	if (trace) {
 		if (m_fromTGStart == m_fromTGEnd)
-			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u: matched", m_name, m_fromSlot, m_fromTGStart);
+			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
 		else
-			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: matched", m_name, m_fromSlot, m_fromTGStart, m_fromTGEnd);
+			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		if (m_toTGStart == m_toTGEnd)
-			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u", m_name, m_toSlot, m_toTGStart);
+			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u", m_name.c_str(), m_toSlot, m_toTGStart);
 		else
-			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name, m_toSlot, m_toTGStart, m_toTGEnd);
+			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name.c_str(), m_toSlot, m_toTGStart, m_toTGEnd);
 	}
 
 	return true;

@@ -30,7 +30,7 @@
 class CDMRNetwork
 {
 public:
-	CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const char* name, bool debug);
+	CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, bool debug);
 	~CDMRNetwork();
 
 	void setOptions(const std::string& options);
@@ -60,7 +60,7 @@ private:
 	unsigned int m_port;
 	uint8_t*     m_id;
 	std::string  m_password;
-	const char*  m_name;
+	std::string  m_name;
 	bool         m_debug;
 	CUDPSocket   m_socket;
 
