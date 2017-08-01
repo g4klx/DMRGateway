@@ -20,6 +20,8 @@
 #define	REWRITEPC_H
 
 #include "DMREmbeddedData.h"
+#include "DMRDataHeader.h"
+#include "DMRCSBK.h"
 #include "Rewrite.h"
 #include "DMRData.h"
 #include "DMRLC.h"
@@ -43,9 +45,13 @@ private:
 	unsigned int     m_toIdEnd;
 	CDMRLC           m_lc;
 	CDMREmbeddedData m_embeddedLC;
+	CDMRDataHeader   m_dataHeader;
+	CDMRCSBK         m_csbk;
 
 	void processHeader(CDMRData& data, unsigned int dstId, unsigned char dataType);
 	void processVoice(CDMRData& data, unsigned int dstId);
+	void processDataHeader(CDMRData& data, unsigned int dstId);
+	void processCSBK(CDMRData& data, unsigned int dstId);
 };
 
 

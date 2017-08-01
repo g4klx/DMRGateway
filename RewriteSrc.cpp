@@ -33,7 +33,9 @@ m_fromIdEnd(fromId + range - 1U),
 m_toSlot(toSlot),
 m_toTG(toTG),
 m_lc(FLCO_GROUP, 0U, toTG),
-m_embeddedLC()
+m_embeddedLC(),
+m_dataHeader(),
+m_csbk()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
 	assert(toSlot == 1U || toSlot == 2U);
@@ -73,6 +75,15 @@ bool CRewriteSrc::process(CDMRData& data, bool trace)
 	case DT_VOICE:
 		processVoice(data);
 		break;
+	case DT_CSBK:
+		processCSBK(data);
+		break;
+	case DT_DATA_HEADER:
+		processDataHeader(data);
+		break;
+	case DT_RATE_12_DATA:
+	case DT_RATE_34_DATA:
+	case DT_RATE_1_DATA:
 	case DT_VOICE_SYNC:
 		// Nothing to do
 		break;
@@ -120,5 +131,39 @@ void CRewriteSrc::processVoice(CDMRData& data)
 	unsigned char n = data.getN();
 	m_embeddedLC.getData(buffer, n);
 
+	data.setData(buffer);
+}
+
+void CRewriteSrc::processDataHeader(CDMRData& data)
+{
+	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+	data.getData(buffer);
+
+	bool ret = m_dataHeader.put(buffer);
+	if (!ret)
+		return;
+
+	m_dataHeader.setGI(true);
+	m_dataHeader.setDstId(m_toTG);	
+
+	m_dataHeader.get(buffer);
+	
+	data.setData(buffer);
+}
+
+void CRewriteSrc::processCSBK(CDMRData& data)
+{
+	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+	data.getData(buffer);
+
+	bool ret = m_csbk.put(buffer);
+	if (!ret)
+		return;
+
+	m_csbk.setGI(true);
+	m_csbk.setDstId(m_toTG);	
+
+	m_csbk.get(buffer);
+	
 	data.setData(buffer);
 }

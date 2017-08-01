@@ -34,7 +34,9 @@ m_toSlot(toSlot),
 m_toTGStart(toTG),
 m_toTGEnd(toTG + range - 1U),
 m_lc(FLCO_GROUP, 0U, toTG),
-m_embeddedLC()
+m_embeddedLC(),
+m_dataHeader(),
+m_csbk()
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
 	assert(toSlot == 1U || toSlot == 2U);
@@ -78,6 +80,15 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 		case DT_VOICE:
 			processVoice(data, newTG);
 			break;
+		case DT_CSBK:
+			processCSBK(data, newTG);
+			break;
+		case DT_DATA_HEADER:
+			processDataHeader(data, newTG);
+			break;
+		case DT_RATE_12_DATA:
+		case DT_RATE_34_DATA:
+		case DT_RATE_1_DATA:
 		case DT_VOICE_SYNC:
 			// Nothing to do
 			break;
@@ -134,5 +145,37 @@ void CRewriteTG::processVoice(CDMRData& data, unsigned int tg)
 	unsigned char n = data.getN();
 	m_embeddedLC.getData(buffer, n);
 
+	data.setData(buffer);
+}
+
+void CRewriteTG::processDataHeader(CDMRData& data, unsigned int tg)
+{
+	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+	data.getData(buffer);
+
+	bool ret = m_dataHeader.put(buffer);
+	if (!ret)
+		return;
+
+	m_dataHeader.setDstId(tg);	
+
+	m_dataHeader.get(buffer);
+	
+	data.setData(buffer);
+}
+
+void CRewriteTG::processCSBK(CDMRData& data, unsigned int tg)
+{
+	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
+	data.getData(buffer);
+
+	bool ret = m_csbk.put(buffer);
+	if (!ret)
+		return;
+
+	m_csbk.setDstId(tg);	
+
+	m_csbk.get(buffer);
+	
 	data.setData(buffer);
 }
