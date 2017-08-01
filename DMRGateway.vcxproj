@@ -155,7 +155,9 @@
     <ClInclude Include="BPTC19696.h" />
     <ClInclude Include="Conf.h" />
     <ClInclude Include="CRC.h" />
+    <ClInclude Include="DMRCSBK.h" />
     <ClInclude Include="DMRData.h" />
+    <ClInclude Include="DMRDataHeader.h" />
     <ClInclude Include="DMRDefines.h" />
     <ClInclude Include="DMREMB.h" />
     <ClInclude Include="DMREmbeddedData.h" />
@@ -193,7 +195,9 @@
     <ClCompile Include="BPTC19696.cpp" />
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="CRC.cpp" />
+    <ClCompile Include="DMRCSBK.cpp" />
     <ClCompile Include="DMRData.cpp" />
+    <ClCompile Include="DMRDataHeader.cpp" />
     <ClCompile Include="DMREMB.cpp" />
     <ClCompile Include="DMREmbeddedData.cpp" />
     <ClCompile Include="DMRFullLC.cpp" />

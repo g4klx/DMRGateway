@@ -119,6 +119,12 @@
     <ClInclude Include="PassAllTG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DMRCSBK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DMRDataHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -218,6 +224,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PassAllTG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DMRCSBK.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DMRDataHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
