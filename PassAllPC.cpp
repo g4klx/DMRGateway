@@ -25,6 +25,7 @@
 #include <cassert>
 
 CPassAllPC::CPassAllPC(const std::string& name, unsigned int slot) :
+CRewrite(),
 m_name(name),
 m_slot(slot)
 {

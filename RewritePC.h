@@ -19,16 +19,12 @@
 #if !defined(REWRITEPC_H)
 #define	REWRITEPC_H
 
-#include "DMREmbeddedData.h"
-#include "DMRDataHeader.h"
-#include "DMRCSBK.h"
 #include "Rewrite.h"
 #include "DMRData.h"
-#include "DMRLC.h"
 
 #include <string>
 
-class CRewritePC : public IRewrite {
+class CRewritePC : public CRewrite {
 public:
 	CRewritePC(const std::string& name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toId, unsigned int range);
 	virtual ~CRewritePC();
@@ -36,22 +32,13 @@ public:
 	virtual bool process(CDMRData& data, bool trace);
 
 private:
-	std::string      m_name;
-	unsigned int     m_fromSlot;
-	unsigned int     m_fromIdStart;
-	unsigned int     m_fromIdEnd;
-	unsigned int     m_toSlot;
-	unsigned int     m_toIdStart;
-	unsigned int     m_toIdEnd;
-	CDMRLC           m_lc;
-	CDMREmbeddedData m_embeddedLC;
-	CDMRDataHeader   m_dataHeader;
-	CDMRCSBK         m_csbk;
-
-	void processHeader(CDMRData& data, unsigned int dstId, unsigned char dataType);
-	void processVoice(CDMRData& data, unsigned int dstId);
-	void processDataHeader(CDMRData& data, unsigned int dstId);
-	void processCSBK(CDMRData& data, unsigned int dstId);
+	std::string  m_name;
+	unsigned int m_fromSlot;
+	unsigned int m_fromIdStart;
+	unsigned int m_fromIdEnd;
+	unsigned int m_toSlot;
+	unsigned int m_toIdStart;
+	unsigned int m_toIdEnd;
 };
 
 

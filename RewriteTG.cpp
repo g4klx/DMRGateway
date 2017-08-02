@@ -19,24 +19,20 @@
 #include "RewriteTG.h"
 
 #include "DMRDefines.h"
-#include "DMRFullLC.h"
 #include "Log.h"
 
 #include <cstdio>
 #include <cassert>
 
 CRewriteTG::CRewriteTG(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range) :
+CRewrite(),
 m_name(name),
 m_fromSlot(fromSlot),
 m_fromTGStart(fromTG),
 m_fromTGEnd(fromTG + range - 1U),
 m_toSlot(toSlot),
 m_toTGStart(toTG),
-m_toTGEnd(toTG + range - 1U),
-m_lc(FLCO_GROUP, 0U, toTG),
-m_embeddedLC(),
-m_dataHeader(),
-m_csbk()
+m_toTGEnd(toTG + range - 1U)
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
 	assert(toSlot == 1U || toSlot == 2U);
@@ -59,6 +55,7 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 			else
 				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		}
+
 		return false;
 	}
 
@@ -67,35 +64,9 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 
 	if (m_fromTGStart != m_toTGStart) {
 		unsigned int newTG = dstId + m_toTGStart - m_fromTGStart;
-
 		data.setDstId(newTG);
 
-		unsigned char dataType = data.getDataType();
-
-		switch (dataType) {
-		case DT_VOICE_LC_HEADER:
-		case DT_TERMINATOR_WITH_LC:
-			processHeader(data, newTG, dataType);
-			break;
-		case DT_VOICE:
-			processVoice(data, newTG);
-			break;
-		case DT_CSBK:
-			processCSBK(data, newTG);
-			break;
-		case DT_DATA_HEADER:
-			processDataHeader(data, newTG);
-			break;
-		case DT_RATE_12_DATA:
-		case DT_RATE_34_DATA:
-		case DT_RATE_1_DATA:
-		case DT_VOICE_SYNC:
-			// Nothing to do
-			break;
-		default:
-			// Not sure what to do
-			break;
-		}
+		processMessage(data);
 	}
 
 	if (trace) {
@@ -103,6 +74,7 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
 		else
 			LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
+
 		if (m_toTGStart == m_toTGEnd)
 			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u", m_name.c_str(), m_toSlot, m_toTGStart);
 		else
@@ -110,72 +82,4 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 	}
 
 	return true;
-}
-
-void CRewriteTG::processHeader(CDMRData& data, unsigned int tg, unsigned char dataType)
-{
-	unsigned int srcId = data.getSrcId();
-	if (srcId != m_lc.getSrcId() || tg != m_lc.getDstId()) {
-		m_lc.setSrcId(srcId);
-		m_lc.setDstId(tg);
-		m_embeddedLC.setLC(m_lc);
-	}
-
-	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
-	data.getData(buffer);
-
-	CDMRFullLC fullLC;
-	fullLC.encode(m_lc, buffer, dataType);
-
-	data.setData(buffer);
-}
-
-void CRewriteTG::processVoice(CDMRData& data, unsigned int tg)
-{
-	unsigned int srcId = data.getSrcId();
-	if (srcId != m_lc.getSrcId() || tg != m_lc.getDstId()) {
-		m_lc.setSrcId(srcId);
-		m_lc.setDstId(tg);
-		m_embeddedLC.setLC(m_lc);
-	}
-
-	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
-	data.getData(buffer);
-
-	unsigned char n = data.getN();
-	m_embeddedLC.getData(buffer, n);
-
-	data.setData(buffer);
-}
-
-void CRewriteTG::processDataHeader(CDMRData& data, unsigned int tg)
-{
-	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
-	data.getData(buffer);
-
-	bool ret = m_dataHeader.put(buffer);
-	if (!ret)
-		return;
-
-	m_dataHeader.setDstId(tg);	
-
-	m_dataHeader.get(buffer);
-	
-	data.setData(buffer);
-}
-
-void CRewriteTG::processCSBK(CDMRData& data, unsigned int tg)
-{
-	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
-	data.getData(buffer);
-
-	bool ret = m_csbk.put(buffer);
-	if (!ret)
-		return;
-
-	m_csbk.setDstId(tg);	
-
-	m_csbk.get(buffer);
-	
-	data.setData(buffer);
 }

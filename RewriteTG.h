@@ -19,16 +19,12 @@
 #if !defined(REWRITETG_H)
 #define	REWRITETG_H
 
-#include "DMREmbeddedData.h"
-#include "DMRDataHeader.h"
-#include "DMRCSBK.h"
 #include "Rewrite.h"
 #include "DMRData.h"
-#include "DMRLC.h"
 
 #include <string>
 
-class CRewriteTG : public IRewrite {
+class CRewriteTG : public CRewrite {
 public:
 	CRewriteTG(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toTG, unsigned int range);
 	virtual ~CRewriteTG();
@@ -36,22 +32,13 @@ public:
 	virtual bool process(CDMRData& data, bool trace);
 
 private:
-	std::string      m_name;
-	unsigned int     m_fromSlot;
-	unsigned int     m_fromTGStart;
-	unsigned int     m_fromTGEnd;
-	unsigned int     m_toSlot;
-	unsigned int     m_toTGStart;
-	unsigned int     m_toTGEnd;
-	CDMRLC           m_lc;
-	CDMREmbeddedData m_embeddedLC;
-	CDMRDataHeader   m_dataHeader;
-	CDMRCSBK         m_csbk;
-
-	void processHeader(CDMRData& data, unsigned int tg, unsigned char dataType);
-	void processVoice(CDMRData& data, unsigned int tg);
-	void processDataHeader(CDMRData& data, unsigned int tg);
-	void processCSBK(CDMRData& data, unsigned int tg);
+	std::string  m_name;
+	unsigned int m_fromSlot;
+	unsigned int m_fromTGStart;
+	unsigned int m_fromTGEnd;
+	unsigned int m_toSlot;
+	unsigned int m_toTGStart;
+	unsigned int m_toTGEnd;
 };
 
 

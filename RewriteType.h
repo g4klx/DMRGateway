@@ -19,16 +19,12 @@
 #if !defined(REWRITETYPE_H)
 #define	REWRITETYPE_H
 
-#include "DMREmbeddedData.h"
-#include "DMRDataHeader.h"
-#include "DMRCSBK.h"
 #include "Rewrite.h"
 #include "DMRData.h"
-#include "DMRLC.h"
 
 #include <string>
 
-class CRewriteType : public IRewrite {
+class CRewriteType : public CRewrite {
 public:
 	CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId);
 	virtual ~CRewriteType();
@@ -36,20 +32,11 @@ public:
 	virtual bool process(CDMRData& data, bool trace);
 
 private:
-	std::string      m_name;
-	unsigned int     m_fromSlot;
-	unsigned int     m_fromTG;
-	unsigned int     m_toSlot;
-	unsigned int     m_toId;
-	CDMRLC           m_lc;
-	CDMREmbeddedData m_embeddedLC;
-	CDMRDataHeader   m_dataHeader;
-	CDMRCSBK         m_csbk;
-
-	void processHeader(CDMRData& data, unsigned char dataType);
-	void processVoice(CDMRData& data);
-	void processDataHeader(CDMRData& data);
-	void processCSBK(CDMRData& data);
+	std::string  m_name;
+	unsigned int m_fromSlot;
+	unsigned int m_fromTG;
+	unsigned int m_toSlot;
+	unsigned int m_toId;
 };
 
 

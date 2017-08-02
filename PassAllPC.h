@@ -24,7 +24,7 @@
 
 #include <string>
 
-class CPassAllPC : public IRewrite {
+class CPassAllPC : public CRewrite {
 public:
 	CPassAllPC(const std::string& name, unsigned int slot);
 	virtual ~CPassAllPC();

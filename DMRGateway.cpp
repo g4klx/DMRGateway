@@ -171,22 +171,22 @@ m_dmr2Passalls()
 
 CDMRGateway::~CDMRGateway()
 {
-	for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it)
 		delete *it;
 
-	for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
 		delete *it;
 	
-	for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
 			delete *it;
 	
-	for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
 
-	for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it)
 		delete *it;
 
-	for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it)
+	for (std::vector<CRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it)
 		delete *it;
 
 	delete m_rpt1Rewrite;
@@ -610,7 +610,7 @@ int CDMRGateway::run()
 
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
-					for (std::vector<IRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
+					for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
 						bool ret = (*it)->process(data, trace);
 						if (ret) {
 							rewritten = true;
@@ -630,7 +630,7 @@ int CDMRGateway::run()
 				if (!rewritten) {
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
-						for (std::vector<IRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
+						for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
 							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
@@ -650,7 +650,7 @@ int CDMRGateway::run()
 
 				if (!rewritten) {
 					if (m_dmrNetwork1 != NULL) {
-						for (std::vector<IRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
+						for (std::vector<CRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
 							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
@@ -670,7 +670,7 @@ int CDMRGateway::run()
 
 				if (!rewritten) {
 					if (m_dmrNetwork2 != NULL) {
-						for (std::vector<IRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
+						for (std::vector<CRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
 							bool ret = (*it)->process(data, trace);
 							if (ret) {
 								rewritten = true;
@@ -752,7 +752,7 @@ int CDMRGateway::run()
 
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
-				for (std::vector<IRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
+				for (std::vector<CRewrite*>::iterator it = m_dmr1NetRewrites.begin(); it != m_dmr1NetRewrites.end(); ++it) {
 					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;
@@ -797,7 +797,7 @@ int CDMRGateway::run()
 
 				// Rewrite the slot and/or TG or neither
 				bool rewritten = false;
-				for (std::vector<IRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
+				for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it) {
 					bool ret = (*it)->process(data, trace);
 					if (ret) {
 						rewritten = true;

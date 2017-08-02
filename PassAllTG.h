@@ -24,7 +24,7 @@
 
 #include <string>
 
-class CPassAllTG : public IRewrite {
+class CPassAllTG : public CRewrite {
 public:
 	CPassAllTG(const std::string& name, unsigned int slot);
 	virtual ~CPassAllTG();

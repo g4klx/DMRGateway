@@ -19,16 +19,36 @@
 #if !defined(REWRITE_H)
 #define	REWRITE_H
 
+#include "DMREmbeddedData.h"
 #include "DMRData.h"
+#include "DMRLC.h"
 
-class IRewrite {
+class CRewrite {
 public:
-	virtual ~IRewrite() = 0;
+	CRewrite();
+	virtual ~CRewrite();
 
 	virtual bool process(CDMRData& data, bool trace) = 0;
 
-private:
-};
+protected:
+	void processMessage(CDMRData& data);
 
+private:
+	CDMRLC            m_lc;
+	CDMREmbeddedData  m_embeddedLC;
+	CDMREmbeddedData* m_data;
+	unsigned int      m_writeNum;
+	unsigned int      m_readNum;
+
+	void processHeader(CDMRData& data, unsigned char dataType);
+	void processVoice(CDMRData& data);
+	void processDataHeader(CDMRData& data);
+	void processCSBK(CDMRData& data);
+	void swap();
+
+	void setLC(FLCO flco, unsigned int srcId, unsigned int dstId);
+
+	unsigned char processEmbeddedData(unsigned char* data, unsigned char n);
+};
 
 #endif

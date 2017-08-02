@@ -68,12 +68,12 @@ private:
 	bool               m_xlx2Connected;
 	CRewriteTG*        m_rpt2Rewrite;
 	CRewriteTG*        m_xlx2Rewrite;
-	std::vector<IRewrite*> m_dmr1NetRewrites;
-	std::vector<IRewrite*> m_dmr1RFRewrites;
-	std::vector<IRewrite*> m_dmr2NetRewrites;
-	std::vector<IRewrite*> m_dmr2RFRewrites;
-	std::vector<IRewrite*> m_dmr1Passalls;
-	std::vector<IRewrite*> m_dmr2Passalls;
+	std::vector<CRewrite*> m_dmr1NetRewrites;
+	std::vector<CRewrite*> m_dmr1RFRewrites;
+	std::vector<CRewrite*> m_dmr2NetRewrites;
+	std::vector<CRewrite*> m_dmr2RFRewrites;
+	std::vector<CRewrite*> m_dmr1Passalls;
+	std::vector<CRewrite*> m_dmr2Passalls;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
