@@ -95,10 +95,10 @@ void CAPRSHelper::close()
 /*
 int main(void)
 {
-    std::string callsign = "N9OTJ";
+    std::string callsign = "N0CALL";
     std::string suffix = "11";
-    std::string password = "14479";
-    std::string address = "aprs.mcducklabs.com";
+    std::string password = "-1";
+    std::string address = "rotate.aprs2.net";
     int port = 14580;    
 	CAPRSHelper* helper = new CAPRSHelper(callsign, suffix, password, address, port);
 
