@@ -62,6 +62,17 @@ const unsigned char COLOR_CODE = 3U;
 static bool m_killed = false;
 static int  m_signal = 0;
 
+// ETSI TS 102 361-4 V1.7.1 Page 93
+const unsigned char UAB_1_BLOCKS_APPENDED = 0x0U;
+const unsigned char UAB_2_BLOCKS_APPENDED = 0x1U;
+const unsigned char UAB_3_BLOCKS_APPENDED = 0x2U;
+const unsigned char UAB_4_BLOCKS_APPENDED = 0x3U;
+
+// ETSI TS 102 361-4 V1.7.1 Page 245
+const unsigned char UDT_FORMAT_NMEA = 0x05U;
+
+
+
 CDMRLookup* m_lookup = NULL;
 
 #if !defined(_WIN32) && !defined(_WIN64)
@@ -1390,7 +1401,9 @@ void CDMRGateway::checkForGPSData(const CDMRData& data)
 
 		unsigned char payload[12U];
 		bptc.decode(buffer, payload);
-		if ( ((payload[1U] & 0x05U) == 0x05U) && ((payload[8U] & 0x03U) == 0x00U) )
+		// ESTI TS 102 361-4 V1.7.1 Page 99
+		// MD-390/RT8 sets these. Other manufacturers may do it differently.
+		if ( ((payload[1U] & 0x05U) == UDT_FORMAT_NMEA) && ((payload[8U] & 0x03U) == UAB_1_BLOCKS_APPENDED) )
 				{
 					LogDebug("UDT/NMEA Frame, Slot %d, 1 Appended data block outstanding", slotNo);
 					// Store Source and destination ID's  per slot
@@ -1450,7 +1463,8 @@ void CDMRGateway::extractGPSData(const CDMRData& data)
 		unsigned char payload[12U];
 		bptc.decode(buffer, payload);
 
-		// Have we a GPS fix
+		// ETSI TS 102 361-4 V1.7.1 P263 
+		// Have we a GPS fix? Check bit 4 of first octet
 		if ((payload[0U] & 0x10U) >> 4) {
 			if ((payload[0U] & 0x40U) >> 6)
 				latSign = 1;
