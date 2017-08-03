@@ -39,16 +39,19 @@ private:
 	CDMREmbeddedData* m_data;
 	unsigned int      m_writeNum;
 	unsigned int      m_readNum;
+	unsigned char     m_lastN;
 
 	void processHeader(CDMRData& data, unsigned char dataType);
+	void processVoiceSync(CDMRData& data);
 	void processVoice(CDMRData& data);
 	void processDataHeader(CDMRData& data);
+	void processData(CDMRData& data);
 	void processCSBK(CDMRData& data);
 	void swap();
 
 	void setLC(FLCO flco, unsigned int srcId, unsigned int dstId);
 
-	unsigned char processEmbeddedData(unsigned char* data, unsigned char n);
+	void processEmbeddedData(unsigned char* data, unsigned char n);
 };
 
 #endif
