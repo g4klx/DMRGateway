@@ -1,0 +1,5 @@
+# The format of this file is:
+# XLX Number;host;port;default;password
+
+# XLX950
+950;xlx950.epf.lu;62030;4005;passw0rd

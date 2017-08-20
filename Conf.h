@@ -116,37 +116,17 @@ public:
 	std::vector<unsigned int>       getDMRNetwork2PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork2PassAllTG() const;
 
-	// The XLX Network 1 section
-	bool         getXLXNetwork1Enabled() const;
-	std::string  getXLXNetwork1Name() const;
-	unsigned int getXLXNetwork1Id() const;
-	std::string  getXLXNetwork1Address() const;
-	unsigned int getXLXNetwork1Port() const;
-	unsigned int getXLXNetwork1Local() const;
-	std::string  getXLXNetwork1Password() const;
-	unsigned int getXLXNetwork1Slot() const;
-	unsigned int getXLXNetwork1TG() const;
-	unsigned int getXLXNetwork1Base() const;
-	unsigned int getXLXNetwork1Startup() const;
-	unsigned int getXLXNetwork1Relink() const;
-	std::string  getXLXNetwork1Options() const;
-	bool         getXLXNetwork1Debug() const;
-
-	// The XLX Network 2 section
-	bool         getXLXNetwork2Enabled() const;
-	std::string  getXLXNetwork2Name() const;
-	unsigned int getXLXNetwork2Id() const;
-	std::string  getXLXNetwork2Address() const;
-	unsigned int getXLXNetwork2Port() const;
-	unsigned int getXLXNetwork2Local() const;
-	std::string  getXLXNetwork2Password() const;
-	unsigned int getXLXNetwork2Slot() const;
-	unsigned int getXLXNetwork2TG() const;
-	unsigned int getXLXNetwork2Base() const;
-	unsigned int getXLXNetwork2Startup() const;
-	unsigned int getXLXNetwork2Relink() const;
-	std::string  getXLXNetwork2Options() const;
-	bool         getXLXNetwork2Debug() const;
+	// The XLX Network section
+	bool         getXLXNetworkEnabled() const;
+	unsigned int getXLXNetworkId() const;
+	std::string  getXLXNetworkFile() const;
+	unsigned int getXLXNetworkLocal() const;
+	unsigned int getXLXNetworkSlot() const;
+	unsigned int getXLXNetworkTG() const;
+	unsigned int getXLXNetworkBase() const;
+	unsigned int getXLXNetworkStartup() const;
+	unsigned int getXLXNetworkRelink() const;
+	bool         getXLXNetworkDebug() const;
 
 private:
 	std::string  m_file;
@@ -200,35 +180,16 @@ private:
 	std::vector<unsigned int>       m_dmrNetwork2PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork2PassAllTG;
 
-	bool         m_xlxNetwork1Enabled;
-	std::string  m_xlxNetwork1Name;
-	unsigned int m_xlxNetwork1Id;
-	std::string  m_xlxNetwork1Address;
-	unsigned int m_xlxNetwork1Port;
-	unsigned int m_xlxNetwork1Local;
-	std::string  m_xlxNetwork1Password;
-	unsigned int m_xlxNetwork1Slot;
-	unsigned int m_xlxNetwork1TG;
-	unsigned int m_xlxNetwork1Base;
-	unsigned int m_xlxNetwork1Startup;
-	unsigned int m_xlxNetwork1Relink;
-	std::string  m_xlxNetwork1Options;
-	bool         m_xlxNetwork1Debug;
-
-	bool         m_xlxNetwork2Enabled;
-	std::string  m_xlxNetwork2Name;
-	unsigned int m_xlxNetwork2Id;
-	std::string  m_xlxNetwork2Address;
-	unsigned int m_xlxNetwork2Port;
-	unsigned int m_xlxNetwork2Local;
-	std::string  m_xlxNetwork2Password;
-	unsigned int m_xlxNetwork2Slot;
-	unsigned int m_xlxNetwork2TG;
-	unsigned int m_xlxNetwork2Base;
-	unsigned int m_xlxNetwork2Startup;
-	unsigned int m_xlxNetwork2Relink;
-	std::string  m_xlxNetwork2Options;
-	bool         m_xlxNetwork2Debug;
+	bool         m_xlxNetworkEnabled;
+	unsigned int m_xlxNetworkId;
+	std::string  m_xlxNetworkFile;
+	unsigned int m_xlxNetworkLocal;
+	unsigned int m_xlxNetworkSlot;
+	unsigned int m_xlxNetworkTG;
+	unsigned int m_xlxNetworkBase;
+	unsigned int m_xlxNetworkStartup;
+	unsigned int m_xlxNetworkRelink;
+	bool         m_xlxNetworkDebug;
 };
 
 #endif

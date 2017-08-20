@@ -33,8 +33,7 @@ enum SECTION {
   SECTION_VOICE,
   SECTION_DMR_NETWORK_1,
   SECTION_DMR_NETWORK_2,
-  SECTION_XLX_NETWORK_1,
-  SECTION_XLX_NETWORK_2
+  SECTION_XLX_NETWORK
 };
 
 CConf::CConf(const std::string& file) :
@@ -84,34 +83,16 @@ m_dmrNetwork2TypeRewrites(),
 m_dmrNetwork2SrcRewrites(),
 m_dmrNetwork2PassAllPC(),
 m_dmrNetwork2PassAllTG(),
-m_xlxNetwork1Enabled(false),
-m_xlxNetwork1Name(),
-m_xlxNetwork1Id(0U),
-m_xlxNetwork1Address(),
-m_xlxNetwork1Port(0U),
-m_xlxNetwork1Local(0U),
-m_xlxNetwork1Password(),
-m_xlxNetwork1Slot(1U),
-m_xlxNetwork1TG(8U),
-m_xlxNetwork1Base(84000U),
-m_xlxNetwork1Startup(4000U),
-m_xlxNetwork1Relink(0U),
-m_xlxNetwork1Options(),
-m_xlxNetwork1Debug(false),
-m_xlxNetwork2Enabled(false),
-m_xlxNetwork2Name(),
-m_xlxNetwork2Id(0U),
-m_xlxNetwork2Address(),
-m_xlxNetwork2Port(0U),
-m_xlxNetwork2Local(0U),
-m_xlxNetwork2Password(),
-m_xlxNetwork2Slot(1U),
-m_xlxNetwork2TG(7U),
-m_xlxNetwork2Base(74000U),
-m_xlxNetwork2Startup(4000U),
-m_xlxNetwork2Relink(0U),
-m_xlxNetwork2Options(),
-m_xlxNetwork2Debug(false)
+m_xlxNetworkEnabled(false),
+m_xlxNetworkId(0U),
+m_xlxNetworkFile(),
+m_xlxNetworkLocal(0U),
+m_xlxNetworkSlot(1U),
+m_xlxNetworkTG(8U),
+m_xlxNetworkBase(84000U),
+m_xlxNetworkStartup(4000U),
+m_xlxNetworkRelink(0U),
+m_xlxNetworkDebug(false)
 {
 }
 
@@ -141,10 +122,8 @@ bool CConf::read()
 			section = SECTION_LOG;
 		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
 			section = SECTION_VOICE;
-		else if (::strncmp(buffer, "[XLX Network 1]", 15U) == 0)
-			section = SECTION_XLX_NETWORK_1;
-		else if (::strncmp(buffer, "[XLX Network 2]", 15U) == 0)
-			section = SECTION_XLX_NETWORK_2;
+		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
+			section = SECTION_XLX_NETWORK;
 		else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
 			section = SECTION_DMR_NETWORK_1;
 		else if (::strncmp(buffer, "[DMR Network 2]", 15U) == 0)
@@ -196,64 +175,27 @@ bool CConf::read()
 				m_voiceLanguage = value;
 			else if (::strcmp(key, "Directory") == 0)
 				m_voiceDirectory = value;
-		} else if (section == SECTION_XLX_NETWORK_1) {
+		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Enabled") == 0)
-				m_xlxNetwork1Enabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Name") == 0)
-				m_xlxNetwork1Name = value;
+				m_xlxNetworkEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Id") == 0)
-				m_xlxNetwork1Id = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Address") == 0)
-				m_xlxNetwork1Address = value;
-			else if (::strcmp(key, "Port") == 0)
-				m_xlxNetwork1Port = (unsigned int)::atoi(value);
+				m_xlxNetworkId = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "File") == 0)
+				m_xlxNetworkFile = value;
 			else if (::strcmp(key, "Local") == 0)
-				m_xlxNetwork1Local = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Password") == 0)
-				m_xlxNetwork1Password = value;
+				m_xlxNetworkLocal = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Slot") == 0)
-				m_xlxNetwork1Slot = (unsigned int)::atoi(value);
+				m_xlxNetworkSlot = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "TG") == 0)
-				m_xlxNetwork1TG = (unsigned int)::atoi(value);
+				m_xlxNetworkTG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Base") == 0)
-				m_xlxNetwork1Base = (unsigned int)::atoi(value);
+				m_xlxNetworkBase = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Startup") == 0)
-				m_xlxNetwork1Startup = (unsigned int)::atoi(value);
+				m_xlxNetworkStartup = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Relink") == 0)
-				m_xlxNetwork1Relink = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Options") == 0)
-				m_xlxNetwork1Options = value;
+				m_xlxNetworkRelink = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Debug") == 0)
-				m_xlxNetwork1Debug = ::atoi(value) == 1;
-		} else if (section == SECTION_XLX_NETWORK_2) {
-			if (::strcmp(key, "Enabled") == 0)
-				m_xlxNetwork2Enabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Name") == 0)
-				m_xlxNetwork2Name = value;
-			else if (::strcmp(key, "Id") == 0)
-				m_xlxNetwork2Id = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Address") == 0)
-				m_xlxNetwork2Address = value;
-			else if (::strcmp(key, "Port") == 0)
-				m_xlxNetwork2Port = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Local") == 0)
-				m_xlxNetwork2Local = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Password") == 0)
-				m_xlxNetwork2Password = value;
-			else if (::strcmp(key, "Slot") == 0)
-				m_xlxNetwork2Slot = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "TG") == 0)
-				m_xlxNetwork2TG = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Base") == 0)
-				m_xlxNetwork2Base = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Startup") == 0)
-				m_xlxNetwork2Startup = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Relink") == 0)
-				m_xlxNetwork2Relink = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Options") == 0)
-				m_xlxNetwork2Options = value;
-			else if (::strcmp(key, "Debug") == 0)
-				m_xlxNetwork2Debug = ::atoi(value) == 1;
+				m_xlxNetworkDebug = ::atoi(value) == 1;
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
@@ -505,150 +447,54 @@ std::string CConf::getVoiceDirectory() const
 	return m_voiceDirectory;
 }
 
-bool CConf::getXLXNetwork1Enabled() const
+bool CConf::getXLXNetworkEnabled() const
 {
-	return m_xlxNetwork1Enabled;
+	return m_xlxNetworkEnabled;
 }
 
-std::string CConf::getXLXNetwork1Name() const
+unsigned int CConf::getXLXNetworkId() const
 {
-	if (m_xlxNetwork1Name.empty())
-		return "XLX-1";
-	else
-		return m_xlxNetwork1Name;
+	return m_xlxNetworkId;
 }
 
-unsigned int CConf::getXLXNetwork1Id() const
+std::string CConf::getXLXNetworkFile() const
 {
-	return m_xlxNetwork1Id;
+	return m_xlxNetworkFile;
 }
 
-std::string CConf::getXLXNetwork1Address() const
+unsigned int CConf::getXLXNetworkLocal() const
 {
-	return m_xlxNetwork1Address;
+	return m_xlxNetworkLocal;
 }
 
-unsigned int CConf::getXLXNetwork1Port() const
+unsigned int CConf::getXLXNetworkSlot() const
 {
-	return m_xlxNetwork1Port;
+	return m_xlxNetworkSlot;
 }
 
-unsigned int CConf::getXLXNetwork1Local() const
+unsigned int CConf::getXLXNetworkTG() const
 {
-	return m_xlxNetwork1Local;
+	return m_xlxNetworkTG;
 }
 
-unsigned int CConf::getXLXNetwork1Slot() const
+unsigned int CConf::getXLXNetworkBase() const
 {
-	return m_xlxNetwork1Slot;
+	return m_xlxNetworkBase;
 }
 
-unsigned int CConf::getXLXNetwork1TG() const
+unsigned int CConf::getXLXNetworkStartup() const
 {
-	return m_xlxNetwork1TG;
+	return m_xlxNetworkStartup;
 }
 
-unsigned int CConf::getXLXNetwork1Base() const
+unsigned int CConf::getXLXNetworkRelink() const
 {
-	return m_xlxNetwork1Base;
+	return m_xlxNetworkRelink;
 }
 
-unsigned int CConf::getXLXNetwork1Startup() const
+bool CConf::getXLXNetworkDebug() const
 {
-	return m_xlxNetwork1Startup;
-}
-
-unsigned int CConf::getXLXNetwork1Relink() const
-{
-	return m_xlxNetwork1Relink;
-}
-
-std::string CConf::getXLXNetwork1Password() const
-{
-	return m_xlxNetwork1Password;
-}
-
-std::string CConf::getXLXNetwork1Options() const
-{
-	return m_xlxNetwork1Options;
-}
-
-bool CConf::getXLXNetwork1Debug() const
-{
-	return m_xlxNetwork1Debug;
-}
-
-bool CConf::getXLXNetwork2Enabled() const
-{
-	return m_xlxNetwork2Enabled;
-}
-
-std::string CConf::getXLXNetwork2Name() const
-{
-	if (m_xlxNetwork2Name.empty())
-		return "XLX-2";
-	else
-		return m_xlxNetwork2Name;
-}
-
-unsigned int CConf::getXLXNetwork2Id() const
-{
-	return m_xlxNetwork2Id;
-}
-
-std::string CConf::getXLXNetwork2Address() const
-{
-	return m_xlxNetwork2Address;
-}
-
-unsigned int CConf::getXLXNetwork2Port() const
-{
-	return m_xlxNetwork2Port;
-}
-
-unsigned int CConf::getXLXNetwork2Local() const
-{
-	return m_xlxNetwork2Local;
-}
-
-unsigned int CConf::getXLXNetwork2Slot() const
-{
-	return m_xlxNetwork2Slot;
-}
-
-unsigned int CConf::getXLXNetwork2TG() const
-{
-	return m_xlxNetwork2TG;
-}
-
-unsigned int CConf::getXLXNetwork2Base() const
-{
-	return m_xlxNetwork2Base;
-}
-
-unsigned int CConf::getXLXNetwork2Startup() const
-{
-	return m_xlxNetwork2Startup;
-}
-
-unsigned int CConf::getXLXNetwork2Relink() const
-{
-	return m_xlxNetwork2Relink;
-}
-
-std::string CConf::getXLXNetwork2Password() const
-{
-	return m_xlxNetwork2Password;
-}
-
-std::string CConf::getXLXNetwork2Options() const
-{
-	return m_xlxNetwork2Options;
-}
-
-bool CConf::getXLXNetwork2Debug() const
-{
-	return m_xlxNetwork2Debug;
+	return m_xlxNetworkDebug;
 }
 
 bool CConf::getDMRNetwork1Enabled() const
