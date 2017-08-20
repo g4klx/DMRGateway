@@ -464,11 +464,11 @@ int CDMRGateway::run()
 				LogMessage("%s, Re-linking to startup reflector %u due to RF inactivity timeout", m_xlx2Name.c_str(), m_xlx2Startup);
 				m_xlx2Reflector = m_xlx2Startup;
 
-				if (voice1 != NULL) {
-					if (m_xlx1Reflector == 4000U)
-						voice1->unlinked();
+				if (voice2 != NULL) {
+					if (m_xlx2Reflector == 4000U)
+						voice2->unlinked();
 					else
-						voice1->linkedTo(m_xlx2Startup);
+						voice2->linkedTo(m_xlx2Startup);
 				}
 			}
 		}
@@ -526,7 +526,7 @@ int CDMRGateway::run()
 					if (m_xlx1Reflector != m_xlx1Startup)
 						m_xlx1Relink.start();
 					else
-						m_xlx2Relink.stop();
+						m_xlx1Relink.stop();
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
