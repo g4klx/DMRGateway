@@ -458,7 +458,7 @@ int CDMRGateway::run()
 				status[slotNo] = DMRGWS_XLXREFLECTOR;
 				timer[slotNo]->start();
 
-				if (voice = NULL) {
+				if (voice == NULL) {
 					unsigned char type = data.getDataType();
 					if (type == DT_TERMINATOR_WITH_LC) {
 						if (changed) {
