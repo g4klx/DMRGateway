@@ -470,10 +470,12 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (dstId > 8000U && dstId < 9000U && flco == FLCO_USER_USER && slotNo == m_xlxSlot) {
-				unsigned int number = dstId - 8000U;
-				if (number != m_xlxNumber)
-					linkXLX(number);
+			} else if (dstId > (m_xlxBase + 4000U) && dstId < (m_xlxBase + 5000U) && flco == FLCO_USER_USER && slotNo == m_xlxSlot) {
+				dstId += 4000U;
+				dstId -= m_xlxBase;
+
+				if (dstId != m_xlxNumber)
+					linkXLX(dstId);
 			} else {
 				unsigned int slotNo = data.getSlotNo();
 				unsigned int srcId  = data.getSrcId();
@@ -1109,10 +1111,10 @@ bool CDMRGateway::linkXLX(unsigned int number)
 		LogMessage("XLX, Disconnecting from XLX%03u", m_xlxNumber);
 		m_xlxNetwork->close();
 		delete m_xlxNetwork;
-		m_xlxRelink.setTimeout(0U);
 	}
 
 	m_xlxConnected = false;
+	m_xlxRelink.stop();
 
 	m_xlxNetwork = new CDMRNetwork(reflector->m_address, reflector->m_port, m_xlxLocal, m_xlxId, reflector->m_password, "XLX", m_xlxDebug);
 
@@ -1130,7 +1132,10 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	m_xlxNumber = number;
 	m_xlxRoom   = reflector->m_startup;
-	m_xlxRelink.stop();
+
+	// By definition the "Room" will be correct
+	if (m_xlxNumber != m_xlxStartup)
+		m_xlxRelink.start();
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
