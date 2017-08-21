@@ -372,7 +372,11 @@ int CDMRGateway::run()
 
 				m_xlxReflector = m_xlxRoom;
 				m_xlxConnected = true;
-				m_xlxRelink.stop();
+
+				if (m_xlxNumber == m_xlxStartup)
+					m_xlxRelink.stop();
+				else
+					m_xlxRelink.start();
 			} else if (!connected && m_xlxConnected) {
 				if (m_xlxReflector != 4000U) {
 					LogMessage("XLX, Unlinking from XLX%03u due to loss of connection", m_xlxNumber);
@@ -1132,10 +1136,6 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	m_xlxNumber = number;
 	m_xlxRoom   = reflector->m_startup;
-
-	// By definition the "Room" will be correct
-	if (m_xlxNumber != m_xlxStartup)
-		m_xlxRelink.start();
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
