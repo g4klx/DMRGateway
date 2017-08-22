@@ -74,6 +74,7 @@ private:
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);
+	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 };
 
