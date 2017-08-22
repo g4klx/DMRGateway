@@ -367,7 +367,7 @@ int CDMRGateway::run()
 					writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
 					LogMessage("XLX, Linking to reflector %u in XLX%03u", m_xlxRoom, m_xlxNumber);
 					if (voice != NULL)
-						voice->linkedTo(m_xlxRoom);
+						voice->linkedTo(m_xlxNumber, m_xlxRoom);
 				}
 
 				m_xlxReflector = m_xlxRoom;
@@ -405,7 +405,7 @@ int CDMRGateway::run()
 						if (m_xlxReflector == 4000U)
 							voice->unlinked();
 						else
-							voice->linkedTo(m_xlxStartup);
+							voice->linkedTo(m_xlxNumber, m_xlxReflector);
 					}
 				}
 			}
@@ -437,7 +437,7 @@ int CDMRGateway::run()
 						LogMessage("XLX, Unlinking from reflector %u in XLX%03u", m_xlxRoom, m_xlxNumber);
 					} else if (dstId == 5000U) {
 						if (m_xlxReflector != 4000U)
-							voice->linkedTo(m_xlxReflector);
+							voice->linkedTo(m_xlxNumber, m_xlxReflector);
 						else
 							voice->unlinked();
 					} else {
@@ -469,7 +469,7 @@ int CDMRGateway::run()
 							if (m_xlxReflector == 4000U)
 								voice->unlinked();
 							else
-								voice->linkedTo(m_xlxReflector);
+								voice->linkedTo(m_xlxNumber, m_xlxReflector);
 							changed = false;
 						}
 					}

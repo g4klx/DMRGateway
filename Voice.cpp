@@ -171,17 +171,18 @@ bool CVoice::open()
 	return true;
 }
 
-void CVoice::linkedTo(unsigned int id)
+void CVoice::linkedTo(unsigned int number, unsigned int room)
 {
-	char number[10U];
-	::sprintf(number, "%04u", id);
+	char letters[10U];
+	::sprintf(letters, "%03u%02u", number, room % 100U);
 
 	std::vector<unsigned int> words;
 	words.push_back(POSITION_CONNECTED);
-	words.push_back(number[0U] - '0');
-	words.push_back(number[1U] - '0');
-	words.push_back(number[2U] - '0');
-	words.push_back(number[3U] - '0');
+	words.push_back(letters[0U] - '0');
+	words.push_back(letters[1U] - '0');
+	words.push_back(letters[2U] - '0');
+	words.push_back(letters[3U] - '0');
+	words.push_back(letters[4U] - '0');
 
 	createVoice(words);
 }
