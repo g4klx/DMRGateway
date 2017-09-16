@@ -416,7 +416,6 @@ int CDMRGateway::run()
 					}
 
 					m_xlxReflector = m_xlxRoom;
-
 					if (voice != NULL) {
 						if (m_xlxReflector < 4001U || m_xlxReflector > 4026U)
 							voice->unlinked();
@@ -830,6 +829,7 @@ bool CDMRGateway::createDMRNetwork1()
 	unsigned int local   = m_conf.getDMRNetwork1Local();
 	unsigned int id      = m_conf.getDMRNetwork1Id();
 	std::string password = m_conf.getDMRNetwork1Password();
+	bool location        = m_conf.getDMRNetwork1Location();
 	bool debug           = m_conf.getDMRNetwork1Debug();
 	m_dmr1Name           = m_conf.getDMRNetwork1Name();
 
@@ -845,6 +845,7 @@ bool CDMRGateway::createDMRNetwork1()
 		LogInfo("    Local: %u", local);
 	else
 		LogInfo("    Local: random");
+	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
 	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, debug);
 
@@ -859,6 +860,9 @@ bool CDMRGateway::createDMRNetwork1()
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);
+
+	if (!location)
+		::memcpy(config + 30U, "0.00000000.000000", 17U);
 
 	m_dmrNetwork1->setConfig(config, len);
 
@@ -952,6 +956,7 @@ bool CDMRGateway::createDMRNetwork2()
 	unsigned int local   = m_conf.getDMRNetwork2Local();
 	unsigned int id      = m_conf.getDMRNetwork2Id();
 	std::string password = m_conf.getDMRNetwork2Password();
+	bool location        = m_conf.getDMRNetwork2Location();
 	bool debug           = m_conf.getDMRNetwork2Debug();
 	m_dmr2Name           = m_conf.getDMRNetwork2Name();
 
@@ -967,6 +972,7 @@ bool CDMRGateway::createDMRNetwork2()
 		LogInfo("    Local: %u", local);
 	else
 		LogInfo("    Local: random");
+	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
 	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, debug);
 
@@ -981,6 +987,9 @@ bool CDMRGateway::createDMRNetwork2()
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);
+
+	if (!location)
+		::memcpy(config + 30U, "0.00000000.000000", 17U);
 
 	m_dmrNetwork2->setConfig(config, len);
 
