@@ -312,7 +312,8 @@ int CDMRGateway::run()
 			return 1;
 	}
 
-	unsigned int timeout = m_conf.getTimeout();
+	unsigned int rfTimeout  = m_conf.getRFTimeout();
+	unsigned int netTimeout = m_conf.getNetTimeout();
 
 	CVoice* voice = NULL;
 	if (m_conf.getVoiceEnabled() && m_xlxNetwork != NULL) {
@@ -333,8 +334,8 @@ int CDMRGateway::run()
 	}
 
 	CTimer* timer[3U];
-	timer[1U] = new CTimer(1000U, timeout);
-	timer[2U] = new CTimer(1000U, timeout);
+	timer[1U] = new CTimer(1000U);
+	timer[2U] = new CTimer(1000U);
 
 	DMRGW_STATUS status[3U];
 	status[1U] = DMRGWS_NONE;
@@ -442,6 +443,7 @@ int CDMRGateway::run()
 				m_xlxRewrite->process(data, false);
 				m_xlxNetwork->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 			} else if ((dstId <= (m_xlxBase + 26U) || dstId == (m_xlxBase + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= m_xlxBase) {
 				dstId += 4000U;
@@ -475,6 +477,7 @@ int CDMRGateway::run()
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 
 				if (voice == NULL) {
@@ -527,6 +530,7 @@ int CDMRGateway::run()
 						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 							m_dmrNetwork1->write(data);
 							status[slotNo] = DMRGWS_DMRNETWORK1;
+							timer[slotNo]->setTimeout(rfTimeout);
 							timer[slotNo]->start();
 						}
 					}
@@ -547,6 +551,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -567,6 +572,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 								m_dmrNetwork1->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK1;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -587,6 +593,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -606,6 +613,7 @@ int CDMRGateway::run()
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlxSlot] = DMRGWS_XLXREFLECTOR;
+						timer[m_xlxSlot]->setTimeout(netTimeout);
 						timer[m_xlxSlot]->start();
 					} else {
 						unsigned int slotNo = data.getSlotNo();
@@ -646,9 +654,12 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
+					// Check that the rewritten slot is free to use.
+					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
+						timer[slotNo]->setTimeout(netTimeout);
 						timer[slotNo]->start();
 					}
 				}
@@ -691,9 +702,12 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
+					// Check that the rewritten slot is free to use.
+					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
+						timer[slotNo]->setTimeout(netTimeout);
 						timer[slotNo]->start();
 					}
 				}
@@ -733,6 +747,7 @@ int CDMRGateway::run()
 			if (ret) {
 				m_repeater->write(data);
 				status[m_xlxSlot] = DMRGWS_XLXREFLECTOR;
+				timer[m_xlxSlot]->setTimeout(netTimeout);
 				timer[m_xlxSlot]->start();
 			}
 		}

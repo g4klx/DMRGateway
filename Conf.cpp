@@ -43,7 +43,8 @@ m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
 m_localPort(62031U),
-m_timeout(10U),
+m_rfTimeout(10U),
+m_netTimeout(10U),
 m_ruleTrace(false),
 m_debug(false),
 m_voiceEnabled(true),
@@ -148,7 +149,11 @@ bool CConf::read()
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
-				m_timeout = (unsigned int)::atoi(value);
+				m_rfTimeout = m_netTimeout = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RFTimeout") == 0)
+				m_rfTimeout = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "NetTimeout") == 0)
+				m_netTimeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptAddress") == 0)
 				m_rptAddress = value;
 			else if (::strcmp(key, "RptPort") == 0)
@@ -403,9 +408,14 @@ unsigned int CConf::getLocalPort() const
 	return m_localPort;
 }
 
-unsigned int CConf::getTimeout() const
+unsigned int CConf::getRFTimeout() const
 {
-	return m_timeout;
+	return m_rfTimeout;
+}
+
+unsigned int CConf::getNetTimeout() const
+{
+	return m_netTimeout;
 }
 
 bool CConf::getRuleTrace() const

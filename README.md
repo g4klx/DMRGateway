@@ -6,4 +6,8 @@ For example, the default configuration moves the announcements from BrandMeister
 
 The rewrite rules don’t apply to the XLX reflector, where only the slot and the talk group used may be changed. The controls i.e. private calls, for altering the reflector are fixed.
 
-It is hoped to expand the program in future to allow more functionality under the control of the sysop.
+The MMDVM .ini file should have the IP address and port number of the client in the [DMR Network] settings.
+
+They build on 32-bit and 64-bit Linux as well as on Windows using Visual Studio 2017 on x86 and x64.
+
+This software is licenced under the GPL v2 and is intended for amateur and educational use only. Use of this software for commercial purposes is strictly forbidden.
