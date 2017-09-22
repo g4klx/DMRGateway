@@ -329,7 +329,8 @@ int CDMRGateway::run()
 			return 1;
 	}
 
-	unsigned int timeout = m_conf.getTimeout();
+	unsigned int rfTimeout  = m_conf.getRFTimeout();
+	unsigned int netTimeout = m_conf.getNetTimeout();
 
 	CVoice* voice1 = NULL;
 	CVoice* voice2 = NULL;
@@ -362,8 +363,8 @@ int CDMRGateway::run()
 	}
 
 	CTimer* timer[3U];
-	timer[1U] = new CTimer(1000U, timeout);
-	timer[2U] = new CTimer(1000U, timeout);
+	timer[1U] = new CTimer(1000U);
+	timer[2U] = new CTimer(1000U);
 
 	DMRGW_STATUS status[3U];
 	status[1U] = DMRGWS_NONE;
@@ -489,6 +490,7 @@ int CDMRGateway::run()
 				m_xlx1Rewrite->process(data, false);
 				m_xlxNetwork1->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 			} else if (flco == FLCO_GROUP && slotNo == m_xlx2Slot && dstId == m_xlx2TG) {
 				if (m_xlx2Reflector != m_xlx2Startup)
@@ -497,6 +499,7 @@ int CDMRGateway::run()
 				m_xlx2Rewrite->process(data, false);
 				m_xlxNetwork2->write(data);
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 			} else if ((dstId <= (m_xlx1Base + 26U) || dstId == (m_xlx1Base + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlx1Slot && dstId >= m_xlx1Base) {
 				dstId += 4000U;
@@ -530,6 +533,7 @@ int CDMRGateway::run()
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR1;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 
 				if (voice1 != NULL) {
@@ -576,6 +580,7 @@ int CDMRGateway::run()
 				}
 
 				status[slotNo] = DMRGWS_XLXREFLECTOR2;
+				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 
 				if (voice2 != NULL) {
@@ -622,6 +627,7 @@ int CDMRGateway::run()
 						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 							m_dmrNetwork1->write(data);
 							status[slotNo] = DMRGWS_DMRNETWORK1;
+							timer[slotNo]->setTimeout(rfTimeout);
 							timer[slotNo]->start();
 						}
 					}
@@ -642,6 +648,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -662,6 +669,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 								m_dmrNetwork1->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK1;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -682,6 +690,7 @@ int CDMRGateway::run()
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
+								timer[slotNo]->setTimeout(rfTimeout);
 								timer[slotNo]->start();
 							}
 						}
@@ -701,6 +710,7 @@ int CDMRGateway::run()
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
+						timer[m_xlx1Slot]->setTimeout(netTimeout);
 						timer[m_xlx1Slot]->start();
 					} else {
 						unsigned int slotNo = data.getSlotNo();
@@ -720,6 +730,7 @@ int CDMRGateway::run()
 					if (ret) {
 						m_repeater->write(data);
 						status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
+						timer[m_xlx2Slot]->setTimeout(netTimeout);
 						timer[m_xlx2Slot]->start();
 					} else {
 						unsigned int slotNo = data.getSlotNo();
@@ -765,6 +776,7 @@ int CDMRGateway::run()
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
+						timer[slotNo]->setTimeout(netTimeout);
 						timer[slotNo]->start();
 					}
 				}
@@ -812,6 +824,7 @@ int CDMRGateway::run()
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
+						timer[slotNo]->setTimeout(netTimeout);
 						timer[slotNo]->start();
 					}
 				}
@@ -855,6 +868,7 @@ int CDMRGateway::run()
 			if (ret) {
 				m_repeater->write(data);
 				status[m_xlx1Slot] = DMRGWS_XLXREFLECTOR1;
+				timer[m_xlx1Slot]->setTimeout(netTimeout);
 				timer[m_xlx1Slot]->start();
 			}
 		}
@@ -864,6 +878,7 @@ int CDMRGateway::run()
 			if (ret) {
 				m_repeater->write(data);
 				status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
+				timer[m_xlx2Slot]->setTimeout(netTimeout);
 				timer[m_xlx2Slot]->start();
 			}
 		}
