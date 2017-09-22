@@ -721,8 +721,7 @@ int CDMRGateway::run()
 						m_repeater->write(data);
 						status[m_xlx2Slot] = DMRGWS_XLXREFLECTOR2;
 						timer[m_xlx2Slot]->start();
-					}
-					else {
+					} else {
 						unsigned int slotNo = data.getSlotNo();
 						unsigned int dstId = data.getDstId();
 						FLCO flco = data.getFLCO();
@@ -761,6 +760,8 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
+					// Check that the rewritten slot is free to use.
+					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
@@ -806,6 +807,8 @@ int CDMRGateway::run()
 				}
 
 				if (rewritten) {
+					// Check that the rewritten slot is free to use.
+					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
