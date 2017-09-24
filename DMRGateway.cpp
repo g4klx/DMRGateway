@@ -493,7 +493,7 @@ int CDMRGateway::run()
 					}
 				}
 			} else if (dstId > (m_xlxBase + 4000U) && dstId < (m_xlxBase + 5000U) && flco == FLCO_USER_USER && slotNo == m_xlxSlot) {
-				dstId += 4000U;
+				dstId -= 4000U;
 				dstId -= m_xlxBase;
 
 				if (dstId != m_xlxNumber)
