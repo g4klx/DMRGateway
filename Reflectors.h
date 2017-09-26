@@ -19,6 +19,8 @@
 #if !defined(Reflectors_H)
 #define	Reflectors_H
 
+#include "Timer.h"
+
 #include <vector>
 #include <string>
 
@@ -42,16 +44,19 @@ public:
 
 class CReflectors {
 public:
-	CReflectors(const std::string& hostsFile);
+	CReflectors(const std::string& hostsFile, unsigned int reloadTime);
 	~CReflectors();
 
 	bool load();
 
 	CReflector* find(unsigned int id);
 
+    void clock(unsigned int ms);
+
 private:
 	std::string              m_hostsFile;
 	std::vector<CReflector*> m_reflectors;
+    CTimer                   m_timer;
 };
 
 #endif

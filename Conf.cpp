@@ -89,6 +89,7 @@ m_dmrNetwork2PassAllTG(),
 m_xlxNetworkEnabled(false),
 m_xlxNetworkId(0U),
 m_xlxNetworkFile(),
+m_xlxNetworkReloadTime(0U),
 m_xlxNetworkLocal(0U),
 m_xlxNetworkSlot(1U),
 m_xlxNetworkTG(8U),
@@ -189,7 +190,9 @@ bool CConf::read()
 				m_xlxNetworkId = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "File") == 0)
 				m_xlxNetworkFile = value;
-			else if (::strcmp(key, "Local") == 0)
+            else if (::strcmp(key, "ReloadTime") == 0)
+                m_xlxNetworkReloadTime = (unsigned int)::atoi(value);
+            else if (::strcmp(key, "Local") == 0)
 				m_xlxNetworkLocal = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Slot") == 0)
 				m_xlxNetworkSlot = (unsigned int)::atoi(value);
@@ -476,6 +479,11 @@ unsigned int CConf::getXLXNetworkId() const
 std::string CConf::getXLXNetworkFile() const
 {
 	return m_xlxNetworkFile;
+}
+
+unsigned int CConf::getXLXNetworkReloadTime() const
+{
+    return m_xlxNetworkReloadTime;
 }
 
 unsigned int CConf::getXLXNetworkLocal() const

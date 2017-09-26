@@ -123,6 +123,7 @@ public:
 	bool         getXLXNetworkEnabled() const;
 	unsigned int getXLXNetworkId() const;
 	std::string  getXLXNetworkFile() const;
+    unsigned int getXLXNetworkReloadTime() const;
 	unsigned int getXLXNetworkLocal() const;
 	unsigned int getXLXNetworkSlot() const;
 	unsigned int getXLXNetworkTG() const;
@@ -189,6 +190,7 @@ private:
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;
 	std::string  m_xlxNetworkFile;
+    unsigned int m_xlxNetworkReloadTime;
 	unsigned int m_xlxNetworkLocal;
 	unsigned int m_xlxNetworkSlot;
 	unsigned int m_xlxNetworkTG;

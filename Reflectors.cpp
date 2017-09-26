@@ -26,10 +26,13 @@
 #include <cstring>
 #include <cctype>
 
-CReflectors::CReflectors(const std::string& hostsFile) :
+CReflectors::CReflectors(const std::string& hostsFile, unsigned int reloadTime) :
 m_hostsFile(hostsFile),
-m_reflectors()
+m_reflectors(),
+m_timer(1000U, reloadTime * 60U)
 {
+    if (reloadTime > 0U)
+        m_timer.start();
 }
 
 CReflectors::~CReflectors()
@@ -94,4 +97,14 @@ CReflector* CReflectors::find(unsigned int id)
 	LogMessage("Trying to find non existent XLX reflector with an id of %u", id);
 
 	return NULL;
+}
+
+void CReflectors::clock(unsigned int ms)
+{
+    m_timer.clock(ms);
+
+    if (m_timer.isRunning() && m_timer.hasExpired()) {
+        load();
+        m_timer.start();
+    }
 }

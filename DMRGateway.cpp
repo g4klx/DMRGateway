@@ -768,6 +768,9 @@ int CDMRGateway::run()
 		if (m_xlxNetwork != NULL)
 			m_xlxNetwork->clock(ms);
 
+        if (m_xlxReflectors != NULL)
+            m_xlxReflectors->clock(ms);
+
 		if (voice != NULL)
 			voice->clock(ms);
 
@@ -1093,9 +1096,10 @@ bool CDMRGateway::createDMRNetwork2()
 
 bool CDMRGateway::createXLXNetwork()
 {
-	std::string fileName = m_conf.getXLXNetworkFile();
+	std::string fileName    = m_conf.getXLXNetworkFile();
+    unsigned int reloadTime = m_conf.getXLXNetworkReloadTime();
 
-	m_xlxReflectors = new CReflectors(fileName);
+	m_xlxReflectors = new CReflectors(fileName, reloadTime);
 
 	bool ret = m_xlxReflectors->load();
 	if (!ret) {
