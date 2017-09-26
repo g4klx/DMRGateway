@@ -54,6 +54,8 @@ private:
 	unsigned int       m_xlxTG;
 	unsigned int       m_xlxBase;
 	unsigned int       m_xlxLocal;
+    unsigned int       m_xlxPort;
+    std::string        m_xlxPassword;
 	unsigned int       m_xlxStartup;
 	unsigned int       m_xlxRoom;
 	CTimer 	           m_xlxRelink;

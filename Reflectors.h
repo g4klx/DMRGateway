@@ -29,17 +29,13 @@ public:
 	CReflector() :
 	m_id(0U),
 	m_address(),
-	m_port(0U),
-	m_startup(0U),
-	m_password()
+	m_startup(0U)
 	{
 	}
 
 	unsigned int m_id;
 	std::string  m_address;
-	unsigned int m_port;
 	unsigned int m_startup;
-	std::string  m_password;
 };
 
 class CReflectors {

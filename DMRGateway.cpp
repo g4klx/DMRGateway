@@ -144,6 +144,8 @@ m_xlxSlot(0U),
 m_xlxTG(0U),
 m_xlxBase(0U),
 m_xlxLocal(0U),
+m_xlxPort(62030U),
+m_xlxPassword("passw0rd"),
 m_xlxStartup(950U),
 m_xlxRoom(4000U),
 m_xlxRelink(1000U),
@@ -1107,9 +1109,11 @@ bool CDMRGateway::createXLXNetwork()
 		return false;
 	}
 
-	m_xlxLocal = m_conf.getXLXNetworkLocal();
-	m_xlxId    = m_conf.getXLXNetworkId();
-	m_xlxDebug = m_conf.getXLXNetworkDebug();
+	m_xlxLocal    = m_conf.getXLXNetworkLocal();
+    m_xlxPort     = m_conf.getXLXNetworkPort();
+    m_xlxPassword = m_conf.getXLXNetworkPassword();
+    m_xlxId       = m_conf.getXLXNetworkId();
+	m_xlxDebug    = m_conf.getXLXNetworkDebug();
 
 	if (m_xlxId == 0U)
 		m_xlxId = m_repeater->getId();
@@ -1124,10 +1128,12 @@ bool CDMRGateway::createXLXNetwork()
 	LogInfo("XLX Network Parameters");
 	LogInfo("    Id: %u", m_xlxId);
 	LogInfo("    Hosts file: %s", fileName.c_str());
+    LogInfo("    Reload time: %u minutes", reloadTime);
 	if (m_xlxLocal > 0U)
 		LogInfo("    Local: %u", m_xlxLocal);
 	else
 		LogInfo("    Local: random");
+    LogInfo("    Port: %u", m_xlxPort);
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
 	LogInfo("    Base: %u", m_xlxBase);
@@ -1164,7 +1170,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, reflector->m_port, m_xlxLocal, m_xlxId, reflector->m_password, "XLX", m_xlxDebug);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", m_xlxDebug);
 
 	unsigned char config[400U];
 	unsigned int len = m_repeater->getConfig(config);

@@ -90,6 +90,8 @@ m_xlxNetworkEnabled(false),
 m_xlxNetworkId(0U),
 m_xlxNetworkFile(),
 m_xlxNetworkReloadTime(0U),
+m_xlxNetworkPort(62030U),
+m_xlxNetworkPassword("passw0rd"),
 m_xlxNetworkLocal(0U),
 m_xlxNetworkSlot(1U),
 m_xlxNetworkTG(8U),
@@ -192,6 +194,10 @@ bool CConf::read()
 				m_xlxNetworkFile = value;
             else if (::strcmp(key, "ReloadTime") == 0)
                 m_xlxNetworkReloadTime = (unsigned int)::atoi(value);
+            else if (::strcmp(key, "Port") == 0)
+                m_xlxNetworkPort = (unsigned int)::atoi(value);
+            else if (::strcmp(key, "Password") == 0)
+                m_xlxNetworkPassword = value;
             else if (::strcmp(key, "Local") == 0)
 				m_xlxNetworkLocal = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Slot") == 0)
@@ -484,6 +490,16 @@ std::string CConf::getXLXNetworkFile() const
 unsigned int CConf::getXLXNetworkReloadTime() const
 {
     return m_xlxNetworkReloadTime;
+}
+
+unsigned int CConf::getXLXNetworkPort() const
+{
+    return m_xlxNetworkPort;
+}
+
+std::string CConf::getXLXNetworkPassword() const
+{
+    return m_xlxNetworkPassword;
 }
 
 unsigned int CConf::getXLXNetworkLocal() const

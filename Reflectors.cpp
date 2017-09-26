@@ -59,17 +59,13 @@ bool CReflectors::load()
 
 			char* p1 = ::strtok(buffer, ";\r\n");
 			char* p2 = ::strtok(NULL, ";\r\n");
-			char* p3 = ::strtok(NULL, ";\r\n");
-			char* p4 = ::strtok(NULL, ";\r\n");
-			char* p5 = ::strtok(NULL, "\r\n");
+			char* p3 = ::strtok(NULL, "\r\n");
 
-			if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+			if (p1 != NULL && p2 != NULL && p3 != NULL) {
 				CReflector* refl = new CReflector;
 				refl->m_id       = (unsigned int)::atoi(p1);
 				refl->m_address  = std::string(p2);
-				refl->m_port     = (unsigned int)::atoi(p3);
-				refl->m_startup  = (unsigned int)::atoi(p4);
-				refl->m_password = std::string(p5);
+				refl->m_startup  = (unsigned int)::atoi(p3);
 				m_reflectors.push_back(refl);
 			}
 		}

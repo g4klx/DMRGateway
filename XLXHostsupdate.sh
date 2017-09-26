@@ -86,7 +86,7 @@ fi
 curl http://xlxapi.rlx.lu/api.php?do=GetXLXDMRMaster | awk '
 BEGIN {
 	print "# The format of this file is:"
-	print "# XLX Number;host;port;default;password"
+	print "# XLX Number;host;default"
 }
 /^XLX/ {
 	reflector=4004
@@ -94,7 +94,7 @@ BEGIN {
 		reflector=4001
 	if ($1 == "XLX950")
 		reflector=4005
-	printf "%s;%s;62030;%d;passw0rd\n", substr($1,4), $2, reflector
+	printf "%s;%s;%d\n", substr($1,4), $2, reflector
 }' > ${XLXHOSTS}
 
 exit 0
