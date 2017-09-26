@@ -1174,8 +1174,9 @@ bool CDMRGateway::linkXLX(unsigned int number)
 		return false;
 	}
 
-	m_xlxNumber = number;
-	m_xlxRoom   = reflector->m_startup;
+	m_xlxNumber    = number;
+	m_xlxRoom      = reflector->m_startup;
+    m_xlxReflector = 4000U;
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
