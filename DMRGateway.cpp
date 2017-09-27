@@ -482,7 +482,7 @@ int CDMRGateway::run()
 				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 
-				if (voice == NULL) {
+				if (voice != NULL) {
 					unsigned char type = data.getDataType();
 					if (type == DT_TERMINATOR_WITH_LC) {
 						if (changed) {
