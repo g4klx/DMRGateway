@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 enum VOICE_STATUS {
 	VS_NONE,
@@ -66,12 +67,12 @@ private:
 	unsigned int                           m_streamId;
 	unsigned int                           m_sent;
 	unsigned char*                         m_ambe;
-	CPositions*                            m_positions;
+	std::map<std::string, CPositions*>     m_positions;
 	std::vector<CDMRData*>                 m_data;
 	std::vector<CDMRData*>::const_iterator m_it;
 
 	void createHeaderTerminator(unsigned char type);
-	void createVoice(const std::vector<unsigned int>& words);
+	void createVoice(const std::vector<std::string>& words);
 };
 
 #endif
