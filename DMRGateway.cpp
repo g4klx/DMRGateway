@@ -360,8 +360,6 @@ int CDMRGateway::run()
 
 	LogMessage("DMRGateway-%s is running", VERSION);
 
-	bool changed = false;
-
 	while (!m_killed) {
 		if (m_xlxNetwork != NULL) {
 			bool connected = m_xlxNetwork->isConnected();
@@ -377,6 +375,9 @@ int CDMRGateway::run()
 					if (voice != NULL)
 						voice->linkedTo(m_xlxNumber, m_xlxRoom);
 					m_xlxReflector = m_xlxRoom;
+				} else {
+					if (voice != NULL)
+						voice->linkedTo(m_xlxNumber, 0U);
 				}
 
 				m_xlxConnected = true;
@@ -386,11 +387,10 @@ int CDMRGateway::run()
 				else
 					m_xlxRelink.start();
 			} else if (!connected && m_xlxConnected) {
-				if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
-					LogMessage("XLX, Unlinking from XLX%03u due to loss of connection", m_xlxNumber);
-					if (voice != NULL)
-						voice->unlinked();
-				}
+				LogMessage("XLX, Unlinking from XLX%03u due to loss of connection", m_xlxNumber);
+
+				if (voice != NULL)
+					voice->unlinked();
 
 				m_xlxReflector = 4000U;
 				m_xlxConnected = false;
@@ -421,7 +421,7 @@ int CDMRGateway::run()
 					m_xlxReflector = m_xlxRoom;
 					if (voice != NULL) {
 						if (m_xlxReflector < 4001U || m_xlxReflector > 4026U)
-							voice->unlinked();
+							voice->linkedTo(m_xlxNumber, 0U);
 						else
 							voice->linkedTo(m_xlxNumber, m_xlxReflector);
 					}
@@ -453,23 +453,15 @@ int CDMRGateway::run()
 
 				if (dstId != m_xlxReflector) {
 					if (dstId == 4000U) {
+						writeXLXLink(srcId, 4000U, m_xlxNetwork);
+						m_xlxReflector = 4000U;
 						LogMessage("XLX, Unlinking from reflector %u in XLX%03u", m_xlxRoom, m_xlxNumber);
-					} else if (dstId == 5000U) {
-						if (m_xlxReflector != 4000U)
-							voice->linkedTo(m_xlxNumber, m_xlxReflector);
-						else
-							voice->unlinked();
-					} else {
+					} else if (dstId != 5000U) {
 						if (m_xlxReflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork);
-
-						LogMessage("XLX, Linking to reflector %u in XLX%03u", dstId, m_xlxNumber);
-					}
-
-					if (dstId != 5000U ) {
 						writeXLXLink(srcId, dstId, m_xlxNetwork);
 						m_xlxReflector = dstId;
-						changed = true;
+						LogMessage("XLX, Linking to reflector %u in XLX%03u", dstId, m_xlxNumber);
 					}
 
 					if (m_xlxReflector != m_xlxRoom)
@@ -485,12 +477,13 @@ int CDMRGateway::run()
 				if (voice != NULL) {
 					unsigned char type = data.getDataType();
 					if (type == DT_TERMINATOR_WITH_LC) {
-						if (changed) {
-							if (m_xlxReflector == 4000U)
-								voice->unlinked();
-							else
+						if (m_xlxConnected) {
+							if (m_xlxReflector != 4000U)
 								voice->linkedTo(m_xlxNumber, m_xlxReflector);
-							changed = false;
+							else
+								voice->linkedTo(m_xlxNumber, 0U);
+						} else {
+							voice->unlinked();
 						}
 					}
 				}
