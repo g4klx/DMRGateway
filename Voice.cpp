@@ -159,8 +159,12 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 {
 	unsigned int ambeLength = 0U;
 	for (std::vector<std::string>::const_iterator it = words.begin(); it != words.end(); ++it) {
-		CPositions* position = m_positions.at(*it);
-		ambeLength += position->m_length;
+		if (m_positions.count(*it) > 0U) {
+			CPositions* position = m_positions.at(*it);
+			ambeLength += position->m_length;
+		} else {
+			LogWarning("Unable to find character/phrase \"%s\" in the index", (*it).c_str());
+		}
 	}
 
 	// Ensure that the AMBE is an integer number of DMR frames
@@ -178,11 +182,13 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 
 	unsigned int pos = 0U;
 	for (std::vector<std::string>::const_iterator it = words.begin(); it != words.end(); ++it) {
-		CPositions* position = m_positions.at(*it);
-		unsigned int start  = position->m_start;
-		unsigned int length = position->m_length;
-		::memcpy(ambeData + pos, m_ambe + start, length);
-		pos += length;
+		if (m_positions.count(*it) > 0U) {
+			CPositions* position = m_positions.at(*it);
+			unsigned int start = position->m_start;
+			unsigned int length = position->m_length;
+			::memcpy(ambeData + pos, m_ambe + start, length);
+			pos += length;
+		}
 	}
 		
 	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
