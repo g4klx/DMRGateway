@@ -65,7 +65,7 @@ CVoice::~CVoice()
 	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
 		delete *it;
 
-	for (std::map<std::string, CPositions*>::iterator it = m_positions.begin(); it != m_positions.end(); ++it)
+	for (std::unordered_map<std::string, CPositions*>::iterator it = m_positions.begin(); it != m_positions.end(); ++it)
 		delete it->second;
 
 	m_data.clear();
