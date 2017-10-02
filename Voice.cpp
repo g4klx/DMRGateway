@@ -141,6 +141,9 @@ void CVoice::linkedTo(unsigned int number, unsigned int room)
 	words.push_back(std::string(1U, letters[1U]));
 	words.push_back(std::string(1U, letters[2U]));
 
+    // 4001 => 1 => A, 4002 => 2 => B, etc.
+    room %= 100U;
+
 	if (room >= 1U && room <= 26U)
 		words.push_back(std::string(1U, 'A' + room - 1U));
 
