@@ -32,6 +32,9 @@ const unsigned char SILENCE[] = {0xACU, 0xAAU, 0x40U, 0x20U, 0x00U, 0x44U, 0x40U
 
 const unsigned char COLOR_CODE = 3U;
 
+const unsigned int SILENCE_LENGTH = 9U;
+const unsigned int AMBE_LENGTH = 9U;
+
 CVoice::CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg) :
 m_indxFile(),
 m_ambeFile(),
@@ -108,9 +111,9 @@ bool CVoice::open()
 			char* p3 = ::strtok(NULL, "\t\r\n");
 
 			if (p1 != NULL && p2 != NULL && p3 != NULL) {
-				std::string symbol = std::string(p1);
-				unsigned int start = ::atoi(p2) * 9U;
-				unsigned int length = ::atoi(p3) * 9U;
+				std::string symbol  = std::string(p1);
+				unsigned int start  = ::atoi(p2) * AMBE_LENGTH;
+				unsigned int length = ::atoi(p3) * AMBE_LENGTH;
 
 				CPositions* pos = new CPositions;
 				pos->m_start = start;
@@ -133,7 +136,12 @@ void CVoice::linkedTo(unsigned int number, unsigned int room)
 	::sprintf(letters, "%03u", number);
 
 	std::vector<std::string> words;
-	words.push_back("linkedto");
+    if (m_positions.count("linkedto") == 0U) {
+        words.push_back("linked");
+        words.push_back("2");
+    } else {
+        words.push_back("linkedto");
+    }
 	words.push_back("X");
 	words.push_back("L");
 	words.push_back("X");
@@ -171,19 +179,24 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 	}
 
 	// Ensure that the AMBE is an integer number of DMR frames
-	if ((ambeLength % 27U) != 0U) {
-		unsigned int frames = ambeLength / 27U;
+	if ((ambeLength % (3U * AMBE_LENGTH)) != 0U) {
+		unsigned int frames = ambeLength / (3U * AMBE_LENGTH);
 		frames++;
-		ambeLength = frames * 27U;
+		ambeLength = frames * (3U * AMBE_LENGTH);
 	}
+
+    // Add space for silence before and after the voice
+    ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
+    ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
 
 	unsigned char* ambeData = new unsigned char[ambeLength];
 
 	// Fill the AMBE data with silence
-	for (unsigned int i = 0U; i < ambeLength; i += 9U)
-		::memcpy(ambeData + i, SILENCE, 9U);
+	for (unsigned int i = 0U; i < ambeLength; i += AMBE_LENGTH)
+		::memcpy(ambeData + i, SILENCE, AMBE_LENGTH);
 
-	unsigned int pos = 0U;
+    // Put offset in for silence at the beginning
+	unsigned int pos = SILENCE_LENGTH * AMBE_LENGTH;
 	for (std::vector<std::string>::const_iterator it = words.begin(); it != words.end(); ++it) {
 		if (m_positions.count(*it) > 0U) {
 			CPositions* position = m_positions.at(*it);
@@ -209,7 +222,7 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 	unsigned char buffer[DMR_FRAME_LENGTH_BYTES];
 
 	unsigned int n = 0U;
-	for (unsigned int i = 0U; i < ambeLength; i += 27U) {
+	for (unsigned int i = 0U; i < ambeLength; i += (3U * AMBE_LENGTH)) {
 		unsigned char* p = ambeData + i;
 
 		CDMRData* data = new CDMRData;
@@ -222,10 +235,10 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 		data->setSeqNo(m_seqNo++);
 		data->setStreamId(m_streamId);
 
-		::memcpy(buffer + 0U, p + 0U, 9U);
-		::memcpy(buffer + 9U, p + 9U, 9U);
-		::memcpy(buffer + 15U, p + 9U, 9U);
-		::memcpy(buffer + 24U, p + 18U, 9U);
+		::memcpy(buffer + 0U, p + 0U, AMBE_LENGTH);
+		::memcpy(buffer + 9U, p + 9U, AMBE_LENGTH);
+		::memcpy(buffer + 15U, p + 9U, AMBE_LENGTH);
+		::memcpy(buffer + 24U, p + 18U, AMBE_LENGTH);
 
 		if (n == 0U) {
 			CSync::addDMRAudioSync(buffer, true);
