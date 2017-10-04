@@ -136,12 +136,12 @@ void CVoice::linkedTo(unsigned int number, unsigned int room)
 	::sprintf(letters, "%03u", number);
 
 	std::vector<std::string> words;
-    if (m_positions.count("linkedto") == 0U) {
-        words.push_back("linked");
-        words.push_back("2");
-    } else {
-        words.push_back("linkedto");
-    }
+	if (m_positions.count("linkedto") == 0U) {
+		words.push_back("linked");
+		words.push_back("2");
+	} else {
+		words.push_back("linkedto");
+	}
 	words.push_back("X");
 	words.push_back("L");
 	words.push_back("X");
@@ -149,8 +149,8 @@ void CVoice::linkedTo(unsigned int number, unsigned int room)
 	words.push_back(std::string(1U, letters[1U]));
 	words.push_back(std::string(1U, letters[2U]));
 
-    // 4001 => 1 => A, 4002 => 2 => B, etc.
-    room %= 100U;
+	// 4001 => 1 => A, 4002 => 2 => B, etc.
+	room %= 100U;
 
 	if (room >= 1U && room <= 26U)
 		words.push_back(std::string(1U, 'A' + room - 1U));
@@ -185,9 +185,9 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 		ambeLength = frames * (3U * AMBE_LENGTH);
 	}
 
-    // Add space for silence before and after the voice
-    ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
-    ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
+	// Add space for silence before and after the voice
+	ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
+	ambeLength += SILENCE_LENGTH * AMBE_LENGTH;
 
 	unsigned char* ambeData = new unsigned char[ambeLength];
 
