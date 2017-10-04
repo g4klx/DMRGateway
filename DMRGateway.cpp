@@ -366,12 +366,16 @@ int CDMRGateway::run()
 			if (connected && !m_xlxConnected) {
 				if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxReflector, m_xlxNetwork);
-					LogMessage("XLX, Linking to reflector %u in XLX%03u", m_xlxReflector, m_xlxNumber);
+					unsigned int ascii = m_xlxReflector - 3936;
+					char ch = (char)ascii;
+					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, ch);
 					if (voice != NULL)
 						voice->linkedTo(m_xlxNumber, m_xlxReflector);
 				} else if (m_xlxRoom >= 4001U && m_xlxRoom <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
-					LogMessage("XLX, Linking to reflector %u in XLX%03u", m_xlxRoom, m_xlxNumber);
+					unsigned int ascii = m_xlxRoom - 3936;
+					char ch = (char)ascii;
+					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, ch);
 					if (voice != NULL)
 						voice->linkedTo(m_xlxNumber, m_xlxRoom);
 					m_xlxReflector = m_xlxRoom;
@@ -401,7 +405,9 @@ int CDMRGateway::run()
 				if (m_xlxNumber != m_xlxStartup) {
 					if (m_xlxStartup > 0U) {
 						m_xlxReflector = 4000U;
-						LogMessage("XLX, Re-linking to startup reflector %u in XLX%03u due to RF inactivity timeout", m_xlxRoom, m_xlxNumber);
+						unsigned int ascii = m_xlxRoom - 3936;
+						char ch = (char)ascii;
+						LogMessage("XLX, Re-linking to startup reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, ch);
 						linkXLX(m_xlxStartup);
 					} else {
 						LogMessage("XLX, Unlinking from XLX%03u due to RF inactivity timeout", m_xlxNumber);
@@ -413,9 +419,13 @@ int CDMRGateway::run()
 
 					if (m_xlxRoom >= 4001U && m_xlxRoom <= 4026U) {
 						writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
-						LogMessage("XLX, Re-linking to startup reflector %u in XLX%03u due to RF inactivity timeout", m_xlxRoom, m_xlxNumber);
+						unsigned int ascii = m_xlxRoom - 3936;
+						char ch = (char)ascii;
+						LogMessage("XLX, Re-linking to startup reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, ch);
 					} else if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
-						LogMessage("XLX, Unlinking from reflector %u in XLX%03u due to RF inactivity timeout", m_xlxReflector, m_xlxNumber);
+						unsigned int ascii = m_xlxReflector - 3936;
+						char ch = (char)ascii;
+						LogMessage("XLX, Unlinking from reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, ch);
 					}
 
 					m_xlxReflector = m_xlxRoom;
@@ -455,13 +465,17 @@ int CDMRGateway::run()
 					if (dstId == 4000U) {
 						writeXLXLink(srcId, 4000U, m_xlxNetwork);
 						m_xlxReflector = 4000U;
-						LogMessage("XLX, Unlinking from reflector %u in XLX%03u", m_xlxRoom, m_xlxNumber);
+						unsigned int ascii = m_xlxRoom - 3936;
+						char ch = (char)ascii;
+						LogMessage("XLX, Unlinking from reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, ch);
 					} else if (dstId != 5000U) {
 						if (m_xlxReflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork);
 						writeXLXLink(srcId, dstId, m_xlxNetwork);
 						m_xlxReflector = dstId;
-						LogMessage("XLX, Linking to reflector %u in XLX%03u", dstId, m_xlxNumber);
+						unsigned int ascii = dstId - 3936;
+						char ch = (char)ascii;
+						LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, ch);
 					}
 
 					if (m_xlxReflector != m_xlxRoom)
