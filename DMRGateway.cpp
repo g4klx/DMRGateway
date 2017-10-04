@@ -467,7 +467,7 @@ int CDMRGateway::run()
 						m_xlxReflector = 4000U;
 						unsigned int ascii = m_xlxRoom - 3936;
 						char ch = (char)ascii;
-						LogMessage("XLX, Unlinking from reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, ch);
+						LogMessage("XLX, Unlinking from reflector XLX%03u %c", m_xlxNumber, ch);
 					} else if (dstId != 5000U) {
 						if (m_xlxReflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork);
