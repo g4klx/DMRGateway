@@ -396,7 +396,6 @@ int CDMRGateway::run()
 				if (voice != NULL)
 					voice->unlinked();
 
-				m_xlxReflector = 4000U;
 				m_xlxConnected = false;
 				m_xlxRelink.stop();
 			} else if (connected && m_xlxRelink.isRunning() && m_xlxRelink.hasExpired()) {
@@ -1193,7 +1192,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	m_xlxNumber    = number;
 	m_xlxRoom      = reflector->m_startup;
-    m_xlxReflector = 4000U;
+  m_xlxReflector = 4000U;
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
