@@ -22,6 +22,7 @@
 #include "RepeaterProtocol.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
+#include "Reflectors.h"
 #include "RewriteTG.h"
 #include "Rewrite.h"
 #include "Timer.h"
@@ -44,30 +45,24 @@ private:
 	std::string        m_dmr1Name;
 	CDMRNetwork*       m_dmrNetwork2;
 	std::string        m_dmr2Name;
-	CDMRNetwork*       m_xlxNetwork1;
-	std::string        m_xlx1Name;
-	CDMRNetwork*       m_xlxNetwork2;
-	std::string        m_xlx2Name;
-	unsigned int       m_xlx1Id;
-	unsigned int       m_xlx1Reflector;
-	unsigned int       m_xlx1Slot;
-	unsigned int       m_xlx1TG;
-	unsigned int       m_xlx1Base;
-	unsigned int       m_xlx1Startup;
-	CTimer 	           m_xlx1Relink;
-	bool               m_xlx1Connected;
-	CRewriteTG*        m_rpt1Rewrite;
-	CRewriteTG*        m_xlx1Rewrite;
-	unsigned int       m_xlx2Id;
-	unsigned int       m_xlx2Reflector;
-	unsigned int       m_xlx2Slot;
-	unsigned int       m_xlx2TG;
-	unsigned int       m_xlx2Base;
-	unsigned int       m_xlx2Startup;
-	CTimer			   m_xlx2Relink;
-	bool               m_xlx2Connected;
-	CRewriteTG*        m_rpt2Rewrite;
-	CRewriteTG*        m_xlx2Rewrite;
+	CReflectors*       m_xlxReflectors;
+	CDMRNetwork*       m_xlxNetwork;
+	unsigned int       m_xlxId;
+	unsigned int       m_xlxNumber;
+	unsigned int       m_xlxReflector;
+	unsigned int       m_xlxSlot;
+	unsigned int       m_xlxTG;
+	unsigned int       m_xlxBase;
+	unsigned int       m_xlxLocal;
+    unsigned int       m_xlxPort;
+    std::string        m_xlxPassword;
+	unsigned int       m_xlxStartup;
+	unsigned int       m_xlxRoom;
+	CTimer 	           m_xlxRelink;
+	bool               m_xlxConnected;
+	bool               m_xlxDebug;
+	CRewriteTG*        m_rptRewrite;
+	CRewriteTG*        m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;
 	std::vector<CRewrite*> m_dmr1RFRewrites;
 	std::vector<CRewrite*> m_dmr2NetRewrites;
@@ -78,8 +73,10 @@ private:
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
-	bool createXLXNetwork1();
-	bool createXLXNetwork2();
+	bool createXLXNetwork();
+
+	bool linkXLX(unsigned int number);
+	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 };
 
