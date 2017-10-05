@@ -419,6 +419,8 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
 		LogError("%s, Connection to the master has timed out, retrying connection", m_name.c_str());
 		close();
+		//lookup IP again in case it has changed - Simon - G7RZU
+		m_address = CUDPSocket::lookup(address);
 		open();
 	}
 }
