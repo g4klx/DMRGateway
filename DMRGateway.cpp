@@ -131,6 +131,8 @@ int main(int argc, char** argv)
 CDMRGateway::CDMRGateway(const std::string& confFile) :
 m_conf(confFile),
 m_repeater(NULL),
+m_config(NULL),
+m_configLen(0U),
 m_dmrNetwork1(NULL),
 m_dmr1Name(),
 m_dmrNetwork2(NULL),
@@ -160,6 +162,7 @@ m_dmr2RFRewrites(),
 m_dmr1Passalls(),
 m_dmr2Passalls()
 {
+	m_config = new unsigned char[400U];
 }
 
 CDMRGateway::~CDMRGateway()
@@ -184,6 +187,8 @@ CDMRGateway::~CDMRGateway()
 
 	delete m_rptRewrite;
 	delete m_xlxRewrite;
+
+	delete[] m_config;
 }
 
 int CDMRGateway::run()
@@ -274,9 +279,8 @@ int CDMRGateway::run()
 	LogMessage("Waiting for MMDVM to connect.....");
 
 	while (!m_killed) {
-		unsigned char config[400U];
-		unsigned int len = m_repeater->getConfig(config);
-		if (len > 0U && m_repeater->getId() > 1000U)
+		m_configLen = m_repeater->getConfig(m_config);
+		if (m_configLen > 0U && m_repeater->getId() > 1000U)
 			break;
 
 		m_repeater->clock(10U);
@@ -878,7 +882,7 @@ bool CDMRGateway::createDMRNetwork1()
 	}
 
 	unsigned char config[400U];
-	unsigned int len = m_repeater->getConfig(config);
+	unsigned int len = getConfig(config);
 
 	if (!location)
 		::memcpy(config + 30U, "0.00000000.000000", 17U);
@@ -1005,7 +1009,7 @@ bool CDMRGateway::createDMRNetwork2()
 	}
 
 	unsigned char config[400U];
-	unsigned int len = m_repeater->getConfig(config);
+	unsigned int len = getConfig(config);
 
 	if (!location)
 		::memcpy(config + 30U, "0.00000000.000000", 17U);
@@ -1172,7 +1176,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", m_xlxDebug);
 
 	unsigned char config[400U];
-	unsigned int len = m_repeater->getConfig(config);
+	unsigned int len = getConfig(config);
 
 	m_xlxNetwork->setConfig(config, len);
 
@@ -1257,4 +1261,44 @@ void CDMRGateway::writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwo
 		data.setSeqNo(i + 3U);
 		network->write(data);
 	}
+}
+
+unsigned int CDMRGateway::getConfig(unsigned char* buffer)
+{
+	assert(buffer != NULL);
+
+	bool enabled = m_conf.getInfoEnabled();
+
+	if (!enabled) {
+		::memcpy(buffer, m_config, m_configLen);
+		return m_configLen;
+	}
+
+	char latitude[20U];
+	float lat = m_conf.getInfoLatitude();
+	::sprintf(latitude, "%08f", lat);
+
+	char longitude[20U];
+	float lon = m_conf.getInfoLongitude();
+	::sprintf(longitude, "%09f", lon);
+
+	unsigned int power = m_conf.getInfoPower();
+	if (power > 99U)
+		power = 99U;
+
+	int height = m_conf.getInfoHeight();
+	if (height > 999)
+		height = 999;
+
+	unsigned int rxFrequency = m_conf.getInfoRXFrequency();
+	unsigned int txFrequency = m_conf.getInfoTXFrequency();
+	std::string location     = m_conf.getInfoLocation();
+	std::string description  = m_conf.getInfoDescription();
+	std::string url          = m_conf.getInfoURL();
+
+	::sprintf((char*)buffer, "%-8.8s%09u%09u%02u%2.2s%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%-40.40s%-40.40s", m_config + 0U,
+		rxFrequency, txFrequency, power, m_config + 28U, latitude, longitude, height, location.c_str(),
+		description.c_str(), m_config[89U], url.c_str(), m_config + 214U, m_config + 254U);
+
+	return (unsigned int)::strlen((char*)buffer);
 }

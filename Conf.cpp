@@ -31,6 +31,7 @@ enum SECTION {
   SECTION_GENERAL,
   SECTION_LOG,
   SECTION_VOICE,
+  SECTION_INFO,
   SECTION_DMR_NETWORK_1,
   SECTION_DMR_NETWORK_2,
   SECTION_XLX_NETWORK
@@ -54,6 +55,16 @@ m_logDisplayLevel(0U),
 m_logFileLevel(0U),
 m_logFilePath(),
 m_logFileRoot(),
+m_infoEnabled(false),
+m_infoRXFrequency(0U),
+m_infoTXFrequency(0U),
+m_infoPower(0U),
+m_infoLatitude(0.0F),
+m_infoLongitude(0.0F),
+m_infoHeight(0),
+m_infoLocation(),
+m_infoDescription(),
+m_infoURL(),
 m_dmrNetwork1Enabled(false),
 m_dmrNetwork1Name(),
 m_dmrNetwork1Id(0U),
@@ -128,6 +139,8 @@ bool CConf::read()
 			section = SECTION_LOG;
 		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
 			section = SECTION_VOICE;
+		else if (::strncmp(buffer, "[Info]", 6U) == 0)
+			section = SECTION_INFO;
 		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
 			section = SECTION_XLX_NETWORK;
 		else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
@@ -185,6 +198,27 @@ bool CConf::read()
 				m_voiceLanguage = value;
 			else if (::strcmp(key, "Directory") == 0)
 				m_voiceDirectory = value;
+		} else if (section == SECTION_INFO) {
+			if (::strcmp(key, "Enabled") == 0)
+				m_infoEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "TXFrequency") == 0)
+				m_infoTXFrequency = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RXFrequency") == 0)
+				m_infoRXFrequency = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Power") == 0)
+				m_infoPower = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Latitude") == 0)
+				m_infoLatitude = float(::atof(value));
+			else if (::strcmp(key, "Longitude") == 0)
+				m_infoLongitude = float(::atof(value));
+			else if (::strcmp(key, "Height") == 0)
+				m_infoHeight = ::atoi(value);
+			else if (::strcmp(key, "Location") == 0)
+				m_infoLocation = value;
+			else if (::strcmp(key, "Description") == 0)
+				m_infoDescription = value;
+			else if (::strcmp(key, "URL") == 0)
+				m_infoURL = value;
 		} else if (section == SECTION_XLX_NETWORK) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_xlxNetworkEnabled = ::atoi(value) == 1;
@@ -470,6 +504,56 @@ std::string CConf::getVoiceLanguage() const
 std::string CConf::getVoiceDirectory() const
 {
 	return m_voiceDirectory;
+}
+
+bool CConf::getInfoEnabled() const
+{
+	return m_infoEnabled;
+}
+
+unsigned int CConf::getInfoRXFrequency() const
+{
+	return m_infoRXFrequency;
+}
+
+unsigned int CConf::getInfoTXFrequency() const
+{
+	return m_infoTXFrequency;
+}
+
+unsigned int CConf::getInfoPower() const
+{
+	return m_infoPower;
+}
+
+float CConf::getInfoLatitude() const
+{
+	return m_infoLatitude;
+}
+
+float CConf::getInfoLongitude() const
+{
+	return m_infoLongitude;
+}
+
+int CConf::getInfoHeight() const
+{
+	return m_infoHeight;
+}
+
+std::string CConf::getInfoLocation() const
+{
+	return m_infoLocation;
+}
+
+std::string CConf::getInfoDescription() const
+{
+	return m_infoDescription;
+}
+
+std::string CConf::getInfoURL() const
+{
+	return m_infoURL;
 }
 
 bool CConf::getXLXNetworkEnabled() const

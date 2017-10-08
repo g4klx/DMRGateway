@@ -83,6 +83,18 @@ public:
 	std::string  getVoiceLanguage() const;
 	std::string  getVoiceDirectory() const;
 
+	// The Info section
+	bool         getInfoEnabled() const;
+	unsigned int getInfoRXFrequency() const;
+	unsigned int getInfoTXFrequency() const;
+	unsigned int getInfoPower() const;
+	float        getInfoLatitude() const;
+	float        getInfoLongitude() const;
+	int          getInfoHeight() const;
+	std::string  getInfoLocation() const;
+	std::string  getInfoDescription() const;
+	std::string  getInfoURL() const;
+
 	// The DMR Network 1 section
 	bool         getDMRNetwork1Enabled() const;
 	std::string  getDMRNetwork1Name() const;
@@ -154,6 +166,17 @@ private:
 	unsigned int m_logFileLevel;
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
+
+	bool         m_infoEnabled;
+	unsigned int m_infoRXFrequency;
+	unsigned int m_infoTXFrequency;
+	unsigned int m_infoPower;
+	float        m_infoLatitude;
+	float        m_infoLongitude;
+	int          m_infoHeight;
+	std::string  m_infoLocation;
+	std::string  m_infoDescription;
+	std::string  m_infoURL;
 
 	bool         m_dmrNetwork1Enabled;
 	std::string  m_dmrNetwork1Name;

@@ -41,6 +41,8 @@ public:
 private:
 	CConf              m_conf;
 	IRepeaterProtocol* m_repeater;
+	unsigned char*     m_config;
+	unsigned int       m_configLen;
 	CDMRNetwork*       m_dmrNetwork1;
 	std::string        m_dmr1Name;
 	CDMRNetwork*       m_dmrNetwork2;
@@ -78,6 +80,8 @@ private:
 	bool linkXLX(unsigned int number);
 	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
+
+	unsigned int getConfig(unsigned char* buffer);
 };
 
 #endif
