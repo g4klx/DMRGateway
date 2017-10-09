@@ -81,7 +81,7 @@ private:
 	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 
-	unsigned int getConfig(unsigned char* buffer);
+	unsigned int getConfig(const std::string& name, unsigned char* buffer);
 };
 
 #endif

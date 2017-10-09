@@ -882,7 +882,7 @@ bool CDMRGateway::createDMRNetwork1()
 	}
 
 	unsigned char config[400U];
-	unsigned int len = getConfig(config);
+	unsigned int len = getConfig(m_dmr1Name, config);
 
 	if (!location)
 		::memcpy(config + 30U, "0.00000000.000000", 17U);
@@ -1009,7 +1009,7 @@ bool CDMRGateway::createDMRNetwork2()
 	}
 
 	unsigned char config[400U];
-	unsigned int len = getConfig(config);
+	unsigned int len = getConfig(m_dmr2Name, config);
 
 	if (!location)
 		::memcpy(config + 30U, "0.00000000.000000", 17U);
@@ -1176,7 +1176,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", m_xlxDebug);
 
 	unsigned char config[400U];
-	unsigned int len = getConfig(config);
+	unsigned int len = getConfig("XLX", config);
 
 	m_xlxNetwork->setConfig(config, len);
 
@@ -1189,7 +1189,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	m_xlxNumber    = number;
 	m_xlxRoom      = reflector->m_startup;
-  m_xlxReflector = 4000U;
+	m_xlxReflector = 4000U;
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
@@ -1263,16 +1263,19 @@ void CDMRGateway::writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwo
 	}
 }
 
-unsigned int CDMRGateway::getConfig(unsigned char* buffer)
+unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buffer)
 {
 	assert(buffer != NULL);
 
 	bool enabled = m_conf.getInfoEnabled();
 
 	if (!enabled) {
+		LogInfo("%s: Using original configuration message: %*s", name.c_str(), m_configLen, m_config);
 		::memcpy(buffer, m_config, m_configLen);
 		return m_configLen;
 	}
+
+	LogInfo("%s: Original configuration message: %*s", name.c_str(), m_configLen, m_config);
 
 	char latitude[20U];
 	float lat = m_conf.getInfoLatitude();
@@ -1299,6 +1302,8 @@ unsigned int CDMRGateway::getConfig(unsigned char* buffer)
 	::sprintf((char*)buffer, "%-8.8s%09u%09u%02u%2.2s%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%-40.40s%-40.40s", m_config + 0U,
 		rxFrequency, txFrequency, power, m_config + 28U, latitude, longitude, height, location.c_str(),
 		description.c_str(), m_config[89U], url.c_str(), m_config + 214U, m_config + 254U);
+
+	LogInfo("%s: New configuration message: %s", name.c_str(), buffer);
 
 	return (unsigned int)::strlen((char*)buffer);
 }
