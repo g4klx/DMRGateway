@@ -93,7 +93,7 @@ void Log(unsigned int level, const char* fmt, ...)
 {
     assert(fmt != NULL);
 
-	char buffer[300U];
+	char buffer[501U];
 #if defined(_WIN32) || defined(_WIN64)
 	SYSTEMTIME st;
 	::GetSystemTime(&st);
@@ -111,7 +111,7 @@ void Log(unsigned int level, const char* fmt, ...)
 	va_list vl;
 	va_start(vl, fmt);
 
-	::vsprintf(buffer + ::strlen(buffer), fmt, vl);
+	::vsnprintf(buffer + ::strlen(buffer), 500, fmt, vl);
 
 	va_end(vl);
 

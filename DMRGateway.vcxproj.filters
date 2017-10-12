@@ -125,6 +125,9 @@
     <ClInclude Include="DMRDataHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Reflectors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -230,6 +233,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DMRDataHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Reflectors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
