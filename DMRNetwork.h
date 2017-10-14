@@ -57,6 +57,7 @@ public:
 
 private: 
 	in_addr      m_address;
+	std::string  m_hostname;
 	unsigned int m_port;
 	uint8_t*     m_id;
 	std::string  m_password;

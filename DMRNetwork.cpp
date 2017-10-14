@@ -54,8 +54,8 @@ m_beacon(false)
 	assert(port > 0U);
 	assert(id > 1000U);
 	assert(!password.empty());
-
-	m_address = CUDPSocket::lookup(address);
+	m_hostname = address;
+	///m_address = CUDPSocket::lookup(address);
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
@@ -285,7 +285,8 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_status == WAITING_CONNECT) {
 		m_retryTimer.clock(ms);
 		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-			bool ret = m_socket.open();
+		      m_address = CUDPSocket::lookup(m_hostname);
+		      bool ret = m_socket.open();
 			if (ret) {
 				ret = writeLogin();
 				if (!ret)
@@ -419,8 +420,6 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
 		LogError("%s, Connection to the master has timed out, retrying connection", m_name.c_str());
 		close();
-		//lookup IP again in case it has changed - Simon - G7RZU
-		m_address = CUDPSocket::lookup(address);
 		open();
 	}
 }
