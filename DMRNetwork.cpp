@@ -22,6 +22,7 @@
 #include "SHA256.h"
 #include "Utils.h"
 #include "Log.h"
+#include "DNSThread.h"
 
 #include <cstdio>
 #include <cassert>
@@ -55,7 +56,11 @@ m_beacon(false)
 	assert(id > 1000U);
 	assert(!password.empty());
 	m_hostname = address;
-	///m_address = CUDPSocket::lookup(address);
+	m_address = CUDPSocket::lookup(address);
+	m_dnsthread =  new CDNSThread;
+	m_dnsthread->entry();
+	
+
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
@@ -265,6 +270,8 @@ bool CDMRNetwork::isConnected() const
 
 void CDMRNetwork::close()
 {
+	m_dnsthread->stop();
+  
 	LogMessage("%s, Closing DMR Network", m_name.c_str());
 
 	if (m_status == RUNNING) {
@@ -285,7 +292,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_status == WAITING_CONNECT) {
 		m_retryTimer.clock(ms);
 		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-		      m_address = CUDPSocket::lookup(m_hostname);
+		    m_address = m_dnsthread->lookup(m_hostname);
 		      bool ret = m_socket.open();
 			if (ret) {
 				ret = writeLogin();

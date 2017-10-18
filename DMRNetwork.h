@@ -23,6 +23,7 @@
 #include "Timer.h"
 #include "RingBuffer.h"
 #include "DMRData.h"
+#include "DNSThread.h"
 
 #include <string>
 #include <cstdint>
@@ -64,6 +65,7 @@ private:
 	std::string  m_name;
 	bool         m_debug;
 	CUDPSocket   m_socket;
+	CDNSThread*  m_dnsthread;
 
 	enum STATUS {
 		WAITING_CONNECT,
