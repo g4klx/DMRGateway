@@ -90,8 +90,12 @@ BEGIN {
 }
 /^XLX/ {
 	reflector=4004
+	if ($1 == "XLX017")
+		reflector=4003
 	if ($1 == "XLX313")
 		reflector=4001
+	if ($1 == "XLX714")
+		reflector=4003
 	if ($1 == "XLX950")
 		reflector=4005
 	printf "%s;%s;%d\n", substr($1,4), substr($2,1,length($2)-1), reflector
