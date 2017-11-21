@@ -1,4 +1,4 @@
-This is the DMR Gateway which allows for the connection of up to three different DMR networks to one MMDVM system. One of the networks is defined as being an XLX reflector, while the other two may be DMR+ and BrandMeister. All are optional.
+This is the DMR Gateway which allows for the connection of up to four different DMR networks to one MMDVM system. One of the networks is defined as being an XLX reflector, while the other three may be one each of DMR+, BrandMeister, or a local HBLink system.
 
 This software works by use of powerful rewriting rules which allow for changes in the slot, talk group, the type, and even the destination, of the messages. Without a rewrite rule, even if it does no actual rewriting, traffic will not be passed through from that defined network to the MMDVM and back again.
 
