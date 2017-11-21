@@ -47,6 +47,8 @@ private:
 	std::string        m_dmr1Name;
 	CDMRNetwork*       m_dmrNetwork2;
 	std::string        m_dmr2Name;
+	CDMRNetwork*       m_dmrNetwork3;
+	std::string        m_dmr3Name;
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
@@ -69,12 +71,16 @@ private:
 	std::vector<CRewrite*> m_dmr1RFRewrites;
 	std::vector<CRewrite*> m_dmr2NetRewrites;
 	std::vector<CRewrite*> m_dmr2RFRewrites;
+	std::vector<CRewrite*> m_dmr3NetRewrites;
+	std::vector<CRewrite*> m_dmr3RFRewrites;
 	std::vector<CRewrite*> m_dmr1Passalls;
 	std::vector<CRewrite*> m_dmr2Passalls;
+	std::vector<CRewrite*> m_dmr3Passalls;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
+	bool createDMRNetwork3();
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);
