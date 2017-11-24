@@ -41,16 +41,26 @@
 #
 # ... and add the following line to the bottom of the file ...
 #
-#     0  0  *  *  *  /path/to/script/XLXHostsupdate.sh 1>/dev/null 2>&1
+#     0  0  *  *  *  /path/to/script/XLXHostsupdate.sh /path/to/XLXHosts.txt 1>/dev/null 2>&1
 #
-# ... where /path/to/script/ should be replaced by the path to this script.
+# ... where:
+#           /path/to/script/ should be replaced by the path to this script.
+#           /path/to/XLXHosts.txt should be replaced by the path to XLX hosts file
 #
 ###############################################################################
 #
 #                              CONFIGURATION
 #
-# Full path to XLXHosts
-XLXHOSTS=/path/to/XLXHosts.txt
+# first argument as path to XLXHosts.txt.
+# default so script's directory if empty
+
+if [ -n "$1" ] ; then
+  XLXHOSTS="$1"
+else
+  XLXHOSTS="$(dirname $0)/XLXHosts.txt"
+fi
+
+echo "Updating $XLXHOSTS ..."
 
 # How many XLXHosts files do you want backed up (0 = do not keep backups) 
 XLXHOSTSFILEBACKUP=1
