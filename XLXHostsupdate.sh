@@ -100,6 +100,8 @@ BEGIN {
 }
 /^XLX/ {
 	reflector=4004
+	if ($1 == "XLX004")
+		reflector=4001
 	if ($1 == "XLX017")
 		reflector=4003
 	if ($1 == "XLX235")
