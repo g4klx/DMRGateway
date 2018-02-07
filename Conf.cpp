@@ -180,7 +180,14 @@ bool CConf::read()
     if (value == NULL)
       continue;
 
-		if (section == SECTION_GENERAL) {
+	// Remove quotes from the value
+	size_t len = ::strlen(value);
+	if (len > 1U && *value == '"' && value[len - 1U] == '"') {
+		value[len - 1U] = '\0';
+		value++;
+	}
+
+	if (section == SECTION_GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
