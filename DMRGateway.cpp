@@ -997,7 +997,7 @@ bool CDMRGateway::createDMRNetwork1()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, debug);
+	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, VERSION, debug);
 
 	std::string options = m_conf.getDMRNetwork1Options();
 	if (options.empty())
@@ -1124,7 +1124,7 @@ bool CDMRGateway::createDMRNetwork2()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, debug);
+	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, VERSION, debug);
 
 	std::string options = m_conf.getDMRNetwork2Options();
 	if (options.empty())
@@ -1251,7 +1251,7 @@ bool CDMRGateway::createDMRNetwork3()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, debug);
+	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, VERSION, debug);
 
 	std::string options = m_conf.getDMRNetwork3Options();
 	if (options.empty())
@@ -1427,7 +1427,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", m_xlxDebug);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", VERSION, m_xlxDebug);
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);

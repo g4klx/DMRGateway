@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,12 +31,13 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, bool debug) :
+CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, const char* version, bool debug) :
 m_address(),
 m_port(port),
 m_id(NULL),
 m_password(password),
 m_name(name),
+m_version(version),
 m_debug(debug),
 m_socket(local),
 m_status(WAITING_CONNECT),
@@ -54,6 +55,7 @@ m_beacon(false)
 	assert(port > 0U);
 	assert(id > 1000U);
 	assert(!password.empty());
+	assert(version != NULL);
 
 	m_address = CUDPSocket::lookup(address);
 
@@ -472,6 +474,12 @@ bool CDMRNetwork::writeConfig()
 	::memcpy(buffer + 0U, "RPTC", 4U);
 	::memcpy(buffer + 4U, m_id, 4U);
 	::memcpy(buffer + 8U, m_configData, m_configLen);
+
+	char software[40U];
+	::sprintf(software, "DMRGateway-%s", m_version);
+
+	::memset(buffer + 222U, ' ', 40U);
+	::memcpy(buffer + 222U, software, ::strlen(software));
 
 	return write((unsigned char*)buffer, m_configLen + 8U);
 }
