@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -293,7 +293,7 @@ bool CConf::read()
 				m_dmrNetwork1Location = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork1Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "TGRewrite") == 0) {
+			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -308,7 +308,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1TGRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PCRewrite") == 0) {
+			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -323,7 +323,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1PCRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "TypeRewrite") == 0) {
+			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -336,7 +336,7 @@ bool CConf::read()
 					rewrite.m_toId     = ::atoi(p4);
 					m_dmrNetwork1TypeRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "SrcRewrite") == 0) {
+			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -351,10 +351,10 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PassAllPC") == 0) {
+			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork1PassAllPC.push_back(slotNo);
-			} else if (::strcmp(key, "PassAllTG") == 0) {
+			} else if (::strncmp(key, "PassAllTG", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork1PassAllTG.push_back(slotNo);
 			}
@@ -379,7 +379,7 @@ bool CConf::read()
 				m_dmrNetwork2Location = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork2Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "TGRewrite") == 0) {
+			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -394,7 +394,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2TGRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PCRewrite") == 0) {
+			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -409,7 +409,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2PCRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "TypeRewrite") == 0) {
+			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -422,7 +422,7 @@ bool CConf::read()
 					rewrite.m_toId     = ::atoi(p4);
 					m_dmrNetwork2TypeRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "SrcRewrite") == 0) {
+			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -437,10 +437,10 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PassAllPC") == 0) {
+			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork2PassAllPC.push_back(slotNo);
-			} else if (::strcmp(key, "PassAllTG") == 0) {
+			} else if (::strncmp(key, "PassAllTG", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork2PassAllTG.push_back(slotNo);
 			}
@@ -465,7 +465,7 @@ bool CConf::read()
 				m_dmrNetwork3Location = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_dmrNetwork3Debug = ::atoi(value) == 1;
-			else if (::strcmp(key, "TGRewrite") == 0) {
+			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -480,7 +480,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork3TGRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PCRewrite") == 0) {
+			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -495,7 +495,7 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork3PCRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "TypeRewrite") == 0) {
+			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -508,7 +508,7 @@ bool CConf::read()
 					rewrite.m_toId     = ::atoi(p4);
 					m_dmrNetwork3TypeRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "SrcRewrite") == 0) {
+			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
@@ -523,10 +523,10 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork3SrcRewrites.push_back(rewrite);
 				}
-			} else if (::strcmp(key, "PassAllPC") == 0) {
+			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork3PassAllPC.push_back(slotNo);
-			} else if (::strcmp(key, "PassAllTG") == 0) {
+			} else if (::strncmp(key, "PassAllTG", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork3PassAllTG.push_back(slotNo);
 			}
