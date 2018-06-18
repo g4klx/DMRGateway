@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -214,19 +214,13 @@ int CDMRGateway::run()
 		return 1;
 	}
 
-	ret = ::LogInitialise(m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel());
-	if (!ret) {
-		::fprintf(stderr, "DMRGateway: unable to open the log file\n");
-		return 1;
-	}
-
 #if !defined(_WIN32) && !defined(_WIN64)
 	bool m_daemon = m_conf.getDaemon();
 	if (m_daemon) {
 		// Create new process
 		pid_t pid = ::fork();
 		if (pid == -1) {
-			::LogWarning("Couldn't fork() , exiting");
+			::fprintf(stderr, "Couldn't fork() , exiting\n");
 			return -1;
 		} else if (pid != 0) {
 			exit(EXIT_SUCCESS);
@@ -234,13 +228,13 @@ int CDMRGateway::run()
 
 		// Create new session and process group
 		if (::setsid() == -1){
-			::LogWarning("Couldn't setsid(), exiting");
+			::fprintf(stderr, "Couldn't setsid(), exiting\n");
 			return -1;
 		}
 
 		// Set the working directory to the root directory
 		if (::chdir("/") == -1){
-			::LogWarning("Couldn't cd /, exiting");
+			::fprintf(stderr, "Couldn't cd /, exiting\n");
 			return -1;
 		}
 
@@ -252,32 +246,38 @@ int CDMRGateway::run()
 		if (getuid() == 0) {
 			struct passwd* user = ::getpwnam("mmdvm");
 			if (user == NULL) {
-				::LogError("Could not get the mmdvm user, exiting");
+				::fprintf(stderr, "Could not get the mmdvm user, exiting\n");
 				return -1;
 			}
 			
 			uid_t mmdvm_uid = user->pw_uid;
 			gid_t mmdvm_gid = user->pw_gid;
 
-			//Set user and group ID's to mmdvm:mmdvm
+			// Set user and group ID's to mmdvm:mmdvm
 			if (setgid(mmdvm_gid) != 0) {
-				::LogWarning("Could not set mmdvm GID, exiting");
+				::fprintf(stderr, "Could not set mmdvm GID, exiting\n");
 				return -1;
 			}
 
 			if (setuid(mmdvm_uid) != 0) {
-				::LogWarning("Could not set mmdvm UID, exiting");
+				::fprintf(stderr, "Could not set mmdvm UID, exiting\n");
 				return -1;
 			}
 		    
 			// Double check it worked (AKA Paranoia) 
-			if (setuid(0) != -1){
-				::LogWarning("It's possible to regain root - something is wrong!, exiting");
+			if (setuid(0) != -1) {
+				::fprintf(stderr, "It's possible to regain root - something is wrong!, exiting\n");
 				return -1;
 			}
 		}
 	}
 #endif
+
+	ret = ::LogInitialise(m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel());
+	if (!ret) {
+		::fprintf(stderr, "DMRGateway: unable to open the log file\n");
+		return 1;
+	}
 
 	LogInfo(HEADER1);
 	LogInfo(HEADER2);
