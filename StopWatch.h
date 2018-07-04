@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ private:
 	LARGE_INTEGER  m_frequency;
 	LARGE_INTEGER  m_start;
 #else
-	struct timeval m_start;
+	struct timespec m_start;
 #endif
 };
 

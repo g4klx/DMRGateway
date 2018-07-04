@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ unsigned int CStopWatch::elapsed()
 #else
 
 #include <cstdio>
+#include <ctime>
 
 CStopWatch::CStopWatch() :
 m_start()
@@ -64,21 +65,19 @@ CStopWatch::~CStopWatch()
 
 unsigned long CStopWatch::start()
 {
-	::gettimeofday(&m_start, NULL);
+	::clock_gettime(CLOCK_MONOTONIC, &m_start);
 
-	return m_start.tv_usec;
+	return m_start.tv_sec * 1000UL + m_start.tv_nsec / 1000000UL;
 }
 
 unsigned int CStopWatch::elapsed()
 {
-	struct timeval now;
-	::gettimeofday(&now, NULL);
+	struct timespec now;
+	::clock_gettime(CLOCK_MONOTONIC, &now);
 
-	unsigned int elapsed = (now.tv_sec - m_start.tv_sec) * 1000U;
-	elapsed += now.tv_usec / 1000U;
-	elapsed -= m_start.tv_usec / 1000U;
+	int offset = ((now.tv_sec - m_start.tv_sec) * 1000000000UL + now.tv_nsec - m_start.tv_nsec ) / 1000000UL;
 
-	return elapsed;
+	return (unsigned int)offset;
 }
 
 #endif
