@@ -238,10 +238,6 @@ int CDMRGateway::run()
 			return -1;
 		}
 
-		::close(STDIN_FILENO);
-		::close(STDOUT_FILENO);
-		::close(STDERR_FILENO);
-
 		// If we are currently root...
 		if (getuid() == 0) {
 			struct passwd* user = ::getpwnam("mmdvm");
@@ -278,6 +274,14 @@ int CDMRGateway::run()
 		::fprintf(stderr, "DMRGateway: unable to open the log file\n");
 		return 1;
 	}
+
+#if !defined(_WIN32) && !defined(_WIN64)
+	if (m_daemon) {
+		::close(STDIN_FILENO);
+		::close(STDOUT_FILENO);
+		::close(STDERR_FILENO);
+	}
+#endif
 
 	LogInfo(HEADER1);
 	LogInfo(HEADER2);
