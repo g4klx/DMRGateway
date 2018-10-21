@@ -277,7 +277,7 @@ bool CConf::read()
             else if (::strcmp(key, "UserControl") == 0)
                 m_xlxNetworkUserControl = ::atoi(value) ==1;
             else if (::strcmp(key, "Module") == 0)
-                m_xlxNetworkModule = value[0];
+                m_xlxNetworkModule = ::toupper(value[0]);
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
