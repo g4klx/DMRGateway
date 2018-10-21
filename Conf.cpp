@@ -126,7 +126,8 @@ m_xlxNetworkTG(8U),
 m_xlxNetworkBase(84000U),
 m_xlxNetworkStartup(4000U),
 m_xlxNetworkRelink(0U),
-m_xlxNetworkDebug(false)
+m_xlxNetworkDebug(false),
+m_xlxNetworkUserControl(true)
 {
 }
 
@@ -272,6 +273,8 @@ bool CConf::read()
 				m_xlxNetworkRelink = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Debug") == 0)
 				m_xlxNetworkDebug = ::atoi(value) == 1;
+            else if (::strcmp(key, "UserControl") == 0)
+                m_xlxNetworkUserControl = atoi(value) ==1;
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
@@ -731,6 +734,10 @@ unsigned int CConf::getXLXNetworkRelink() const
 bool CConf::getXLXNetworkDebug() const
 {
 	return m_xlxNetworkDebug;
+}
+bool CConf::getXLXNetworkUserControl() const
+{
+	return m_xlxNetworkUserControl;
 }
 
 bool CConf::getDMRNetwork1Enabled() const
