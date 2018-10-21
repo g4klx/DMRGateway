@@ -1460,7 +1460,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	m_xlxNumber    = number;
     if (m_xlxModule) {
-        m_xlxRoom  = ((int(m_xlxModule) - 94U) + 4000U);
+        m_xlxRoom  = ((int(m_xlxModule) - 64U) + 4000U);
     } else {
         m_xlxRoom      = reflector->m_startup;
     }
