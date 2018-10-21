@@ -65,6 +65,7 @@ private:
 	CTimer 	           m_xlxRelink;
 	bool               m_xlxConnected;
 	bool               m_xlxDebug;
+    bool               m_xlxUserControl;
 	CRewriteTG*        m_rptRewrite;
 	CRewriteTG*        m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;

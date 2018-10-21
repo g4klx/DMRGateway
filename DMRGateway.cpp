@@ -156,6 +156,7 @@ m_xlxRoom(4000U),
 m_xlxRelink(1000U),
 m_xlxConnected(false),
 m_xlxDebug(false),
+m_xlxUserControl(true),
 m_rptRewrite(NULL),
 m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
@@ -483,7 +484,7 @@ int CDMRGateway::run()
 				status[slotNo] = DMRGWS_XLXREFLECTOR;
 				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
-			} else if ((dstId <= (m_xlxBase + 26U) || dstId == (m_xlxBase + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= m_xlxBase) {
+			} else if ((dstId <= (m_xlxBase + 26U) || dstId == (m_xlxBase + 1000U)) && flco == FLCO_USER_USER && slotNo == m_xlxSlot && dstId >= m_xlxBase && m_xlxUserControl) {
 				dstId += 4000U;
 				dstId -= m_xlxBase;
 
@@ -525,7 +526,7 @@ int CDMRGateway::run()
 						}
 					}
 				}
-			} else if (dstId >= (m_xlxBase + 4000U) && dstId < (m_xlxBase + 5000U) && flco == FLCO_USER_USER && slotNo == m_xlxSlot) {
+			} else if (dstId >= (m_xlxBase + 4000U) && dstId < (m_xlxBase + 5000U) && flco == FLCO_USER_USER && slotNo == m_xlxSlot && m_xlxUserControl) {
 				dstId -= 4000U;
 				dstId -= m_xlxBase;
 
@@ -1370,11 +1371,12 @@ bool CDMRGateway::createXLXNetwork()
 		return false;
 	}
 
-	m_xlxLocal    = m_conf.getXLXNetworkLocal();
-    m_xlxPort     = m_conf.getXLXNetworkPort();
-    m_xlxPassword = m_conf.getXLXNetworkPassword();
-    m_xlxId       = m_conf.getXLXNetworkId();
-	m_xlxDebug    = m_conf.getXLXNetworkDebug();
+	m_xlxLocal         = m_conf.getXLXNetworkLocal();
+    m_xlxPort          = m_conf.getXLXNetworkPort();
+    m_xlxPassword      = m_conf.getXLXNetworkPassword();
+    m_xlxId            = m_conf.getXLXNetworkId();
+	m_xlxDebug         = m_conf.getXLXNetworkDebug();
+    m_xlxUserControl   = m_conf.getXLXNetworkUserControl();
 
 	if (m_xlxId == 0U)
 		m_xlxId = m_repeater->getId();
@@ -1406,6 +1408,12 @@ bool CDMRGateway::createXLXNetwork()
 	} else {
 		LogInfo("    Relink: disabled");
 	}
+	if (m_xlxUserControl) {
+        LogInfo("    User Control: enabled");
+    } else {
+        LogInfo("    User Control: disabled");
+    }
+    
 
 	if (m_xlxStartup > 0U)
 		linkXLX(m_xlxStartup);
