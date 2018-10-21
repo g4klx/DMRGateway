@@ -66,6 +66,7 @@ private:
 	bool               m_xlxConnected;
 	bool               m_xlxDebug;
     bool               m_xlxUserControl;
+    char               m_xlxModule;
 	CRewriteTG*        m_rptRewrite;
 	CRewriteTG*        m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;

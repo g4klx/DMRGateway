@@ -157,6 +157,7 @@ m_xlxRelink(1000U),
 m_xlxConnected(false),
 m_xlxDebug(false),
 m_xlxUserControl(true),
+m_xlxModule(),
 m_rptRewrite(NULL),
 m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
@@ -1385,6 +1386,7 @@ bool CDMRGateway::createXLXNetwork()
 	m_xlxTG      = m_conf.getXLXNetworkTG();
 	m_xlxBase    = m_conf.getXLXNetworkBase();
 	m_xlxStartup = m_conf.getXLXNetworkStartup();
+    m_xlxModule  = m_conf.getXLXNetworkModule();
 
 	unsigned int xlxRelink  = m_conf.getXLXNetworkRelink();
 
@@ -1412,6 +1414,9 @@ bool CDMRGateway::createXLXNetwork()
         LogInfo("    User Control: enabled");
     } else {
         LogInfo("    User Control: disabled");
+    }
+    if (m_xlxModule) {
+        LogInfo("     Module: %c",m_xlxModule);
     }
     
 
@@ -1454,7 +1459,11 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	}
 
 	m_xlxNumber    = number;
-	m_xlxRoom      = reflector->m_startup;
+    if (m_xlxModule) {
+        m_xlxRoom  = (int(m_xlxModule) - 94);
+    } else {
+        m_xlxRoom      = reflector->m_startup;
+    }
 	m_xlxReflector = 4000U;
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
