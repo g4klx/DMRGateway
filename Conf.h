@@ -164,6 +164,7 @@ public:
 	unsigned int getXLXNetworkRelink() const;
 	bool         getXLXNetworkDebug() const;
     bool         getXLXNetworkUserControl() const;
+    char         getXLXNetworkModule() const;
 
 private:
 	std::string  m_file;
@@ -262,6 +263,7 @@ private:
 	unsigned int m_xlxNetworkRelink;
 	bool         m_xlxNetworkDebug;
     bool         m_xlxNetworkUserControl;
+    char         m_xlxNetworkModule;
 };
 
 #endif
