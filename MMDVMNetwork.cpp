@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,10 +43,12 @@ m_rxData(1000U, "MMDVM Network"),
 m_options(),
 m_configData(NULL),
 m_configLen(0U),
-m_positionData(NULL),
-m_positionLen(0U),
+m_radioPositionData(NULL),
+m_radioPositionLen(0U),
 m_talkerAliasData(NULL),
-m_talkerAliasLen(0U)
+m_talkerAliasLen(0U),
+m_homePositionData(NULL),
+m_homePositionLen(0U)
 {
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
@@ -56,8 +58,9 @@ m_talkerAliasLen(0U)
 	m_buffer = new unsigned char[BUFFER_LENGTH];
 	m_netId  = new unsigned char[4U];
 
-	m_positionData    = new unsigned char[50U];
-	m_talkerAliasData = new unsigned char[50U];
+	m_radioPositionData = new unsigned char[50U];
+	m_talkerAliasData   = new unsigned char[50U];
+	m_homePositionData  = new unsigned char[50U];
 
 	CStopWatch stopWatch;
 	::srand(stopWatch.start());
@@ -68,8 +71,9 @@ CMMDVMNetwork::~CMMDVMNetwork()
 	delete[] m_netId;
 	delete[] m_buffer;
 	delete[] m_configData;
-	delete[] m_positionData;
+	delete[] m_radioPositionData;
 	delete[] m_talkerAliasData;
+	delete[] m_homePositionData;
 }
 
 std::string CMMDVMNetwork::getOptions() const
@@ -218,15 +222,15 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	return true;
 }
 
-bool CMMDVMNetwork::readPosition(unsigned char* data, unsigned int& length)
+bool CMMDVMNetwork::readRadioPosition(unsigned char* data, unsigned int& length)
 {
-	if (m_positionLen == 0U)
+	if (m_radioPositionLen == 0U)
 		return false;
 
-	::memcpy(data, m_positionData, m_positionLen);
-	length = m_positionLen;
+	::memcpy(data, m_radioPositionData, m_radioPositionLen);
+	length = m_radioPositionLen;
 
-	m_positionLen = 0U;
+	m_radioPositionLen = 0U;
 
 	return true;
 }
@@ -240,6 +244,19 @@ bool CMMDVMNetwork::readTalkerAlias(unsigned char* data, unsigned int& length)
 	length = m_talkerAliasLen;
 
 	m_talkerAliasLen = 0U;
+
+	return true;
+}
+
+bool CMMDVMNetwork::readHomePosition(unsigned char* data, unsigned int& length)
+{
+	if (m_homePositionLen == 0U)
+		return false;
+
+	::memcpy(data, m_homePositionData, m_homePositionLen);
+	length = m_homePositionLen;
+
+	m_homePositionLen = 0U;
 
 	return true;
 }
@@ -291,11 +308,14 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			m_rxData.addData(&len, 1U);
 			m_rxData.addData(m_buffer, len);
 		} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
-			::memcpy(m_positionData, m_buffer, length);
-			m_positionLen = length;
+			::memcpy(m_radioPositionData, m_buffer, length);
+			m_radioPositionLen = length;
 		} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
 			::memcpy(m_talkerAliasData, m_buffer, length);
 			m_talkerAliasLen = length;
+		} else if (::memcmp(m_buffer, "RPTG", 4U) == 0) {
+			::memcpy(m_homePositionData, m_buffer, length);
+			m_homePositionLen = length;
 		} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
 			m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 			::memcpy(m_netId, m_buffer + 4U, 4U);

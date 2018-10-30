@@ -849,16 +849,16 @@ int CDMRGateway::run()
 
 		unsigned char buffer[50U];
 		unsigned int length;
-		ret = m_repeater->readPosition(buffer, length);
+		ret = m_repeater->readRadioPosition(buffer, length);
 		if (ret) {
 			if (m_xlxNetwork != NULL)
-				m_xlxNetwork->writePosition(buffer, length);
+				m_xlxNetwork->writeRadioPosition(buffer, length);
 			if (m_dmrNetwork1 != NULL)
-				m_dmrNetwork1->writePosition(buffer, length);
+				m_dmrNetwork1->writeRadioPosition(buffer, length);
 			if (m_dmrNetwork2 != NULL)
-				m_dmrNetwork2->writePosition(buffer, length);
+				m_dmrNetwork2->writeRadioPosition(buffer, length);
 			if (m_dmrNetwork3 != NULL)
-				m_dmrNetwork3->writePosition(buffer, length);
+				m_dmrNetwork3->writeRadioPosition(buffer, length);
 		}
 		ret = m_repeater->readTalkerAlias(buffer, length);
 		if (ret) {
@@ -870,6 +870,17 @@ int CDMRGateway::run()
 				m_dmrNetwork2->writeTalkerAlias(buffer, length);
 			if (m_dmrNetwork3 != NULL)
 				m_dmrNetwork3->writeTalkerAlias(buffer, length);
+		}
+		ret = m_repeater->readHomePosition(buffer, length);
+		if (ret) {
+			if (m_xlxNetwork != NULL)
+				m_xlxNetwork->writeHomePosition(buffer, length);
+			if (m_dmrNetwork1 != NULL)
+				m_dmrNetwork1->writeHomePosition(buffer, length);
+			if (m_dmrNetwork2 != NULL)
+				m_dmrNetwork2->writeHomePosition(buffer, length);
+			if (m_dmrNetwork3 != NULL)
+				m_dmrNetwork3->writeHomePosition(buffer, length);
 		}
 
 		if (voice != NULL) {

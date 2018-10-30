@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -46,9 +46,11 @@ public:
 
 	virtual bool write(const CDMRData& data);
 
-	virtual bool readPosition(unsigned char* data, unsigned int& length);
+	virtual bool readRadioPosition(unsigned char* data, unsigned int& length);
 
 	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length);
+
+	virtual bool readHomePosition(unsigned char* data, unsigned int& length);
 
 	virtual bool writeBeacon();
 
@@ -68,10 +70,12 @@ private:
 	std::string                m_options;
 	unsigned char*             m_configData;
 	unsigned int               m_configLen;
-	unsigned char*             m_positionData;
-	unsigned int               m_positionLen;
+	unsigned char*             m_radioPositionData;
+	unsigned int               m_radioPositionLen;
 	unsigned char*             m_talkerAliasData;
 	unsigned int               m_talkerAliasLen;
+	unsigned char*             m_homePositionData;
+	unsigned int               m_homePositionLen;
 };
 
 #endif

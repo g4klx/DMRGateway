@@ -228,7 +228,7 @@ bool CDMRNetwork::write(const CDMRData& data)
 	return true;
 }
 
-bool CDMRNetwork::writePosition(const unsigned char* data, unsigned int length)
+bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int length)
 {
 	if (m_status != RUNNING)
 		return false;
@@ -252,6 +252,22 @@ bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int lengt
 	unsigned char buffer[50U];
 
 	::memcpy(buffer + 0U, "DMRA", 4U);
+
+	::memcpy(buffer + 4U, m_id, 4U);
+
+	::memcpy(buffer + 8U, data + 8U, length - 8U);
+
+	return write(buffer, length);
+}
+
+bool CDMRNetwork::writeHomePosition(const unsigned char* data, unsigned int length)
+{
+	if (m_status != RUNNING)
+		return false;
+
+	unsigned char buffer[50U];
+
+	::memcpy(buffer + 0U, "RPTG", 4U);
 
 	::memcpy(buffer + 4U, m_id, 4U);
 

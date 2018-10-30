@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2018 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -39,9 +39,11 @@ public:
 
 	virtual bool write(const CDMRData& data) = 0;
 
-	virtual bool readPosition(unsigned char* data, unsigned int& length) = 0;
+	virtual bool readRadioPosition(unsigned char* data, unsigned int& length) = 0;
 
 	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length) = 0;
+
+	virtual bool readHomePosition(unsigned char* data, unsigned int& length) = 0;
 
 	virtual void clock(unsigned int ms) = 0;
 
