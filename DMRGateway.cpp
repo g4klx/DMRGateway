@@ -1258,7 +1258,7 @@ bool CDMRGateway::createDMRNetwork3()
 		id = m_repeater->getId();
 
 	LogInfo("DMR Network 3 Parameters");
-	LogInfo("    Name: %s", m_dmr2Name.c_str());
+	LogInfo("    Name: %s", m_dmr3Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
 	LogInfo("    Port: %u", port);
