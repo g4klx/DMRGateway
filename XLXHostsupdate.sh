@@ -102,8 +102,6 @@ BEGIN {
 	reflector=4004
 	if ($1 == "XLX004")
 		reflector=4001
-	if ($1 == "XLX017")
-		reflector=4003
 	if ($1 == "XLX235")
 		reflector=4001
 	if ($1 == "XLX268")
@@ -116,8 +114,6 @@ BEGIN {
 		reflector=4002
 	if ($1 == "XLX518")
 		reflector=4006
-	if ($1 == "XLX714")
-		reflector=4003
 	if ($1 == "XLX755")
 		reflector=4011
 	if ($1 == "XLX886")
