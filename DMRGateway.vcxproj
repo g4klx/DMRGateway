@@ -175,6 +175,7 @@
     <ClInclude Include="QR1676.h" />
     <ClInclude Include="Reflectors.h" />
     <ClInclude Include="RepeaterProtocol.h" />
+    <ClInclude Include="RemoveTA.h" />
     <ClInclude Include="Rewrite.h" />
     <ClInclude Include="RewritePC.h" />
     <ClInclude Include="RewriteSrc.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="QR1676.cpp" />
     <ClCompile Include="Reflectors.cpp" />
     <ClCompile Include="RepeaterProtocol.cpp" />
+    <ClCompile Include="RemoveTA.cpp" />
     <ClCompile Include="Rewrite.cpp" />
     <ClCompile Include="RewritePC.cpp" />
     <ClCompile Include="RewriteSrc.cpp" />

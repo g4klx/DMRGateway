@@ -104,6 +104,9 @@
     <ClInclude Include="RewritePC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RemoveTA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Rewrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -212,6 +215,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RewritePC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoveTA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Rewrite.cpp">

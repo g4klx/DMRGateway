@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
+#include "RemoveTA.h"
 #include "Version.h"
 #include "Thread.h"
 #include "DMRLC.h"
@@ -343,6 +344,10 @@ int CDMRGateway::run()
 		if (!ret)
 			return 1;
 	}
+
+	CRemoveTA* removeTA = NULL;
+	if (m_conf.getRemoveTA())
+		removeTA = new CRemoveTA;
 
 	unsigned int rfTimeout  = m_conf.getRFTimeout();
 	unsigned int netTimeout = m_conf.getNetTimeout();
@@ -689,6 +694,8 @@ int CDMRGateway::run()
 				if (status[m_xlxSlot] == DMRGWS_NONE || status[m_xlxSlot] == DMRGWS_XLXREFLECTOR) {
 					bool ret = m_rptRewrite->process(data, false);
 					if (ret) {
+						if (removeTA != NULL)
+							removeTA->process(data);
 						m_repeater->write(data);
 						status[m_xlxSlot] = DMRGWS_XLXREFLECTOR;
 						timer[m_xlxSlot]->setTimeout(netTimeout);
@@ -735,6 +742,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+						if (removeTA != NULL)
+							removeTA->process(data);
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK1;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -783,6 +792,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+						if (removeTA != NULL)
+							removeTA->process(data);
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK2;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -831,6 +842,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK3) {
+						if (removeTA != NULL)
+							removeTA->process(data);
 						m_repeater->write(data);
 						status[slotNo] = DMRGWS_DMRNETWORK3;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -931,6 +944,7 @@ int CDMRGateway::run()
 	}
 
 	delete voice;
+	delete removeTA;
 
 	m_repeater->close();
 	delete m_repeater;

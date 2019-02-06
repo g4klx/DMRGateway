@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ m_localAddress("127.0.0.1"),
 m_localPort(62031U),
 m_rfTimeout(10U),
 m_netTimeout(10U),
+m_removeTA(false),
 m_ruleTrace(false),
 m_debug(false),
 m_voiceEnabled(true),
@@ -206,6 +207,8 @@ bool CConf::read()
 				m_localAddress = value;
 			else if (::strcmp(key, "LocalPort") == 0)
 				m_localPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RemoveTA") == 0)
+				m_removeTA = ::atoi(value) == 1;
 			else if (::strcmp(key, "RuleTrace") == 0)
 				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
@@ -577,6 +580,11 @@ unsigned int CConf::getRFTimeout() const
 unsigned int CConf::getNetTimeout() const
 {
 	return m_netTimeout;
+}
+
+bool CConf::getRemoveTA() const
+{
+	return m_removeTA;
 }
 
 bool CConf::getRuleTrace() const

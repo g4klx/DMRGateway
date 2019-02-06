@@ -64,9 +64,9 @@ void CRemoveTA::process(CDMRData& data)
 void CRemoveTA::processHeader(CDMRData& data, unsigned char dataType)
 {
 	CDMRLC lc;
-	lc.setFLCO(flco);
-	lc.setSrcId(srcId);
-	lc.setDstId(dstId);
+	lc.setFLCO(data.getFLCO());
+	lc.setSrcId(data.getSrcId);
+	lc.setDstId(data.getDstId);
 
 	m_embeddedLC.setLC(lc);
 }
