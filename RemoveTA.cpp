@@ -61,7 +61,7 @@ void CRemoveTA::process(CDMRData& data)
 	}
 }
 
-void CRemoveTA::processHeader(CDMRData& data, unsigned char dataType)
+void CRemoveTA::processHeader(CDMRData& data)
 {
 	CDMRLC lc;
 	lc.setFLCO(data.getFLCO());
@@ -81,7 +81,7 @@ void CRemoveTA::processVoice(CDMRData& data)
 	CDMREMB emb;
 	emb.putData(buffer);
 
-	lcss = m_embeddedLC.getData(buffer, n);
+	unsigned char lcss = m_embeddedLC.getData(buffer, n);
 
 	emb.setLCSS(lcss);
 	emb.getData(buffer);

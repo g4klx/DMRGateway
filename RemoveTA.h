@@ -27,7 +27,7 @@ public:
 	CRemoveTA();
 	~CRemoveTA();
 
-	bool process(CDMRData& data);
+	void process(CDMRData& data);
 
 private:
 	CDMREmbeddedData m_embeddedLC;
