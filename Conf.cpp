@@ -35,6 +35,7 @@ enum SECTION {
 	SECTION_DMR_NETWORK_1,
 	SECTION_DMR_NETWORK_2,
 	SECTION_DMR_NETWORK_3,
+	SECTION_DMR_NETWORK_4,
 	SECTION_XLX_NETWORK
 };
 
@@ -114,6 +115,22 @@ m_dmrNetwork3TypeRewrites(),
 m_dmrNetwork3SrcRewrites(),
 m_dmrNetwork3PassAllPC(),
 m_dmrNetwork3PassAllTG(),
+m_dmrNetwork4Enabled(false),
+m_dmrNetwork4Name(),
+m_dmrNetwork4Id(0U),
+m_dmrNetwork4Address(),
+m_dmrNetwork4Port(0U),
+m_dmrNetwork4Local(0U),
+m_dmrNetwork4Password(),
+m_dmrNetwork4Options(),
+m_dmrNetwork4Location(true),
+m_dmrNetwork4Debug(false),
+m_dmrNetwork4TGRewrites(),
+m_dmrNetwork4PCRewrites(),
+m_dmrNetwork4TypeRewrites(),
+m_dmrNetwork4SrcRewrites(),
+m_dmrNetwork4PassAllPC(),
+m_dmrNetwork4PassAllTG(),
 m_xlxNetworkEnabled(false),
 m_xlxNetworkId(0U),
 m_xlxNetworkFile(),
@@ -168,6 +185,8 @@ bool CConf::read()
 			section = SECTION_DMR_NETWORK_2;
 		else if (::strncmp(buffer, "[DMR Network 3]", 15U) == 0)
 			section = SECTION_DMR_NETWORK_3;
+		else if (::strncmp(buffer, "[DMR Network 4]", 15U) == 0)
+			section = SECTION_DMR_NETWORK_4;
 		else
 			section = SECTION_NONE;
 
@@ -535,6 +554,92 @@ bool CConf::read()
 			} else if (::strncmp(key, "PassAllTG", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork3PassAllTG.push_back(slotNo);
+			}
+		} else if (section == SECTION_DMR_NETWORK_4) {
+			if (::strcmp(key, "Enabled") == 0)
+				m_dmrNetwork4Enabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Name") == 0)
+				m_dmrNetwork4Name = value;
+			else if (::strcmp(key, "Id") == 0)
+				m_dmrNetwork4Id = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Address") == 0)
+				m_dmrNetwork4Address = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_dmrNetwork4Port = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Local") == 0)
+				m_dmrNetwork4Local = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Password") == 0)
+				m_dmrNetwork4Password = value;
+			else if (::strcmp(key, "Options") == 0)
+				m_dmrNetwork4Options = value;
+			else if (::strcmp(key, "Location") == 0)
+				m_dmrNetwork4Location = ::atoi(value) == 1;
+			else if (::strcmp(key, "Debug") == 0)
+				m_dmrNetwork4Debug = ::atoi(value) == 1;
+			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, ", ");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGRewriteStruct rewrite;
+					rewrite.m_fromSlot = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_toSlot   = ::atoi(p3);
+					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_range    = ::atoi(p5);
+					m_dmrNetwork4TGRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, ", ");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CPCRewriteStruct rewrite;
+					rewrite.m_fromSlot = ::atoi(p1);
+					rewrite.m_fromId   = ::atoi(p2);
+					rewrite.m_toSlot   = ::atoi(p3);
+					rewrite.m_toId     = ::atoi(p4);
+					rewrite.m_range    = ::atoi(p5);
+					m_dmrNetwork4PCRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+					CTypeRewriteStruct rewrite;
+					rewrite.m_fromSlot = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_toSlot   = ::atoi(p3);
+					rewrite.m_toId     = ::atoi(p4);
+					m_dmrNetwork4TypeRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, ", ");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CSrcRewriteStruct rewrite;
+					rewrite.m_fromSlot = ::atoi(p1);
+					rewrite.m_fromId   = ::atoi(p2);
+					rewrite.m_toSlot   = ::atoi(p3);
+					rewrite.m_toTG     = ::atoi(p4);
+					rewrite.m_range    = ::atoi(p5);
+					m_dmrNetwork4SrcRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork4PassAllPC.push_back(slotNo);
+			} else if (::strncmp(key, "PassAllTG", 9U) == 0) {
+				unsigned int slotNo = (unsigned int)::atoi(value);
+				m_dmrNetwork4PassAllTG.push_back(slotNo);
 			}
 		}
 	}
@@ -994,4 +1099,87 @@ std::vector<unsigned int> CConf::getDMRNetwork3PassAllPC() const
 std::vector<unsigned int> CConf::getDMRNetwork3PassAllTG() const
 {
 	return m_dmrNetwork3PassAllTG;
+}
+
+bool CConf::getDMRNetwork4Enabled() const
+{
+	return m_dmrNetwork4Enabled;
+}
+
+std::string CConf::getDMRNetwork4Name() const
+{
+	if (m_dmrNetwork4Name.empty())
+		return "DMR-4";
+	else
+		return m_dmrNetwork4Name;
+}
+
+unsigned int CConf::getDMRNetwork4Id() const
+{
+	return m_dmrNetwork4Id;
+}
+
+std::string CConf::getDMRNetwork4Address() const
+{
+	return m_dmrNetwork4Address;
+}
+
+unsigned int CConf::getDMRNetwork4Port() const
+{
+	return m_dmrNetwork4Port;
+}
+
+unsigned int CConf::getDMRNetwork4Local() const
+{
+	return m_dmrNetwork4Local;
+}
+
+std::string CConf::getDMRNetwork4Password() const
+{
+	return m_dmrNetwork4Password;
+}
+
+std::string CConf::getDMRNetwork4Options() const
+{
+	return m_dmrNetwork4Options;
+}
+
+bool CConf::getDMRNetwork4Location() const
+{
+	return m_dmrNetwork4Location;
+}
+
+bool CConf::getDMRNetwork4Debug() const
+{
+	return m_dmrNetwork4Debug;
+}
+
+std::vector<CTGRewriteStruct> CConf::getDMRNetwork4TGRewrites() const
+{
+	return m_dmrNetwork4TGRewrites;
+}
+
+std::vector<CPCRewriteStruct> CConf::getDMRNetwork4PCRewrites() const
+{
+	return m_dmrNetwork4PCRewrites;
+}
+
+std::vector<CTypeRewriteStruct> CConf::getDMRNetwork4TypeRewrites() const
+{
+	return m_dmrNetwork4TypeRewrites;
+}
+
+std::vector<CSrcRewriteStruct> CConf::getDMRNetwork4SrcRewrites() const
+{
+	return m_dmrNetwork4SrcRewrites;
+}
+
+std::vector<unsigned int> CConf::getDMRNetwork4PassAllPC() const
+{
+	return m_dmrNetwork4PassAllPC;
+}
+
+std::vector<unsigned int> CConf::getDMRNetwork4PassAllTG() const
+{
+	return m_dmrNetwork4PassAllTG;
 }
