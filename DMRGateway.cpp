@@ -1513,7 +1513,7 @@ bool CDMRGateway::createDMRNetwork4()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, VERSION, debug);
+	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr4Name, VERSION, debug);
 
 	std::string options = m_conf.getDMRNetwork4Options();
 	if (options.empty())
@@ -1550,8 +1550,8 @@ bool CDMRGateway::createDMRNetwork4()
 		else
 			LogInfo("    Rewrite Net: %u:TG%u-TG%u -> %u:TG%u-TG%u", (*it).m_toSlot, (*it).m_toTG, (*it).m_toTG + (*it).m_range - 1U, (*it).m_fromSlot, (*it).m_fromTG, (*it).m_fromTG + (*it).m_range - 1U);
 
-		CRewriteTG* rfRewrite = new CRewriteTG(m_dmr3Name, (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
-		CRewriteTG* netRewrite = new CRewriteTG(m_dmr3Name, (*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG, (*it).m_range);
+		CRewriteTG* rfRewrite = new CRewriteTG(m_dmr4Name, (*it).m_fromSlot, (*it).m_fromTG, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
+		CRewriteTG* netRewrite = new CRewriteTG(m_dmr4Name, (*it).m_toSlot, (*it).m_toTG, (*it).m_fromSlot, (*it).m_fromTG, (*it).m_range);
 
 		m_dmr4RFRewrites.push_back(rfRewrite);
 		m_dmr4NetRewrites.push_back(netRewrite);
@@ -1564,7 +1564,7 @@ bool CDMRGateway::createDMRNetwork4()
 		else
 			LogInfo("    Rewrite RF: %u:%u-%u -> %u:%u-%u", (*it).m_fromSlot, (*it).m_fromId, (*it).m_fromId + (*it).m_range - 1U, (*it).m_toSlot, (*it).m_toId, (*it).m_toId + (*it).m_range - 1U);
 
-		CRewritePC* rewrite = new CRewritePC(m_dmr3Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
+		CRewritePC* rewrite = new CRewritePC(m_dmr4Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toId, (*it).m_range);
 
 		m_dmr4RFRewrites.push_back(rewrite);
 	}
@@ -1594,8 +1594,8 @@ bool CDMRGateway::createDMRNetwork4()
 	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
 		LogInfo("    Pass All TG: %u", *it);
 
-		CPassAllTG* rfPassAllTG = new CPassAllTG(m_dmr3Name, *it);
-		CPassAllTG* netPassAllTG = new CPassAllTG(m_dmr3Name, *it);
+		CPassAllTG* rfPassAllTG = new CPassAllTG(m_dmr4Name, *it);
+		CPassAllTG* netPassAllTG = new CPassAllTG(m_dmr4Name, *it);
 
 		m_dmr4Passalls.push_back(rfPassAllTG);
 		m_dmr4NetRewrites.push_back(netPassAllTG);
