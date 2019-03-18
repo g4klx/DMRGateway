@@ -149,6 +149,24 @@ public:
 	std::vector<unsigned int>       getDMRNetwork3PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork3PassAllTG() const;
 
+	// The DMR Network 4 section
+	bool         getDMRNetwork4Enabled() const;
+	std::string  getDMRNetwork4Name() const;
+	unsigned int getDMRNetwork4Id() const;
+	std::string  getDMRNetwork4Address() const;
+	unsigned int getDMRNetwork4Port() const;
+	unsigned int getDMRNetwork4Local() const;
+	std::string  getDMRNetwork4Password() const;
+	std::string  getDMRNetwork4Options() const;
+	bool         getDMRNetwork4Location() const;
+	bool         getDMRNetwork4Debug() const;
+	std::vector<CTGRewriteStruct>   getDMRNetwork4TGRewrites() const;
+	std::vector<CPCRewriteStruct>   getDMRNetwork4PCRewrites() const;
+	std::vector<CTypeRewriteStruct> getDMRNetwork4TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>  getDMRNetwork4SrcRewrites() const;
+	std::vector<unsigned int>       getDMRNetwork4PassAllPC() const;
+	std::vector<unsigned int>       getDMRNetwork4PassAllTG() const;
+
 	// The XLX Network section
 	bool         getXLXNetworkEnabled() const;
 	unsigned int getXLXNetworkId() const;
@@ -248,6 +266,23 @@ private:
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork3SrcRewrites;
 	std::vector<unsigned int>       m_dmrNetwork3PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork3PassAllTG;
+
+	bool         m_dmrNetwork4Enabled;
+	std::string  m_dmrNetwork4Name;
+	unsigned int m_dmrNetwork4Id;
+	std::string  m_dmrNetwork4Address;
+	unsigned int m_dmrNetwork4Port;
+	unsigned int m_dmrNetwork4Local;
+	std::string  m_dmrNetwork4Password;
+	std::string  m_dmrNetwork4Options;
+	bool         m_dmrNetwork4Location;
+	bool         m_dmrNetwork4Debug;
+	std::vector<CTGRewriteStruct>   m_dmrNetwork4TGRewrites;
+	std::vector<CPCRewriteStruct>   m_dmrNetwork4PCRewrites;
+	std::vector<CTypeRewriteStruct> m_dmrNetwork4TypeRewrites;
+	std::vector<CSrcRewriteStruct>  m_dmrNetwork4SrcRewrites;
+	std::vector<unsigned int>       m_dmrNetwork4PassAllPC;
+	std::vector<unsigned int>       m_dmrNetwork4PassAllTG;
 
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;
