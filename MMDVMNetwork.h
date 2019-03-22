@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,6 +52,8 @@ public:
 
 	virtual bool readHomePosition(unsigned char* data, unsigned int& length);
 
+	virtual bool readInterrupt(unsigned char* data, unsigned int& length);
+
 	virtual bool writeBeacon();
 
 	virtual void clock(unsigned int ms);
@@ -76,6 +78,8 @@ private:
 	unsigned int               m_talkerAliasLen;
 	unsigned char*             m_homePositionData;
 	unsigned int               m_homePositionLen;
+	unsigned char*             m_interruptData;
+	unsigned int               m_interruptLen;
 };
 
 #endif

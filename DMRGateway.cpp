@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -991,6 +991,19 @@ int CDMRGateway::run()
 				m_dmrNetwork3->writeHomePosition(buffer, length);
 			if (m_dmrNetwork4 != NULL)
 				m_dmrNetwork4->writeHomePosition(buffer, length);
+		}
+		ret = m_repeater->readInterrupt(buffer, length);
+		if (ret) {
+			if (m_xlxNetwork != NULL)
+				m_xlxNetwork->writeInterrupt(buffer, length);
+			if (m_dmrNetwork1 != NULL)
+				m_dmrNetwork1->writeInterrupt(buffer, length);
+			if (m_dmrNetwork2 != NULL)
+				m_dmrNetwork2->writeInterrupt(buffer, length);
+			if (m_dmrNetwork3 != NULL)
+				m_dmrNetwork3->writeInterrupt(buffer, length);
+			if (m_dmrNetwork4 != NULL)
+				m_dmrNetwork4->writeInterrupt(buffer, length);
 		}
 
 		if (voice != NULL) {
