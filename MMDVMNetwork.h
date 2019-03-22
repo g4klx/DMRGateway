@@ -52,7 +52,7 @@ public:
 
 	virtual bool readHomePosition(unsigned char* data, unsigned int& length);
 
-	virtual bool readInterrupt(unsigned char* data, unsigned int& length);
+	virtual bool readInterrupt(unsigned int& slotNo);
 
 	virtual bool writeBeacon();
 

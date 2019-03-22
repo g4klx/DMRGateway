@@ -276,7 +276,7 @@ bool CDMRNetwork::writeHomePosition(const unsigned char* data, unsigned int leng
 	return write(buffer, length);
 }
 
-bool CDMRNetwork::writeInterrupt(const unsigned char* data, unsigned int length)
+bool CDMRNetwork::writeInterrupt(unsigned int slotNo)
 {
 	if (m_status != RUNNING)
 		return false;
@@ -287,9 +287,9 @@ bool CDMRNetwork::writeInterrupt(const unsigned char* data, unsigned int length)
 
 	::memcpy(buffer + 7U, m_id, 4U);
 
-	::memcpy(buffer + 11U, data + 11U, length - 11U);
+	::sprintf((char*)buffer + 11U, ":%u", slotNo);
 
-	return write(buffer, length);
+	return write(buffer, ::strlen((char*)buffer));
 }
 
 bool CDMRNetwork::isConnected() const

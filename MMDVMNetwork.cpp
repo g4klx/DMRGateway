@@ -265,17 +265,16 @@ bool CMMDVMNetwork::readHomePosition(unsigned char* data, unsigned int& length)
 	return true;
 }
 
-bool CMMDVMNetwork::readInterrupt(unsigned char* data, unsigned int& length)
+bool CMMDVMNetwork::readInterrupt(unsigned int& slotNo)
 {
 	if (m_interruptLen == 0U)
 		return false;
 
-	::memcpy(data, m_interruptData, m_interruptLen);
-	length = m_interruptLen;
+	slotNo = m_interruptData[12U] - '0';
 
 	m_interruptLen = 0U;
 
-	return true;
+	return slotNo == 0U || slotNo == 1U || slotNo == 2U;
 }
 
 bool CMMDVMNetwork::writeBeacon()

@@ -49,7 +49,7 @@ public:
 
 	bool writeHomePosition(const unsigned char* data, unsigned int length);
 
-	bool writeInterrupt(const unsigned char* data, unsigned int length);
+	bool writeInterrupt(unsigned int slotNo);
 
 	bool wantsBeacon();
 

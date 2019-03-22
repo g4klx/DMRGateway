@@ -992,18 +992,19 @@ int CDMRGateway::run()
 			if (m_dmrNetwork4 != NULL)
 				m_dmrNetwork4->writeHomePosition(buffer, length);
 		}
-		ret = m_repeater->readInterrupt(buffer, length);
+		unsigned int slotNo = 0U;
+		ret = m_repeater->readInterrupt(slotNo);
 		if (ret) {
-			if (m_xlxNetwork != NULL)
-				m_xlxNetwork->writeInterrupt(buffer, length);
-			if (m_dmrNetwork1 != NULL)
-				m_dmrNetwork1->writeInterrupt(buffer, length);
-			if (m_dmrNetwork2 != NULL)
-				m_dmrNetwork2->writeInterrupt(buffer, length);
-			if (m_dmrNetwork3 != NULL)
-				m_dmrNetwork3->writeInterrupt(buffer, length);
-			if (m_dmrNetwork4 != NULL)
-				m_dmrNetwork4->writeInterrupt(buffer, length);
+			if (m_xlxNetwork != NULL && status[slotNo] == DMRGWS_XLXREFLECTOR)
+				m_xlxNetwork->writeInterrupt(slotNo);
+			if (m_dmrNetwork1 != NULL && status[slotNo] == DMRGWS_DMRNETWORK1)
+				m_dmrNetwork1->writeInterrupt(slotNo);
+			if (m_dmrNetwork2 != NULL && status[slotNo] == DMRGWS_DMRNETWORK2)
+				m_dmrNetwork2->writeInterrupt(slotNo);
+			if (m_dmrNetwork3 != NULL && status[slotNo] == DMRGWS_DMRNETWORK3)
+				m_dmrNetwork3->writeInterrupt(slotNo);
+			if (m_dmrNetwork4 != NULL && status[slotNo] == DMRGWS_DMRNETWORK4)
+				m_dmrNetwork4->writeInterrupt(slotNo);
 		}
 
 		if (voice != NULL) {

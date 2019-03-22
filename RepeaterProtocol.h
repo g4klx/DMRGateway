@@ -45,7 +45,7 @@ public:
 
 	virtual bool readHomePosition(unsigned char* data, unsigned int& length) = 0;
 
-	virtual bool readInterrupt(unsigned char* data, unsigned int& length) = 0;
+	virtual bool readInterrupt(unsigned int& slotNo) = 0;
 
 	virtual void clock(unsigned int ms) = 0;
 
