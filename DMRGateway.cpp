@@ -995,8 +995,6 @@ int CDMRGateway::run()
 		unsigned int slotNo = 0U;
 		ret = m_repeater->readInterrupt(slotNo);
 		if (ret) {
-			if (m_xlxNetwork != NULL && status[slotNo] == DMRGWS_XLXREFLECTOR)
-				m_xlxNetwork->writeInterrupt(slotNo);
 			if (m_dmrNetwork1 != NULL && status[slotNo] == DMRGWS_DMRNETWORK1)
 				m_dmrNetwork1->writeInterrupt(slotNo);
 			if (m_dmrNetwork2 != NULL && status[slotNo] == DMRGWS_DMRNETWORK2)
