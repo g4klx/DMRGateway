@@ -1,8 +1,8 @@
 CC      = gcc
 CXX     = g++
-CFLAGS  = -g -O3 -Wall -std=c++0x -pthread 
+CFLAGS  = -g -O3 -Wall -std=c++0x -pthread
 LIBS    = -lpthread
-LDFLAGS = -g 
+LDFLAGS = -g
 
 OBJECTS = BPTC19696.o Conf.o CRC.o DMRCSBK.o DMRData.o DMRDataHeader.o DMREmbeddedData.o DMREMB.o DMRFullLC.o DMRGateway.o DMRLC.o DMRNetwork.o DMRSlotType.o \
 					Golay2087.o Hamming.o Log.o MMDVMNetwork.o PassAllPC.o PassAllTG.o QR1676.o Reflectors.o RepeaterProtocol.o Rewrite.o RewritePC.o RewriteSrc.o RewriteTG.o \
