@@ -81,6 +81,7 @@ m_dmrNetwork1TGRewrites(),
 m_dmrNetwork1PCRewrites(),
 m_dmrNetwork1TypeRewrites(),
 m_dmrNetwork1SrcRewrites(),
+m_dmrNetwork1IdRewrites(),
 m_dmrNetwork1PassAllPC(),
 m_dmrNetwork1PassAllTG(),
 m_dmrNetwork2Enabled(false),
@@ -97,6 +98,7 @@ m_dmrNetwork2TGRewrites(),
 m_dmrNetwork2PCRewrites(),
 m_dmrNetwork2TypeRewrites(),
 m_dmrNetwork2SrcRewrites(),
+m_dmrNetwork2IdRewrites(),
 m_dmrNetwork2PassAllPC(),
 m_dmrNetwork2PassAllTG(),
 m_dmrNetwork3Enabled(false),
@@ -113,6 +115,7 @@ m_dmrNetwork3TGRewrites(),
 m_dmrNetwork3PCRewrites(),
 m_dmrNetwork3TypeRewrites(),
 m_dmrNetwork3SrcRewrites(),
+m_dmrNetwork3IdRewrites(),
 m_dmrNetwork3PassAllPC(),
 m_dmrNetwork3PassAllTG(),
 m_dmrNetwork4Enabled(false),
@@ -129,6 +132,7 @@ m_dmrNetwork4TGRewrites(),
 m_dmrNetwork4PCRewrites(),
 m_dmrNetwork4TypeRewrites(),
 m_dmrNetwork4SrcRewrites(),
+m_dmrNetwork4IdRewrites(),
 m_dmrNetwork4PassAllPC(),
 m_dmrNetwork4PassAllTG(),
 m_xlxNetworkEnabled(false),
@@ -376,6 +380,15 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
+				char* rfId = ::strtok(value, ", ");
+				char* netId = ::strtok(NULL, " \r\n");
+				if (rfId != NULL && netId != NULL) {
+					CIdRewriteStruct rewrite;
+					rewrite.m_rfId  = ::atoi(rfId);
+					rewrite.m_netId = ::atoi(netId);
+					m_dmrNetwork1IdRewrites.push_back(rewrite);
+				}
 			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork1PassAllPC.push_back(slotNo);
@@ -461,6 +474,15 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p4);
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
+				char* rfId = ::strtok(value, ", ");
+				char* netId = ::strtok(NULL, " \r\n");
+				if (rfId != NULL && netId != NULL) {
+					CIdRewriteStruct rewrite;
+					rewrite.m_rfId  = ::atoi(rfId);
+					rewrite.m_netId = ::atoi(netId);
+					m_dmrNetwork2IdRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
@@ -548,6 +570,15 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork3SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
+				char* rfId = ::strtok(value, ", ");
+				char* netId = ::strtok(NULL, " \r\n");
+				if (rfId != NULL && netId != NULL) {
+					CIdRewriteStruct rewrite;
+					rewrite.m_rfId  = ::atoi(rfId);
+					rewrite.m_netId = ::atoi(netId);
+					m_dmrNetwork3IdRewrites.push_back(rewrite);
+				}
 			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork3PassAllPC.push_back(slotNo);
@@ -633,6 +664,15 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p4);
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork4SrcRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
+				char* rfId = ::strtok(value, ", ");
+				char* netId = ::strtok(NULL, " \r\n");
+				if (rfId != NULL && netId != NULL) {
+					CIdRewriteStruct rewrite;
+					rewrite.m_rfId  = ::atoi(rfId);
+					rewrite.m_netId = ::atoi(netId);
+					m_dmrNetwork4IdRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "PassAllPC", 9U) == 0) {
 				unsigned int slotNo = (unsigned int)::atoi(value);
@@ -925,6 +965,11 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork1SrcRewrites() const
 	return m_dmrNetwork1SrcRewrites;
 }
 
+std::vector<CIdRewriteStruct> CConf::getDMRNetwork1IdRewrites() const
+{
+	return m_dmrNetwork1IdRewrites;
+}
+
 std::vector<unsigned int> CConf::getDMRNetwork1PassAllPC() const
 {
 	return m_dmrNetwork1PassAllPC;
@@ -1006,6 +1051,11 @@ std::vector<CTypeRewriteStruct> CConf::getDMRNetwork2TypeRewrites() const
 std::vector<CSrcRewriteStruct> CConf::getDMRNetwork2SrcRewrites() const
 {
 	return m_dmrNetwork2SrcRewrites;
+}
+
+std::vector<CIdRewriteStruct> CConf::getDMRNetwork2IdRewrites() const
+{
+	return m_dmrNetwork2IdRewrites;
 }
 
 std::vector<unsigned int> CConf::getDMRNetwork2PassAllPC() const
@@ -1091,6 +1141,11 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork3SrcRewrites() const
 	return m_dmrNetwork3SrcRewrites;
 }
 
+std::vector<CIdRewriteStruct> CConf::getDMRNetwork3IdRewrites() const
+{
+	return m_dmrNetwork3IdRewrites;
+}
+
 std::vector<unsigned int> CConf::getDMRNetwork3PassAllPC() const
 {
 	return m_dmrNetwork3PassAllPC;
@@ -1172,6 +1227,11 @@ std::vector<CTypeRewriteStruct> CConf::getDMRNetwork4TypeRewrites() const
 std::vector<CSrcRewriteStruct> CConf::getDMRNetwork4SrcRewrites() const
 {
 	return m_dmrNetwork4SrcRewrites;
+}
+
+std::vector<CIdRewriteStruct> CConf::getDMRNetwork4IdRewrites() const
+{
+	return m_dmrNetwork4IdRewrites;
 }
 
 std::vector<unsigned int> CConf::getDMRNetwork4PassAllPC() const

@@ -53,6 +53,11 @@ struct CSrcRewriteStruct {
 	unsigned int m_range;
 };
 
+struct CIdRewriteStruct {
+	unsigned int m_rfId;
+	unsigned int m_netId;
+};
+
 class CConf
 {
 public:
@@ -110,6 +115,7 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork1PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork1TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork1SrcRewrites() const;
+	std::vector<CIdRewriteStruct>  getDMRNetwork1IdRewrites() const;
 	std::vector<unsigned int>       getDMRNetwork1PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork1PassAllTG() const;
 
@@ -128,6 +134,7 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork2PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork2TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork2SrcRewrites() const;
+	std::vector<CIdRewriteStruct>  getDMRNetwork2IdRewrites() const;
 	std::vector<unsigned int>       getDMRNetwork2PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork2PassAllTG() const;
 
@@ -146,6 +153,7 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork3PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork3TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork3SrcRewrites() const;
+	std::vector<CIdRewriteStruct>  getDMRNetwork3IdRewrites() const;
 	std::vector<unsigned int>       getDMRNetwork3PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork3PassAllTG() const;
 
@@ -164,6 +172,7 @@ public:
 	std::vector<CPCRewriteStruct>   getDMRNetwork4PCRewrites() const;
 	std::vector<CTypeRewriteStruct> getDMRNetwork4TypeRewrites() const;
 	std::vector<CSrcRewriteStruct>  getDMRNetwork4SrcRewrites() const;
+	std::vector<CIdRewriteStruct>  getDMRNetwork4IdRewrites() const;
 	std::vector<unsigned int>       getDMRNetwork4PassAllPC() const;
 	std::vector<unsigned int>       getDMRNetwork4PassAllTG() const;
 
@@ -230,6 +239,7 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork1PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork1TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork1SrcRewrites;
+	std::vector<CIdRewriteStruct>  m_dmrNetwork1IdRewrites;
 	std::vector<unsigned int>       m_dmrNetwork1PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork1PassAllTG;
 
@@ -247,6 +257,7 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork2PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork2TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork2SrcRewrites;
+	std::vector<CIdRewriteStruct>  m_dmrNetwork2IdRewrites;
 	std::vector<unsigned int>       m_dmrNetwork2PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork2PassAllTG;
 
@@ -264,6 +275,7 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork3PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork3TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork3SrcRewrites;
+	std::vector<CIdRewriteStruct>  m_dmrNetwork3IdRewrites;
 	std::vector<unsigned int>       m_dmrNetwork3PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork3PassAllTG;
 
@@ -281,6 +293,7 @@ private:
 	std::vector<CPCRewriteStruct>   m_dmrNetwork4PCRewrites;
 	std::vector<CTypeRewriteStruct> m_dmrNetwork4TypeRewrites;
 	std::vector<CSrcRewriteStruct>  m_dmrNetwork4SrcRewrites;
+	std::vector<CIdRewriteStruct>  m_dmrNetwork4IdRewrites;
 	std::vector<unsigned int>       m_dmrNetwork4PassAllPC;
 	std::vector<unsigned int>       m_dmrNetwork4PassAllTG;
 
