@@ -73,12 +73,16 @@ private:
 	CRewriteTG*        m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;
 	std::vector<CRewrite*> m_dmr1RFRewrites;
+	std::vector<CRewrite*> m_dmr1SrcRewrites;
 	std::vector<CRewrite*> m_dmr2NetRewrites;
 	std::vector<CRewrite*> m_dmr2RFRewrites;
+	std::vector<CRewrite*> m_dmr2SrcRewrites;
 	std::vector<CRewrite*> m_dmr3NetRewrites;
 	std::vector<CRewrite*> m_dmr3RFRewrites;
+	std::vector<CRewrite*> m_dmr3SrcRewrites;
 	std::vector<CRewrite*> m_dmr4NetRewrites;
 	std::vector<CRewrite*> m_dmr4RFRewrites;
+	std::vector<CRewrite*> m_dmr4SrcRewrites;
 	std::vector<CRewrite*> m_dmr1Passalls;
 	std::vector<CRewrite*> m_dmr2Passalls;
 	std::vector<CRewrite*> m_dmr3Passalls;
@@ -94,6 +98,8 @@ private:
 	bool linkXLX(unsigned int number);
 	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
+
+	bool rewrite(std::vector<CRewrite*>& rewrites, CDMRData& data, bool trace);
 
 	unsigned int getConfig(const std::string& name, unsigned char* buffer);
 };

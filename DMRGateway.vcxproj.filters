@@ -107,7 +107,13 @@
     <ClInclude Include="Rewrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RewriteDstId.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="RewriteSrc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RewriteSrcId.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RewriteType.h">
@@ -217,7 +223,13 @@
     <ClCompile Include="Rewrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RewriteDstId.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="RewriteSrc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RewriteSrcId.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RewriteType.cpp">

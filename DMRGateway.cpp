@@ -22,6 +22,8 @@
 #include "DMRGateway.h"
 #include "StopWatch.h"
 #include "RewritePC.h"
+#include "RewriteSrcId.h"
+#include "RewriteDstId.h"
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
@@ -165,10 +167,16 @@ m_rptRewrite(NULL),
 m_xlxRewrite(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
+m_dmr1SrcRewrites(),
 m_dmr2NetRewrites(),
 m_dmr2RFRewrites(),
+m_dmr2SrcRewrites(),
 m_dmr3NetRewrites(),
 m_dmr3RFRewrites(),
+m_dmr3SrcRewrites(),
+m_dmr4NetRewrites(),
+m_dmr4RFRewrites(),
+m_dmr4SrcRewrites(),
 m_dmr1Passalls(),
 m_dmr2Passalls(),
 m_dmr3Passalls()
@@ -184,16 +192,34 @@ CDMRGateway::~CDMRGateway()
 	for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it)
 		delete *it;
 
+	for (std::vector<CRewrite*>::iterator it = m_dmr1SrcRewrites.begin(); it != m_dmr1SrcRewrites.end(); ++it)
+		delete *it;
+
 	for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
 			delete *it;
 	
 	for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
 			delete *it;
 
+	for (std::vector<CRewrite*>::iterator it = m_dmr2SrcRewrites.begin(); it != m_dmr2SrcRewrites.end(); ++it)
+		delete *it;
+
 	for (std::vector<CRewrite*>::iterator it = m_dmr3NetRewrites.begin(); it != m_dmr3NetRewrites.end(); ++it)
 		delete *it;
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr3RFRewrites.begin(); it != m_dmr3RFRewrites.end(); ++it)
+		delete *it;
+
+	for (std::vector<CRewrite*>::iterator it = m_dmr3SrcRewrites.begin(); it != m_dmr3SrcRewrites.end(); ++it)
+		delete *it;
+
+	for (std::vector<CRewrite*>::iterator it = m_dmr4NetRewrites.begin(); it != m_dmr4NetRewrites.end(); ++it)
+		delete *it;
+
+	for (std::vector<CRewrite*>::iterator it = m_dmr4RFRewrites.begin(); it != m_dmr4RFRewrites.end(); ++it)
+		delete *it;
+
+	for (std::vector<CRewrite*>::iterator it = m_dmr4SrcRewrites.begin(); it != m_dmr4SrcRewrites.end(); ++it)
 		delete *it;
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it)
@@ -203,6 +229,9 @@ CDMRGateway::~CDMRGateway()
 		delete *it;
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr3Passalls.begin(); it != m_dmr3Passalls.end(); ++it)
+		delete *it;
+
+	for (std::vector<CRewrite*>::iterator it = m_dmr4Passalls.begin(); it != m_dmr4Passalls.end(); ++it)
 		delete *it;
 
 	delete m_rptRewrite;
@@ -576,6 +605,7 @@ int CDMRGateway::run()
 
 					if (rewritten) {
 						if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+							rewrite(m_dmr1SrcRewrites, data, trace);
 							m_dmrNetwork1->write(data);
 							status[slotNo] = DMRGWS_DMRNETWORK1;
 							timer[slotNo]->setTimeout(rfTimeout);
@@ -597,6 +627,7 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+								rewrite(m_dmr2SrcRewrites, data, trace);
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
 								timer[slotNo]->setTimeout(rfTimeout);
@@ -618,6 +649,7 @@ int CDMRGateway::run()
 
 							if (rewritten) {
 								if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK3) {
+									rewrite(m_dmr3SrcRewrites, data, trace);
 									m_dmrNetwork3->write(data);
 									status[slotNo] = DMRGWS_DMRNETWORK3;
 									timer[slotNo]->setTimeout(rfTimeout);
@@ -639,6 +671,7 @@ int CDMRGateway::run()
 
 								if (rewritten) {
 									if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK4) {
+										rewrite(m_dmr4SrcRewrites, data, trace);
 										m_dmrNetwork4->write(data);
 										status[slotNo] = DMRGWS_DMRNETWORK4;
 										timer[slotNo]->setTimeout(rfTimeout);
@@ -662,6 +695,7 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK1) {
+								rewrite(m_dmr1SrcRewrites, data, trace);
 								m_dmrNetwork1->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK1;
 								timer[slotNo]->setTimeout(rfTimeout);
@@ -683,6 +717,7 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK2) {
+								rewrite(m_dmr2SrcRewrites, data, trace);
 								m_dmrNetwork2->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK2;
 								timer[slotNo]->setTimeout(rfTimeout);
@@ -704,6 +739,7 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK3) {
+								rewrite(m_dmr3SrcRewrites, data, trace);
 								m_dmrNetwork3->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK3;
 								timer[slotNo]->setTimeout(rfTimeout);
@@ -725,6 +761,7 @@ int CDMRGateway::run()
 
 						if (rewritten) {
 							if (status[slotNo] == DMRGWS_NONE || status[slotNo] == DMRGWS_DMRNETWORK4) {
+								rewrite(m_dmr4SrcRewrites, data, trace);
 								m_dmrNetwork4->write(data);
 								status[slotNo] = DMRGWS_DMRNETWORK4;
 								timer[slotNo]->setTimeout(rfTimeout);
@@ -1209,6 +1246,17 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork1IdRewrites();
+	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
+		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
+
+		CRewriteSrcId* rewriteSrcId = new CRewriteSrcId(m_dmr1Name, (*it).m_rfId, (*it).m_netId);
+		CRewriteDstId* rewriteDstId = new CRewriteDstId(m_dmr1Name, (*it).m_netId, (*it).m_rfId);
+
+		m_dmr1SrcRewrites.push_back(rewriteSrcId);
+		m_dmr1NetRewrites.push_back(rewriteDstId);
+	}
+
 	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork1PassAllTG();
 	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
 		LogInfo("    Pass All TG: %u", *it);
@@ -1334,6 +1382,17 @@ bool CDMRGateway::createDMRNetwork2()
 		CRewriteSrc* rewrite = new CRewriteSrc(m_dmr2Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
 
 		m_dmr2NetRewrites.push_back(rewrite);
+	}
+
+	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork2IdRewrites();
+	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
+		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
+
+		CRewriteSrcId* rewriteSrcId = new CRewriteSrcId(m_dmr2Name, (*it).m_rfId, (*it).m_netId);
+		CRewriteDstId* rewriteDstId = new CRewriteDstId(m_dmr2Name, (*it).m_netId, (*it).m_rfId);
+
+		m_dmr2SrcRewrites.push_back(rewriteSrcId);
+		m_dmr2NetRewrites.push_back(rewriteDstId);
 	}
 
 	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork2PassAllTG();
@@ -1463,6 +1522,17 @@ bool CDMRGateway::createDMRNetwork3()
 		m_dmr3NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork3IdRewrites();
+	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
+		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
+
+		CRewriteSrcId* rewriteSrcId = new CRewriteSrcId(m_dmr3Name, (*it).m_rfId, (*it).m_netId);
+		CRewriteDstId* rewriteDstId = new CRewriteDstId(m_dmr3Name, (*it).m_netId, (*it).m_rfId);
+
+		m_dmr3SrcRewrites.push_back(rewriteSrcId);
+		m_dmr3NetRewrites.push_back(rewriteDstId);
+	}
+
 	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork3PassAllTG();
 	for (std::vector<unsigned int>::const_iterator it = tgPassAll.begin(); it != tgPassAll.end(); ++it) {
 		LogInfo("    Pass All TG: %u", *it);
@@ -1588,6 +1658,17 @@ bool CDMRGateway::createDMRNetwork4()
 		CRewriteSrc* rewrite = new CRewriteSrc(m_dmr4Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
 
 		m_dmr4NetRewrites.push_back(rewrite);
+	}
+
+	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork4IdRewrites();
+	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
+		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
+
+		CRewriteSrcId* rewriteSrcId = new CRewriteSrcId(m_dmr4Name, (*it).m_rfId, (*it).m_netId);
+		CRewriteDstId* rewriteDstId = new CRewriteDstId(m_dmr4Name, (*it).m_netId, (*it).m_rfId);
+
+		m_dmr4SrcRewrites.push_back(rewriteSrcId);
+		m_dmr4NetRewrites.push_back(rewriteDstId);
 	}
 
 	std::vector<unsigned int> tgPassAll = m_conf.getDMRNetwork4PassAllTG();
@@ -1792,6 +1873,14 @@ void CDMRGateway::writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwo
 		data.setSeqNo(i + 3U);
 		network->write(data);
 	}
+}
+
+bool CDMRGateway::rewrite(std::vector<CRewrite*>& rewrites, CDMRData & data, bool trace)
+{
+	for (std::vector<CRewrite*>::iterator it = rewrites.begin(); it != rewrites.end(); ++it)
+		if ((*it)->process(data, trace))
+			return true;
+	return false;
 }
 
 unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buffer)
