@@ -30,6 +30,16 @@
 
 #include <string>
 
+enum DMRGW_STATUS {
+	DMRGWS_NONE,
+	DMRGWS_DMRNETWORK1,
+	DMRGWS_DMRNETWORK2,
+	DMRGWS_DMRNETWORK3,
+	DMRGWS_DMRNETWORK4,
+	DMRGWS_DMRNETWORK5,
+	DMRGWS_XLXREFLECTOR
+};
+
 class CDMRGateway
 {
 public:
@@ -40,6 +50,7 @@ public:
 
 private:
 	CConf              m_conf;
+	DMRGW_STATUS*      m_status;
 	IRepeaterProtocol* m_repeater;
 	unsigned char*     m_config;
 	unsigned int       m_configLen;
@@ -109,6 +120,10 @@ private:
 	bool rewrite(std::vector<CRewrite*>& rewrites, CDMRData& data, bool trace);
 
 	unsigned int getConfig(const std::string& name, unsigned char* buffer);
+
+	void processRadioPosition();
+	void processTalkerAlias();
+	void processHomePosition();
 };
 
 #endif
