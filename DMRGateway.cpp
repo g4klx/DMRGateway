@@ -2184,7 +2184,7 @@ void CDMRGateway::processTalkerAlias()
 {
 	unsigned char buffer[50U];
 	unsigned int length;
-	ret = m_repeater->readTalkerAlias(buffer, length);
+	bool ret = m_repeater->readTalkerAlias(buffer, length);
 	if (!ret)
 		return;
 
@@ -2211,7 +2211,7 @@ void CDMRGateway::processHomePosition()
 {
 	unsigned char buffer[50U];
 	unsigned int length;
-	ret = m_repeater->readHomePosition(buffer, length);
+	bool ret = m_repeater->readHomePosition(buffer, length);
 	if (!ret)
 		return;
 
