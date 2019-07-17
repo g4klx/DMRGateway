@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ private:
 	std::string        m_dmr3Name;
 	CDMRNetwork*       m_dmrNetwork4;
 	std::string        m_dmr4Name;
+	CDMRNetwork*       m_dmrNetwork5;
+	std::string        m_dmr5Name;
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
@@ -83,16 +85,21 @@ private:
 	std::vector<CRewrite*> m_dmr4NetRewrites;
 	std::vector<CRewrite*> m_dmr4RFRewrites;
 	std::vector<CRewrite*> m_dmr4SrcRewrites;
+	std::vector<CRewrite*> m_dmr5NetRewrites;
+	std::vector<CRewrite*> m_dmr5RFRewrites;
+	std::vector<CRewrite*> m_dmr5SrcRewrites;
 	std::vector<CRewrite*> m_dmr1Passalls;
 	std::vector<CRewrite*> m_dmr2Passalls;
 	std::vector<CRewrite*> m_dmr3Passalls;
 	std::vector<CRewrite*> m_dmr4Passalls;
+	std::vector<CRewrite*> m_dmr5Passalls;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
 	bool createDMRNetwork3();
 	bool createDMRNetwork4();
+	bool createDMRNetwork5();
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);
