@@ -58,6 +58,8 @@ m_beacon(false)
 	assert(version != NULL);
 
 	CUDPSocket::lookup(address, port, m_address, m_addrlen);
+	CUDPSocket temp(m_address.ss_family == AF_INET ? "0.0.0.0" : "::", port);
+	m_socket = temp;	// INADDR_ANY or IN6ADDR_ANY_INIT
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
