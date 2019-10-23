@@ -33,7 +33,7 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
 m_rptAddress(),
-m_rptPort(rptPort),
+m_rptAddrLen(),
 m_id(0U),
 m_netId(NULL),
 m_debug(debug),
@@ -53,7 +53,7 @@ m_homePositionLen(0U)
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
 
-	m_rptAddress = CUDPSocket::lookup(rptAddress);
+	CUDPSocket::lookup(rptAddress, rptPort, m_rptAddress, m_rptAddrLen);
 
 	m_buffer = new unsigned char[BUFFER_LENGTH];
 	m_netId  = new unsigned char[4U];
@@ -217,7 +217,7 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	if (m_debug)
 		CUtils::dump(1U, "Network Transmitted", buffer, HOMEBREW_DATA_PACKET_LENGTH);
 
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
+	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptAddrLen);
 
 	return true;
 }
@@ -267,7 +267,7 @@ bool CMMDVMNetwork::writeBeacon()
 	::memcpy(buffer + 0U, "RPTSBKN", 7U);
 	::memcpy(buffer + 7U, m_netId, 4U);
 
-	return m_socket.write(buffer, 11U, m_rptAddress, m_rptPort);
+	return m_socket.write(buffer, 11U, m_rptAddress, m_rptAddrLen);
 }
 
 void CMMDVMNetwork::close()
@@ -280,15 +280,15 @@ void CMMDVMNetwork::close()
 	::memcpy(buffer + 0U, "MSTCL", 5U);
 	::memcpy(buffer + 5U, m_netId, 4U);
 
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
+	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptAddrLen);
 	m_socket.close();
 }
 
 void CMMDVMNetwork::clock(unsigned int ms)
 {
-	in_addr address;
-	unsigned int port;
-	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
+	sockaddr_storage address;
+	unsigned int addrlen;
+	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length < 0) {
 		LogError("MMDVM Network, Socket has failed, reopening");
 		close();
@@ -299,7 +299,28 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	// if (m_debug && length > 0)
 	//	CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0 && m_rptAddress.s_addr == address.s_addr && m_rptPort == port) {
+	int valid_addr;
+	switch (address.ss_family) {
+	case AF_INET:
+		struct sockaddr_in *pi4, *pm4;
+		pi4 = (struct sockaddr_in *)&address;
+		pm4 = (struct sockaddr_in *)&m_rptAddress;
+		valid_addr = ((pi4->sin_addr.s_addr == pm4->sin_addr.s_addr) &&
+			      (pi4->sin_port == pm4->sin_port));
+		break;
+	case AF_INET6:
+		struct sockaddr_in6 *pi6, *pm6;
+		pi6 = (struct sockaddr_in6 *)&address;
+		pm6 = (struct sockaddr_in6 *)&m_rptAddress;
+		valid_addr = (!::memcmp(pi6->sin6_addr.s6_addr, pm6->sin6_addr.s6_addr, sizeof(in6_addr)) &&
+			      (pi6->sin6_port == pm6->sin6_port));
+		break;
+	default:
+		valid_addr = 0;
+		break;
+	}
+
+	if (length > 0 && valid_addr) {
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
 			if (m_debug)
 				CUtils::dump(1U, "Network Received", m_buffer, length);
@@ -326,12 +347,12 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			uint32_t salt = 1U;
 			::memcpy(ack + 6U, &salt, sizeof(uint32_t));
 
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
 			unsigned char ack[10U];
 			::memcpy(ack + 0U, "RPTACK", 6U);
 			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
 			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
@@ -342,19 +363,19 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			unsigned char ack[10U];
 			::memcpy(ack + 0U, "RPTACK", 6U);
 			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
 			m_options = std::string((char*)(m_buffer + 8U), length - 8U);
 
 			unsigned char ack[10U];
 			::memcpy(ack + 0U, "RPTACK", 6U);
 			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
+			m_socket.write(ack, 10U, m_rptAddress, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
 			unsigned char pong[11U];
 			::memcpy(pong + 0U, "MSTPONG", 7U);
 			::memcpy(pong + 7U, m_netId, 4U);
-			m_socket.write(pong, 11U, m_rptAddress, m_rptPort);
+			m_socket.write(pong, 11U, m_rptAddress, m_rptAddrLen);
 		} else {
 			CUtils::dump("Unknown packet from the master", m_buffer, length);
 		}

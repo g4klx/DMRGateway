@@ -59,8 +59,8 @@ public:
 	virtual void close();
 
 private: 
-	in_addr                    m_rptAddress;
-	unsigned int               m_rptPort;
+	sockaddr_storage           m_rptAddress;
+	unsigned int               m_rptAddrLen;
 	unsigned int               m_id;
 	unsigned char*             m_netId;
 	bool                       m_debug;
