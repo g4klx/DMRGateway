@@ -33,7 +33,7 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, const char* version, bool debug) :
 m_address(),
-m_port(port),
+m_addrlen(),
 m_id(NULL),
 m_password(password),
 m_name(name),
@@ -57,7 +57,9 @@ m_beacon(false)
 	assert(!password.empty());
 	assert(version != NULL);
 
-	m_address = CUDPSocket::lookup(address);
+	CUDPSocket::lookup(address, port, m_address, m_addrlen);
+	CUDPSocket temp(m_address.ss_family == AF_INET ? "0.0.0.0" : "::", port);
+	m_socket = temp;	// INADDR_ANY or IN6ADDR_ANY_INIT
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
@@ -319,9 +321,9 @@ void CDMRNetwork::clock(unsigned int ms)
 		return;
 	}
 
-	in_addr address;
-	unsigned int port;
-	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
+	sockaddr_storage address;
+	unsigned int addrlen;
+	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length < 0) {
 		LogError("%s, Socket has failed, retrying connection to the master", m_name.c_str());
 		close();
@@ -332,7 +334,28 @@ void CDMRNetwork::clock(unsigned int ms)
 	// if (m_debug && length > 0)
 	//	CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0 && m_address.s_addr == address.s_addr && m_port == port) {
+	int valid_addr;
+	switch (address.ss_family) {
+	case AF_INET:
+		struct sockaddr_in *pi4, *pm4;
+		pi4 = (struct sockaddr_in *)&address;
+		pm4 = (struct sockaddr_in *)&m_address;
+		valid_addr = ((pi4->sin_addr.s_addr == pm4->sin_addr.s_addr) &&
+			      (pi4->sin_port == pm4->sin_port));
+		break;
+	case AF_INET6:
+		struct sockaddr_in6 *pi6, *pm6;
+		pi6 = (struct sockaddr_in6 *)&address;
+		pm6 = (struct sockaddr_in6 *)&m_address;
+		valid_addr = (!::memcmp(pi6->sin6_addr.s6_addr, pm6->sin6_addr.s6_addr, sizeof(in6_addr)) &&
+			      (pi6->sin6_port == pm6->sin6_port));
+		break;
+	default:
+		valid_addr = 0;
+		break;
+	}
+
+	if (length > 0 && valid_addr) {
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
 			if (m_debug)
 				CUtils::dump(1U, "Network Received", m_buffer, length);
@@ -527,7 +550,7 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 	// if (m_debug)
 	//	CUtils::dump(1U, "Network Transmitted", data, length);
 
-	bool ret = m_socket.write(data, length, m_address, m_port);
+	bool ret = m_socket.write(data, length, m_address, m_addrlen);
 	if (!ret) {
 		LogError("%s, Socket has failed when writing data to the master, retrying connection", m_name.c_str());
 		m_socket.close();

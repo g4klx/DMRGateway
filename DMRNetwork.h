@@ -58,14 +58,14 @@ public:
 	void close();
 
 private: 
-	in_addr      m_address;
-	unsigned int m_port;
-	uint8_t*     m_id;
-	std::string  m_password;
-	std::string  m_name;
-	const char*  m_version;
-	bool         m_debug;
-	CUDPSocket   m_socket;
+	sockaddr_storage m_address;
+	unsigned int     m_addrlen;
+	uint8_t*         m_id;
+	std::string      m_password;
+	std::string      m_name;
+	const char*      m_version;
+	bool             m_debug;
+	CUDPSocket       m_socket;
 
 	enum STATUS {
 		WAITING_CONNECT,
