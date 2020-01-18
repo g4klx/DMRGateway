@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,16 @@
 
 #include <string>
 
+enum DMRGW_STATUS {
+	DMRGWS_NONE,
+	DMRGWS_DMRNETWORK1,
+	DMRGWS_DMRNETWORK2,
+	DMRGWS_DMRNETWORK3,
+	DMRGWS_DMRNETWORK4,
+	DMRGWS_DMRNETWORK5,
+	DMRGWS_XLXREFLECTOR
+};
+
 class CDMRGateway
 {
 public:
@@ -40,6 +50,7 @@ public:
 
 private:
 	CConf              m_conf;
+	DMRGW_STATUS*      m_status;
 	IRepeaterProtocol* m_repeater;
 	unsigned char*     m_config;
 	unsigned int       m_configLen;
@@ -51,6 +62,8 @@ private:
 	std::string        m_dmr3Name;
 	CDMRNetwork*       m_dmrNetwork4;
 	std::string        m_dmr4Name;
+	CDMRNetwork*       m_dmrNetwork5;
+	std::string        m_dmr5Name;
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
@@ -73,29 +86,44 @@ private:
 	CRewriteTG*        m_xlxRewrite;
 	std::vector<CRewrite*> m_dmr1NetRewrites;
 	std::vector<CRewrite*> m_dmr1RFRewrites;
+	std::vector<CRewrite*> m_dmr1SrcRewrites;
 	std::vector<CRewrite*> m_dmr2NetRewrites;
 	std::vector<CRewrite*> m_dmr2RFRewrites;
+	std::vector<CRewrite*> m_dmr2SrcRewrites;
 	std::vector<CRewrite*> m_dmr3NetRewrites;
 	std::vector<CRewrite*> m_dmr3RFRewrites;
+	std::vector<CRewrite*> m_dmr3SrcRewrites;
 	std::vector<CRewrite*> m_dmr4NetRewrites;
 	std::vector<CRewrite*> m_dmr4RFRewrites;
+	std::vector<CRewrite*> m_dmr4SrcRewrites;
+	std::vector<CRewrite*> m_dmr5NetRewrites;
+	std::vector<CRewrite*> m_dmr5RFRewrites;
+	std::vector<CRewrite*> m_dmr5SrcRewrites;
 	std::vector<CRewrite*> m_dmr1Passalls;
 	std::vector<CRewrite*> m_dmr2Passalls;
 	std::vector<CRewrite*> m_dmr3Passalls;
 	std::vector<CRewrite*> m_dmr4Passalls;
+	std::vector<CRewrite*> m_dmr5Passalls;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
 	bool createDMRNetwork3();
 	bool createDMRNetwork4();
+	bool createDMRNetwork5();
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);
 	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 
+	bool rewrite(std::vector<CRewrite*>& rewrites, CDMRData& data, bool trace);
+
 	unsigned int getConfig(const std::string& name, unsigned char* buffer);
+
+	void processRadioPosition();
+	void processTalkerAlias();
+	void processHomePosition();
 };
 
 #endif
