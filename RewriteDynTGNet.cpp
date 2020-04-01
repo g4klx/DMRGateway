@@ -24,14 +24,11 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteDynTGNet::CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int range) :
+CRewriteDynTGNet::CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int toTG) :
 CRewrite(),
 m_name(name),
 m_slot(slot),
-m_fromTGStart(fromTG),
-m_fromTGEnd(fromTG + range - 1U),
 m_toTG(toTG),
-m_discTG(discTG),
 m_currentTG(0U)
 {
 	assert(slot == 1U || slot == 2U);
@@ -47,38 +44,24 @@ bool CRewriteDynTGNet::process(CDMRData& data, bool trace)
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
-		if (trace) {
-			if (m_fromTGStart == m_fromTGEnd)
-				LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
-			else
-				LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
-		}
+	if (flco != FLCO_GROUP || slotNo != m_slot || dstId != m_currentTG) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, m_currentTG);
 
 		return false;
 	}
 
-	if (m_fromSlot != m_toSlot)
-		data.setSlotNo(m_toSlot);
+	data.setDstId(m_toTG);
 
-	if (m_fromTGStart != m_toTGStart) {
-		unsigned int newTG = dstId + m_toTGStart - m_fromTGStart;
-		data.setDstId(newTG);
+	processMessage(data);
 
-		processMessage(data);
-	}
-
-	if (trace) {
-		if (m_fromTGStart == m_fromTGEnd)
-			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
-		else
-			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u-TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
-
-		if (m_toTGStart == m_toTGEnd)
-			LogDebug("Rule Trace,\tRewriteDynTGNet to %s Slot=%u Dst=TG%u", m_name.c_str(), m_toSlot, m_toTGStart);
-		else
-			LogDebug("Rule Trace,\tRewriteDynTGNet to %s Slot=%u Dst=TG%u-TG%u", m_name.c_str(), m_toSlot, m_toTGStart, m_toTGEnd);
-	}
+	if (trace)
+		LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_currentTG);
 
 	return true;
+}
+
+void CRewriteDynTGNet::setCurrentTG(unsigned int currentTG)
+{
+	m_currentTG = currentTG;
 }

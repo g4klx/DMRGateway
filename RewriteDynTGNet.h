@@ -26,7 +26,7 @@
 
 class CRewriteDynTGNet : public CRewrite {
 public:
-	CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int range);
+	CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int toTG);
 	virtual ~CRewriteDynTGNet();
 
 	virtual bool process(CDMRData& data, bool trace);
@@ -36,10 +36,7 @@ public:
 private:
 	std::string       m_name;
 	unsigned int      m_slot;
-	unsigned int      m_fromTGStart;
-	unsigned int      m_fromTGEnd;
 	unsigned int      m_toTG;
-	unsigned int      m_discTG;
 	unsigned int      m_currentTG;
 };
 

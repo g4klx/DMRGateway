@@ -49,38 +49,47 @@ bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
-		if (trace) {
-			if (m_fromTGStart == m_fromTGEnd)
-				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
-			else
-				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
-		}
-
-		return false;
-	}
-
-	if (m_fromSlot != m_toSlot)
-		data.setSlotNo(m_toSlot);
-
-	if (m_fromTGStart != m_toTGStart) {
-		unsigned int newTG = dstId + m_toTGStart - m_fromTGStart;
-		data.setDstId(newTG);
+	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_toTG && m_currentTG != 0U) {
+		data.setDstId(m_currentTG);
 
 		processMessage(data);
+
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_toTG);
+
+		return true;
+	}
+
+	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_discTG && m_currentTG != 0U) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_discTG);
+
+		m_rewriteNet->setCurrentTG(0U);
+		m_currentTG = 0U;
+
+		return true;
+	}
+
+	if (flco == FLCO_GROUP && slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
+		if (trace) {
+			if (m_fromTGStart == m_fromTGEnd)
+				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_fromTGStart);
+			else
+				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u-TG%u: matched", m_name.c_str(), m_slot, m_fromTGStart, m_fromTGEnd);
+		}
+
+		m_rewriteNet->setCurrentTG(dstId);
+		m_currentTG = dstId;
+
+		return true;
 	}
 
 	if (trace) {
 		if (m_fromTGStart == m_fromTGEnd)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u or Dst=TG%u or Dst=TG%u: not matched", m_name.c_str(), m_slot, m_fromTGStart, m_toTG, m_discTG);
 		else
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u-TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
-
-		if (m_toTGStart == m_toTGEnd)
-			LogDebug("Rule Trace,\tRewriteDynTGRF to %s Slot=%u Dst=TG%u", m_name.c_str(), m_toSlot, m_toTGStart);
-		else
-			LogDebug("Rule Trace,\tRewriteDynTGRF to %s Slot=%u Dst=TG%u-TG%u", m_name.c_str(), m_toSlot, m_toTGStart, m_toTGEnd);
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u-TG%u or Dst=TG%u or Dst=TG%u: not matched", m_name.c_str(), m_slot, m_fromTGStart, m_fromTGEnd, m_toTG, m_discTG);
 	}
 
-	return true;
+	return false;
 }
