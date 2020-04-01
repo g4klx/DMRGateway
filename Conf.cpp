@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ m_dmrNetwork1TGRewrites(),
 m_dmrNetwork1PCRewrites(),
 m_dmrNetwork1TypeRewrites(),
 m_dmrNetwork1SrcRewrites(),
+m_dmrNetwork1TGDynRewrites(),
 m_dmrNetwork1IdRewrites(),
 m_dmrNetwork1PassAllPC(),
 m_dmrNetwork1PassAllTG(),
@@ -99,6 +100,7 @@ m_dmrNetwork2TGRewrites(),
 m_dmrNetwork2PCRewrites(),
 m_dmrNetwork2TypeRewrites(),
 m_dmrNetwork2SrcRewrites(),
+m_dmrNetwork2TGDynRewrites(),
 m_dmrNetwork2IdRewrites(),
 m_dmrNetwork2PassAllPC(),
 m_dmrNetwork2PassAllTG(),
@@ -116,6 +118,7 @@ m_dmrNetwork3TGRewrites(),
 m_dmrNetwork3PCRewrites(),
 m_dmrNetwork3TypeRewrites(),
 m_dmrNetwork3SrcRewrites(),
+m_dmrNetwork3TGDynRewrites(),
 m_dmrNetwork3IdRewrites(),
 m_dmrNetwork3PassAllPC(),
 m_dmrNetwork3PassAllTG(),
@@ -133,6 +136,7 @@ m_dmrNetwork4TGRewrites(),
 m_dmrNetwork4PCRewrites(),
 m_dmrNetwork4TypeRewrites(),
 m_dmrNetwork4SrcRewrites(),
+m_dmrNetwork4TGDynRewrites(),
 m_dmrNetwork4IdRewrites(),
 m_dmrNetwork4PassAllPC(),
 m_dmrNetwork4PassAllTG(),
@@ -150,6 +154,7 @@ m_dmrNetwork5TGRewrites(),
 m_dmrNetwork5PCRewrites(),
 m_dmrNetwork5TypeRewrites(),
 m_dmrNetwork5SrcRewrites(),
+m_dmrNetwork5TGDynRewrites(),
 m_dmrNetwork5IdRewrites(),
 m_dmrNetwork5PassAllPC(),
 m_dmrNetwork5PassAllTG(),
@@ -400,6 +405,21 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGDynRewriteStruct rewrite;
+					rewrite.m_slot   = ::atoi(p1);
+					rewrite.m_fromTG = ::atoi(p2);
+					rewrite.m_discTG = ::atoi(p3);
+					rewrite.m_toTG   = ::atoi(p4);
+					rewrite.m_range  = ::atoi(p5);
+					m_dmrNetwork1TGDynRewrites.push_back(rewrite);
+				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
 				char* netId = ::strtok(NULL, " \r\n");
@@ -494,6 +514,21 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p4);
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGDynRewriteStruct rewrite;
+					rewrite.m_slot = ::atoi(p1);
+					rewrite.m_fromTG = ::atoi(p2);
+					rewrite.m_discTG = ::atoi(p3);
+					rewrite.m_toTG = ::atoi(p4);
+					rewrite.m_range = ::atoi(p5);
+					m_dmrNetwork2TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
@@ -590,6 +625,21 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork3SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGDynRewriteStruct rewrite;
+					rewrite.m_slot = ::atoi(p1);
+					rewrite.m_fromTG = ::atoi(p2);
+					rewrite.m_discTG = ::atoi(p3);
+					rewrite.m_toTG = ::atoi(p4);
+					rewrite.m_range = ::atoi(p5);
+					m_dmrNetwork3TGDynRewrites.push_back(rewrite);
+				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
 				char* netId = ::strtok(NULL, " \r\n");
@@ -685,6 +735,21 @@ bool CConf::read()
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork4SrcRewrites.push_back(rewrite);
 				}
+			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGDynRewriteStruct rewrite;
+					rewrite.m_slot = ::atoi(p1);
+					rewrite.m_fromTG = ::atoi(p2);
+					rewrite.m_discTG = ::atoi(p3);
+					rewrite.m_toTG = ::atoi(p4);
+					rewrite.m_range = ::atoi(p5);
+					m_dmrNetwork4TGDynRewrites.push_back(rewrite);
+				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
 				char* netId = ::strtok(NULL, " \r\n");
@@ -779,6 +844,21 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p4);
 					rewrite.m_range    = ::atoi(p5);
 					m_dmrNetwork5SrcRewrites.push_back(rewrite);
+				}
+			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
+				char* p1 = ::strtok(value, ", ");
+				char* p2 = ::strtok(NULL, ", ");
+				char* p3 = ::strtok(NULL, ", ");
+				char* p4 = ::strtok(NULL, " \r\n");
+				char* p5 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+					CTGDynRewriteStruct rewrite;
+					rewrite.m_slot = ::atoi(p1);
+					rewrite.m_fromTG = ::atoi(p2);
+					rewrite.m_discTG = ::atoi(p3);
+					rewrite.m_toTG = ::atoi(p4);
+					rewrite.m_range = ::atoi(p5);
+					m_dmrNetwork5TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
@@ -1080,6 +1160,11 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork1SrcRewrites() const
 	return m_dmrNetwork1SrcRewrites;
 }
 
+std::vector<CTGDynRewriteStruct> CConf::getDMRNetwork1TGDynRewrites() const
+{
+	return m_dmrNetwork1TGDynRewrites;
+}
+
 std::vector<CIdRewriteStruct> CConf::getDMRNetwork1IdRewrites() const
 {
 	return m_dmrNetwork1IdRewrites;
@@ -1166,6 +1251,11 @@ std::vector<CTypeRewriteStruct> CConf::getDMRNetwork2TypeRewrites() const
 std::vector<CSrcRewriteStruct> CConf::getDMRNetwork2SrcRewrites() const
 {
 	return m_dmrNetwork2SrcRewrites;
+}
+
+std::vector<CTGDynRewriteStruct> CConf::getDMRNetwork2TGDynRewrites() const
+{
+	return m_dmrNetwork2TGDynRewrites;
 }
 
 std::vector<CIdRewriteStruct> CConf::getDMRNetwork2IdRewrites() const
@@ -1256,6 +1346,11 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork3SrcRewrites() const
 	return m_dmrNetwork3SrcRewrites;
 }
 
+std::vector<CTGDynRewriteStruct> CConf::getDMRNetwork3TGDynRewrites() const
+{
+	return m_dmrNetwork3TGDynRewrites;
+}
+
 std::vector<CIdRewriteStruct> CConf::getDMRNetwork3IdRewrites() const
 {
 	return m_dmrNetwork3IdRewrites;
@@ -1344,6 +1439,11 @@ std::vector<CSrcRewriteStruct> CConf::getDMRNetwork4SrcRewrites() const
 	return m_dmrNetwork4SrcRewrites;
 }
 
+std::vector<CTGDynRewriteStruct> CConf::getDMRNetwork4TGDynRewrites() const
+{
+	return m_dmrNetwork4TGDynRewrites;
+}
+
 std::vector<CIdRewriteStruct> CConf::getDMRNetwork4IdRewrites() const
 {
 	return m_dmrNetwork4IdRewrites;
@@ -1430,6 +1530,11 @@ std::vector<CTypeRewriteStruct> CConf::getDMRNetwork5TypeRewrites() const
 std::vector<CSrcRewriteStruct> CConf::getDMRNetwork5SrcRewrites() const
 {
 	return m_dmrNetwork5SrcRewrites;
+}
+
+std::vector<CTGDynRewriteStruct> CConf::getDMRNetwork5TGDynRewrites() const
+{
+	return m_dmrNetwork5TGDynRewrites;
 }
 
 std::vector<CIdRewriteStruct> CConf::getDMRNetwork5IdRewrites() const

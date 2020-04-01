@@ -177,6 +177,8 @@
     <ClInclude Include="RepeaterProtocol.h" />
     <ClInclude Include="Rewrite.h" />
     <ClInclude Include="RewriteDstId.h" />
+    <ClInclude Include="RewriteDynTGNet.h" />
+    <ClInclude Include="RewriteDynTGRF.h" />
     <ClInclude Include="RewritePC.h" />
     <ClInclude Include="RewriteSrc.h" />
     <ClInclude Include="RewriteSrcId.h" />
@@ -219,6 +221,8 @@
     <ClCompile Include="RepeaterProtocol.cpp" />
     <ClCompile Include="Rewrite.cpp" />
     <ClCompile Include="RewriteDstId.cpp" />
+    <ClCompile Include="RewriteDynTGNet.cpp" />
+    <ClCompile Include="RewriteDynTGRF.cpp" />
     <ClCompile Include="RewritePC.cpp" />
     <ClCompile Include="RewriteSrc.cpp" />
     <ClCompile Include="RewriteSrcId.cpp" />

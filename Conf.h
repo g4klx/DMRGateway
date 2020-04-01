@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -49,6 +49,14 @@ struct CSrcRewriteStruct {
 	unsigned int m_fromSlot;
 	unsigned int m_fromId;
 	unsigned int m_toSlot;
+	unsigned int m_toTG;
+	unsigned int m_range;
+};
+
+struct CTGDynRewriteStruct {
+	unsigned int m_slot;
+	unsigned int m_fromTG;
+	unsigned int m_discTG;
 	unsigned int m_toTG;
 	unsigned int m_range;
 };
@@ -111,13 +119,14 @@ public:
 	std::string  getDMRNetwork1Options() const;
 	bool         getDMRNetwork1Location() const;
 	bool         getDMRNetwork1Debug() const;
-	std::vector<CTGRewriteStruct>   getDMRNetwork1TGRewrites() const;
-	std::vector<CPCRewriteStruct>   getDMRNetwork1PCRewrites() const;
-	std::vector<CTypeRewriteStruct> getDMRNetwork1TypeRewrites() const;
-	std::vector<CSrcRewriteStruct>  getDMRNetwork1SrcRewrites() const;
-	std::vector<CIdRewriteStruct>   getDMRNetwork1IdRewrites() const;
-	std::vector<unsigned int>       getDMRNetwork1PassAllPC() const;
-	std::vector<unsigned int>       getDMRNetwork1PassAllTG() const;
+	std::vector<CTGRewriteStruct>    getDMRNetwork1TGRewrites() const;
+	std::vector<CPCRewriteStruct>    getDMRNetwork1PCRewrites() const;
+	std::vector<CTypeRewriteStruct>  getDMRNetwork1TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>   getDMRNetwork1SrcRewrites() const;
+	std::vector<CTGDynRewriteStruct> getDMRNetwork1TGDynRewrites() const;
+	std::vector<CIdRewriteStruct>    getDMRNetwork1IdRewrites() const;
+	std::vector<unsigned int>        getDMRNetwork1PassAllPC() const;
+	std::vector<unsigned int>        getDMRNetwork1PassAllTG() const;
 
 	// The DMR Network 2 section
 	bool         getDMRNetwork2Enabled() const;
@@ -130,13 +139,14 @@ public:
 	std::string  getDMRNetwork2Options() const;
 	bool         getDMRNetwork2Location() const;
 	bool         getDMRNetwork2Debug() const;
-	std::vector<CTGRewriteStruct>   getDMRNetwork2TGRewrites() const;
-	std::vector<CPCRewriteStruct>   getDMRNetwork2PCRewrites() const;
-	std::vector<CTypeRewriteStruct> getDMRNetwork2TypeRewrites() const;
-	std::vector<CSrcRewriteStruct>  getDMRNetwork2SrcRewrites() const;
-	std::vector<CIdRewriteStruct>   getDMRNetwork2IdRewrites() const;
-	std::vector<unsigned int>       getDMRNetwork2PassAllPC() const;
-	std::vector<unsigned int>       getDMRNetwork2PassAllTG() const;
+	std::vector<CTGRewriteStruct>    getDMRNetwork2TGRewrites() const;
+	std::vector<CPCRewriteStruct>    getDMRNetwork2PCRewrites() const;
+	std::vector<CTypeRewriteStruct>  getDMRNetwork2TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>   getDMRNetwork2SrcRewrites() const;
+	std::vector<CTGDynRewriteStruct> getDMRNetwork2TGDynRewrites() const;
+	std::vector<CIdRewriteStruct>    getDMRNetwork2IdRewrites() const;
+	std::vector<unsigned int>        getDMRNetwork2PassAllPC() const;
+	std::vector<unsigned int>        getDMRNetwork2PassAllTG() const;
 
 	// The DMR Network 3 section
 	bool         getDMRNetwork3Enabled() const;
@@ -149,13 +159,14 @@ public:
 	std::string  getDMRNetwork3Options() const;
 	bool         getDMRNetwork3Location() const;
 	bool         getDMRNetwork3Debug() const;
-	std::vector<CTGRewriteStruct>   getDMRNetwork3TGRewrites() const;
-	std::vector<CPCRewriteStruct>   getDMRNetwork3PCRewrites() const;
-	std::vector<CTypeRewriteStruct> getDMRNetwork3TypeRewrites() const;
-	std::vector<CSrcRewriteStruct>  getDMRNetwork3SrcRewrites() const;
-	std::vector<CIdRewriteStruct>   getDMRNetwork3IdRewrites() const;
-	std::vector<unsigned int>       getDMRNetwork3PassAllPC() const;
-	std::vector<unsigned int>       getDMRNetwork3PassAllTG() const;
+	std::vector<CTGRewriteStruct>    getDMRNetwork3TGRewrites() const;
+	std::vector<CPCRewriteStruct>    getDMRNetwork3PCRewrites() const;
+	std::vector<CTypeRewriteStruct>  getDMRNetwork3TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>   getDMRNetwork3SrcRewrites() const;
+	std::vector<CTGDynRewriteStruct> getDMRNetwork3TGDynRewrites() const;
+	std::vector<CIdRewriteStruct>    getDMRNetwork3IdRewrites() const;
+	std::vector<unsigned int>        getDMRNetwork3PassAllPC() const;
+	std::vector<unsigned int>        getDMRNetwork3PassAllTG() const;
 
 	// The DMR Network 4 section
 	bool         getDMRNetwork4Enabled() const;
@@ -168,13 +179,14 @@ public:
 	std::string  getDMRNetwork4Options() const;
 	bool         getDMRNetwork4Location() const;
 	bool         getDMRNetwork4Debug() const;
-	std::vector<CTGRewriteStruct>   getDMRNetwork4TGRewrites() const;
-	std::vector<CPCRewriteStruct>   getDMRNetwork4PCRewrites() const;
-	std::vector<CTypeRewriteStruct> getDMRNetwork4TypeRewrites() const;
-	std::vector<CSrcRewriteStruct>  getDMRNetwork4SrcRewrites() const;
-	std::vector<CIdRewriteStruct>   getDMRNetwork4IdRewrites() const;
-	std::vector<unsigned int>       getDMRNetwork4PassAllPC() const;
-	std::vector<unsigned int>       getDMRNetwork4PassAllTG() const;
+	std::vector<CTGRewriteStruct>    getDMRNetwork4TGRewrites() const;
+	std::vector<CPCRewriteStruct>    getDMRNetwork4PCRewrites() const;
+	std::vector<CTypeRewriteStruct>  getDMRNetwork4TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>   getDMRNetwork4SrcRewrites() const;
+	std::vector<CTGDynRewriteStruct> getDMRNetwork4TGDynRewrites() const;
+	std::vector<CIdRewriteStruct>    getDMRNetwork4IdRewrites() const;
+	std::vector<unsigned int>        getDMRNetwork4PassAllPC() const;
+	std::vector<unsigned int>        getDMRNetwork4PassAllTG() const;
 
 	// The DMR Network 5 section
 	bool         getDMRNetwork5Enabled() const;
@@ -187,13 +199,14 @@ public:
 	std::string  getDMRNetwork5Options() const;
 	bool         getDMRNetwork5Location() const;
 	bool         getDMRNetwork5Debug() const;
-	std::vector<CTGRewriteStruct>   getDMRNetwork5TGRewrites() const;
-	std::vector<CPCRewriteStruct>   getDMRNetwork5PCRewrites() const;
-	std::vector<CTypeRewriteStruct> getDMRNetwork5TypeRewrites() const;
-	std::vector<CSrcRewriteStruct>  getDMRNetwork5SrcRewrites() const;
-	std::vector<CIdRewriteStruct>   getDMRNetwork5IdRewrites() const;
-	std::vector<unsigned int>       getDMRNetwork5PassAllPC() const;
-	std::vector<unsigned int>       getDMRNetwork5PassAllTG() const;
+	std::vector<CTGRewriteStruct>    getDMRNetwork5TGRewrites() const;
+	std::vector<CPCRewriteStruct>    getDMRNetwork5PCRewrites() const;
+	std::vector<CTypeRewriteStruct>  getDMRNetwork5TypeRewrites() const;
+	std::vector<CSrcRewriteStruct>   getDMRNetwork5SrcRewrites() const;
+	std::vector<CTGDynRewriteStruct> getDMRNetwork5TGDynRewrites() const;
+	std::vector<CIdRewriteStruct>    getDMRNetwork5IdRewrites() const;
+	std::vector<unsigned int>        getDMRNetwork5PassAllPC() const;
+	std::vector<unsigned int>        getDMRNetwork5PassAllTG() const;
 
 	// The XLX Network section
 	bool         getXLXNetworkEnabled() const;
@@ -254,13 +267,14 @@ private:
 	std::string  m_dmrNetwork1Options;
 	bool         m_dmrNetwork1Location;
 	bool         m_dmrNetwork1Debug;
-	std::vector<CTGRewriteStruct>   m_dmrNetwork1TGRewrites;
-	std::vector<CPCRewriteStruct>   m_dmrNetwork1PCRewrites;
-	std::vector<CTypeRewriteStruct> m_dmrNetwork1TypeRewrites;
-	std::vector<CSrcRewriteStruct>  m_dmrNetwork1SrcRewrites;
-	std::vector<CIdRewriteStruct>   m_dmrNetwork1IdRewrites;
-	std::vector<unsigned int>       m_dmrNetwork1PassAllPC;
-	std::vector<unsigned int>       m_dmrNetwork1PassAllTG;
+	std::vector<CTGRewriteStruct>    m_dmrNetwork1TGRewrites;
+	std::vector<CPCRewriteStruct>    m_dmrNetwork1PCRewrites;
+	std::vector<CTypeRewriteStruct>  m_dmrNetwork1TypeRewrites;
+	std::vector<CSrcRewriteStruct>   m_dmrNetwork1SrcRewrites;
+	std::vector<CTGDynRewriteStruct> m_dmrNetwork1TGDynRewrites;
+	std::vector<CIdRewriteStruct>    m_dmrNetwork1IdRewrites;
+	std::vector<unsigned int>        m_dmrNetwork1PassAllPC;
+	std::vector<unsigned int>        m_dmrNetwork1PassAllTG;
 
 	bool         m_dmrNetwork2Enabled;
 	std::string  m_dmrNetwork2Name;
@@ -272,13 +286,14 @@ private:
 	std::string  m_dmrNetwork2Options;
 	bool         m_dmrNetwork2Location;
 	bool         m_dmrNetwork2Debug;
-	std::vector<CTGRewriteStruct>   m_dmrNetwork2TGRewrites;
-	std::vector<CPCRewriteStruct>   m_dmrNetwork2PCRewrites;
-	std::vector<CTypeRewriteStruct> m_dmrNetwork2TypeRewrites;
-	std::vector<CSrcRewriteStruct>  m_dmrNetwork2SrcRewrites;
-	std::vector<CIdRewriteStruct>   m_dmrNetwork2IdRewrites;
-	std::vector<unsigned int>       m_dmrNetwork2PassAllPC;
-	std::vector<unsigned int>       m_dmrNetwork2PassAllTG;
+	std::vector<CTGRewriteStruct>    m_dmrNetwork2TGRewrites;
+	std::vector<CPCRewriteStruct>    m_dmrNetwork2PCRewrites;
+	std::vector<CTypeRewriteStruct>  m_dmrNetwork2TypeRewrites;
+	std::vector<CSrcRewriteStruct>   m_dmrNetwork2SrcRewrites;
+	std::vector<CTGDynRewriteStruct> m_dmrNetwork2TGDynRewrites;
+	std::vector<CIdRewriteStruct>    m_dmrNetwork2IdRewrites;
+	std::vector<unsigned int>        m_dmrNetwork2PassAllPC;
+	std::vector<unsigned int>        m_dmrNetwork2PassAllTG;
 
 	bool         m_dmrNetwork3Enabled;
 	std::string  m_dmrNetwork3Name;
@@ -290,13 +305,14 @@ private:
 	std::string  m_dmrNetwork3Options;
 	bool         m_dmrNetwork3Location;
 	bool         m_dmrNetwork3Debug;
-	std::vector<CTGRewriteStruct>   m_dmrNetwork3TGRewrites;
-	std::vector<CPCRewriteStruct>   m_dmrNetwork3PCRewrites;
-	std::vector<CTypeRewriteStruct> m_dmrNetwork3TypeRewrites;
-	std::vector<CSrcRewriteStruct>  m_dmrNetwork3SrcRewrites;
-	std::vector<CIdRewriteStruct>   m_dmrNetwork3IdRewrites;
-	std::vector<unsigned int>       m_dmrNetwork3PassAllPC;
-	std::vector<unsigned int>       m_dmrNetwork3PassAllTG;
+	std::vector<CTGRewriteStruct>    m_dmrNetwork3TGRewrites;
+	std::vector<CPCRewriteStruct>    m_dmrNetwork3PCRewrites;
+	std::vector<CTypeRewriteStruct>  m_dmrNetwork3TypeRewrites;
+	std::vector<CSrcRewriteStruct>   m_dmrNetwork3SrcRewrites;
+	std::vector<CTGDynRewriteStruct> m_dmrNetwork3TGDynRewrites;
+	std::vector<CIdRewriteStruct>    m_dmrNetwork3IdRewrites;
+	std::vector<unsigned int>        m_dmrNetwork3PassAllPC;
+	std::vector<unsigned int>        m_dmrNetwork3PassAllTG;
 
 	bool         m_dmrNetwork4Enabled;
 	std::string  m_dmrNetwork4Name;
@@ -308,13 +324,14 @@ private:
 	std::string  m_dmrNetwork4Options;
 	bool         m_dmrNetwork4Location;
 	bool         m_dmrNetwork4Debug;
-	std::vector<CTGRewriteStruct>   m_dmrNetwork4TGRewrites;
-	std::vector<CPCRewriteStruct>   m_dmrNetwork4PCRewrites;
-	std::vector<CTypeRewriteStruct> m_dmrNetwork4TypeRewrites;
-	std::vector<CSrcRewriteStruct>  m_dmrNetwork4SrcRewrites;
-	std::vector<CIdRewriteStruct>   m_dmrNetwork4IdRewrites;
-	std::vector<unsigned int>       m_dmrNetwork4PassAllPC;
-	std::vector<unsigned int>       m_dmrNetwork4PassAllTG;
+	std::vector<CTGRewriteStruct>    m_dmrNetwork4TGRewrites;
+	std::vector<CPCRewriteStruct>    m_dmrNetwork4PCRewrites;
+	std::vector<CTypeRewriteStruct>  m_dmrNetwork4TypeRewrites;
+	std::vector<CSrcRewriteStruct>   m_dmrNetwork4SrcRewrites;
+	std::vector<CTGDynRewriteStruct> m_dmrNetwork4TGDynRewrites;
+	std::vector<CIdRewriteStruct>    m_dmrNetwork4IdRewrites;
+	std::vector<unsigned int>        m_dmrNetwork4PassAllPC;
+	std::vector<unsigned int>        m_dmrNetwork4PassAllTG;
 
 	bool         m_dmrNetwork5Enabled;
 	std::string  m_dmrNetwork5Name;
@@ -326,13 +343,14 @@ private:
 	std::string  m_dmrNetwork5Options;
 	bool         m_dmrNetwork5Location;
 	bool         m_dmrNetwork5Debug;
-	std::vector<CTGRewriteStruct>   m_dmrNetwork5TGRewrites;
-	std::vector<CPCRewriteStruct>   m_dmrNetwork5PCRewrites;
-	std::vector<CTypeRewriteStruct> m_dmrNetwork5TypeRewrites;
-	std::vector<CSrcRewriteStruct>  m_dmrNetwork5SrcRewrites;
-	std::vector<CIdRewriteStruct>   m_dmrNetwork5IdRewrites;
-	std::vector<unsigned int>       m_dmrNetwork5PassAllPC;
-	std::vector<unsigned int>       m_dmrNetwork5PassAllTG;
+	std::vector<CTGRewriteStruct>    m_dmrNetwork5TGRewrites;
+	std::vector<CPCRewriteStruct>    m_dmrNetwork5PCRewrites;
+	std::vector<CTypeRewriteStruct>  m_dmrNetwork5TypeRewrites;
+	std::vector<CSrcRewriteStruct>   m_dmrNetwork5SrcRewrites;
+	std::vector<CTGDynRewriteStruct> m_dmrNetwork5TGDynRewrites;
+	std::vector<CIdRewriteStruct>    m_dmrNetwork5IdRewrites;
+	std::vector<unsigned int>        m_dmrNetwork5PassAllPC;
+	std::vector<unsigned int>        m_dmrNetwork5PassAllTG;
 
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include "RewritePC.h"
 #include "RewriteSrcId.h"
 #include "RewriteDstId.h"
+#include "RewriteDynTGNet.h"
+#include "RewriteDynTGRF.h"
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
@@ -71,7 +73,7 @@ static void sigHandler(int signum)
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2020 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -1333,6 +1335,17 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<CTGDynRewriteStruct> dynRewrites = m_conf.getDMRNetwork1TGDynRewrites();
+	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
+		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:TG%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discTG);
+
+		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr1Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr1Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range, netRewriteDynTG);
+
+		m_dmr1RFRewrites.push_back(rfRewriteDynTG);
+		m_dmr1NetRewrites.push_back(netRewriteDynTG);
+	}
+
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork1IdRewrites();
 	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
 		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
@@ -1469,6 +1482,17 @@ bool CDMRGateway::createDMRNetwork2()
 		CRewriteSrc* rewrite = new CRewriteSrc(m_dmr2Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
 
 		m_dmr2NetRewrites.push_back(rewrite);
+	}
+
+	std::vector<CTGDynRewriteStruct> dynRewrites = m_conf.getDMRNetwork2TGDynRewrites();
+	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
+		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:TG%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discTG);
+
+		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr2Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr2Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range, netRewriteDynTG);
+
+		m_dmr2RFRewrites.push_back(rfRewriteDynTG);
+		m_dmr2NetRewrites.push_back(netRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork2IdRewrites();
@@ -1609,6 +1633,17 @@ bool CDMRGateway::createDMRNetwork3()
 		m_dmr3NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<CTGDynRewriteStruct> dynRewrites = m_conf.getDMRNetwork3TGDynRewrites();
+	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
+		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:TG%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discTG);
+
+		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr3Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr3Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range, netRewriteDynTG);
+
+		m_dmr3RFRewrites.push_back(rfRewriteDynTG);
+		m_dmr3NetRewrites.push_back(netRewriteDynTG);
+	}
+
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork3IdRewrites();
 	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
 		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
@@ -1747,6 +1782,17 @@ bool CDMRGateway::createDMRNetwork4()
 		m_dmr4NetRewrites.push_back(rewrite);
 	}
 
+	std::vector<CTGDynRewriteStruct> dynRewrites = m_conf.getDMRNetwork4TGDynRewrites();
+	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
+		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:TG%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discTG);
+
+		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr4Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr4Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range, netRewriteDynTG);
+
+		m_dmr4RFRewrites.push_back(rfRewriteDynTG);
+		m_dmr4NetRewrites.push_back(netRewriteDynTG);
+	}
+
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork4IdRewrites();
 	for (std::vector<CIdRewriteStruct>::const_iterator it = idRewrites.begin(); it != idRewrites.end(); ++it) {
 		LogInfo("    Rewrite Id: %u <-> %u", (*it).m_rfId, (*it).m_netId);
@@ -1883,6 +1929,17 @@ bool CDMRGateway::createDMRNetwork5()
 		CRewriteSrc* rewrite = new CRewriteSrc(m_dmr5Name, (*it).m_fromSlot, (*it).m_fromId, (*it).m_toSlot, (*it).m_toTG, (*it).m_range);
 
 		m_dmr5NetRewrites.push_back(rewrite);
+	}
+
+	std::vector<CTGDynRewriteStruct> dynRewrites = m_conf.getDMRNetwork5TGDynRewrites();
+	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
+		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:TG%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discTG);
+
+		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr5Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr5Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discTG, (*it).m_range, netRewriteDynTG);
+
+		m_dmr5RFRewrites.push_back(rfRewriteDynTG);
+		m_dmr5NetRewrites.push_back(netRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork5IdRewrites();
