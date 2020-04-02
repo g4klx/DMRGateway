@@ -409,7 +409,7 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
+				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CTGDynRewriteStruct rewrite;
@@ -519,7 +519,7 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
+				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CTGDynRewriteStruct rewrite;
@@ -629,7 +629,7 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
+				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CTGDynRewriteStruct rewrite;
@@ -739,7 +739,7 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
+				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CTGDynRewriteStruct rewrite;
@@ -849,7 +849,7 @@ bool CConf::read()
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, " \r\n");
+				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
 					CTGDynRewriteStruct rewrite;
