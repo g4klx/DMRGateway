@@ -29,10 +29,10 @@
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
+#include "XLXVoice.h"
 #include "Version.h"
 #include "Thread.h"
 #include "DMRLC.h"
-#include "Voice.h"
 #include "Sync.h"
 #include "Log.h"
 #include "GitVersion.h"
@@ -409,7 +409,7 @@ int CDMRGateway::run()
 	unsigned int rfTimeout  = m_conf.getRFTimeout();
 	unsigned int netTimeout = m_conf.getNetTimeout();
 
-	CVoice* voice = NULL;
+	CXLXVoice* voice = NULL;
 	if (m_conf.getVoiceEnabled() && m_xlxNetwork != NULL) {
 		std::string language  = m_conf.getVoiceLanguage();
 		std::string directory = m_conf.getVoiceDirectory();
@@ -419,7 +419,7 @@ int CDMRGateway::run()
 		LogInfo("    Language: %s", language.c_str());
 		LogInfo("    Directory: %s", directory.c_str());
 
-		voice = new CVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
+		voice = new CXLXVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
 		bool ret = voice->open();
 		if (!ret) {
 			delete voice;

@@ -194,7 +194,7 @@
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Version.h" />
-    <ClInclude Include="Voice.h" />
+    <ClInclude Include="XLXVoice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BPTC19696.cpp" />
@@ -236,7 +236,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="Voice.cpp" />
+    <ClCompile Include="XLXVoice.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

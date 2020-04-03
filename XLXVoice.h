@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(Voice_H)
-#define	Voice_H
+#if !defined(XLXVoice_H)
+#define	XLXVoice_H
 
 #include "DMREmbeddedData.h"
 #include "StopWatch.h"
@@ -40,10 +40,10 @@ struct CPositions {
 	unsigned int m_length;
 };
 
-class CVoice {
+class CXLXVoice {
 public:
-	CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
-	~CVoice();
+	CXLXVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
+	~CXLXVoice();
 
 	bool open();
 

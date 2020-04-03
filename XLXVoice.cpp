@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 
 #include "DMRSlotType.h"
 #include "DMRFullLC.h"
+#include "XLXVoice.h"
 #include "DMREMB.h"
-#include "Voice.h"
 #include "Sync.h"
 #include "Log.h"
 
@@ -35,7 +35,7 @@ const unsigned char COLOR_CODE = 3U;
 const unsigned int SILENCE_LENGTH = 9U;
 const unsigned int AMBE_LENGTH = 9U;
 
-CVoice::CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg) :
+CXLXVoice::CXLXVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg) :
 m_indxFile(),
 m_ambeFile(),
 m_slot(slot),
@@ -63,7 +63,7 @@ m_it()
 #endif
 }
 
-CVoice::~CVoice()
+CXLXVoice::~CXLXVoice()
 {
 	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
 		delete *it;
@@ -77,7 +77,7 @@ CVoice::~CVoice()
 	delete[] m_ambe;
 }
 
-bool CVoice::open()
+bool CXLXVoice::open()
 {
 	FILE* fpindx = ::fopen(m_indxFile.c_str(), "rt");
 	if (fpindx == NULL) {
@@ -130,7 +130,7 @@ bool CVoice::open()
 	return true;
 }
 
-void CVoice::linkedTo(unsigned int number, unsigned int room)
+void CXLXVoice::linkedTo(unsigned int number, unsigned int room)
 {
 	char letters[10U];
 	::sprintf(letters, "%03u", number);
@@ -158,7 +158,7 @@ void CVoice::linkedTo(unsigned int number, unsigned int room)
 	createVoice(words);
 }
 
-void CVoice::unlinked()
+void CXLXVoice::unlinked()
 {
 	std::vector<std::string> words;
 	words.push_back("notlinked");
@@ -166,7 +166,7 @@ void CVoice::unlinked()
 	createVoice(words);
 }
 
-void CVoice::createVoice(const std::vector<std::string>& words)
+void CXLXVoice::createVoice(const std::vector<std::string>& words)
 {
 	unsigned int ambeLength = 0U;
 	for (std::vector<std::string>::const_iterator it = words.begin(); it != words.end(); ++it) {
@@ -273,7 +273,7 @@ void CVoice::createVoice(const std::vector<std::string>& words)
 	m_timer.start();
 }
 
-bool CVoice::read(CDMRData& data)
+bool CXLXVoice::read(CDMRData& data)
 {
 	if (m_status != VS_SENDING)
 		return false;
@@ -300,7 +300,7 @@ bool CVoice::read(CDMRData& data)
 	return false;
 }
 
-void CVoice::clock(unsigned int ms)
+void CXLXVoice::clock(unsigned int ms)
 {
 	m_timer.clock(ms);
 	if (m_timer.isRunning() && m_timer.hasExpired()) {
@@ -313,7 +313,7 @@ void CVoice::clock(unsigned int ms)
 	}
 }
 
-void CVoice::createHeaderTerminator(unsigned char type)
+void CXLXVoice::createHeaderTerminator(unsigned char type)
 {
 	CDMRData* data = new CDMRData;
 
