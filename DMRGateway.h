@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "DMRNetwork.h"
 #include "Reflectors.h"
 #include "RewriteTG.h"
+#include "DynVoice.h"
 #include "Rewrite.h"
 #include "Timer.h"
 #include "Conf.h"
@@ -106,11 +107,11 @@ private:
 	std::vector<CRewrite*> m_dmr5Passalls;
 
 	bool createMMDVM();
-	bool createDMRNetwork1();
-	bool createDMRNetwork2();
-	bool createDMRNetwork3();
-	bool createDMRNetwork4();
-	bool createDMRNetwork5();
+	bool createDMRNetwork1(CDynVoice* voice);
+	bool createDMRNetwork2(CDynVoice* voice);
+	bool createDMRNetwork3(CDynVoice* voice);
+	bool createDMRNetwork4(CDynVoice* voice);
+	bool createDMRNetwork5(CDynVoice* voice);
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);

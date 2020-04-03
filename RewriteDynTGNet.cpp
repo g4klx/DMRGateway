@@ -40,8 +40,8 @@ CRewriteDynTGNet::~CRewriteDynTGNet()
 
 PROCESS_RESULT CRewriteDynTGNet::process(CDMRData& data, bool trace)
 {
-	FLCO flco = data.getFLCO();
-	unsigned int dstId = data.getDstId();
+	FLCO flco           = data.getFLCO();
+	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
 	if (flco != FLCO_GROUP || slotNo != m_slot || dstId != m_currentTG) {

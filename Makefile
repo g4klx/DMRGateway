@@ -5,9 +5,9 @@ LIBS    = -lpthread
 LDFLAGS = -g
 
 OBJECTS = BPTC19696.o Conf.o CRC.o DMRCSBK.o DMRData.o DMRDataHeader.o DMREmbeddedData.o DMREMB.o DMRFullLC.o DMRGateway.o DMRLC.o DMRNetwork.o DMRSlotType.o \
-			Golay2087.o Hamming.o Log.o MMDVMNetwork.o PassAllPC.o PassAllTG.o QR1676.o Reflectors.o RepeaterProtocol.o Rewrite.o RewriteDstId.o RewriteDynTGNet.o \
-			RewriteDynTGRF.o RewritePC.o RewriteSrc.o RewriteSrcId.o RewriteTG.o RewriteType.o RS129.o SHA256.o StopWatch.o Sync.o Thread.o Timer.o UDPSocket.o \
-			Utils.o XLXVoice.o
+			DynVoice.o Golay2087.o Hamming.o Log.o MMDVMNetwork.o PassAllPC.o PassAllTG.o QR1676.o Reflectors.o RepeaterProtocol.o Rewrite.o RewriteDstId.o \
+			RewriteDynTGNet.o RewriteDynTGRF.o RewritePC.o RewriteSrc.o RewriteSrcId.o RewriteTG.o RewriteType.o RS129.o SHA256.o StopWatch.o Sync.o Thread.o \
+			Timer.o UDPSocket.o Utils.o XLXVoice.o
 
 all:	DMRGateway
 

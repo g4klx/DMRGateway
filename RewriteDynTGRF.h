@@ -19,6 +19,7 @@
 #if !defined(REWRITEDYNTGRF_H)
 #define	REWRITEDYNTGRF_H
 
+#include "DynVoice.h"
 #include "Rewrite.h"
 #include "DMRData.h"
 
@@ -28,7 +29,7 @@
 
 class CRewriteDynTGRF : public CRewrite {
 public:
-	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int range, CRewriteDynTGNet* rewriteNet);
+	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int statusTG, unsigned int range, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
 	virtual ~CRewriteDynTGRF();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
@@ -40,7 +41,9 @@ private:
 	unsigned int      m_fromTGEnd;
 	unsigned int      m_toTG;
 	unsigned int      m_discTG;
+	unsigned int      m_statusTG;
 	CRewriteDynTGNet* m_rewriteNet;
+	CDynVoice*        m_voice;
 	unsigned int      m_currentTG;
 };
 

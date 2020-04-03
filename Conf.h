@@ -57,6 +57,7 @@ struct CTGDynRewriteStruct {
 	unsigned int m_slot;
 	unsigned int m_fromTG;
 	unsigned int m_discTG;
+	unsigned int m_statusTG;
 	unsigned int m_toTG;
 	unsigned int m_range;
 };

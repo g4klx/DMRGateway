@@ -16,8 +16,8 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(XLXVoice_H)
-#define	XLXVoice_H
+#if !defined(DynVoice_H)
+#define	DynVoice_H
 
 #include "DMREmbeddedData.h"
 #include "StopWatch.h"
@@ -29,25 +29,27 @@
 #include <vector>
 #include <unordered_map>
 
-enum XLXVOICE_STATUS {
-	XLXVS_NONE,
-	XLXVS_WAITING,
-	XLXVS_SENDING
+enum DYNVOICE_STATUS {
+	DYNVS_NONE,
+	DYNVS_WAITING,
+	DYNVS_SENDING
 };
 
-struct CXLXPositions {
+struct CDynPositions {
 	unsigned int m_start;
 	unsigned int m_length;
 };
 
-class CXLXVoice {
+class CDynVoice {
 public:
-	CXLXVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
-	~CXLXVoice();
+	CDynVoice(const std::string& directory, const std::string& language, unsigned int id);
+	~CDynVoice();
+
+	void setSlotAndTG(unsigned int slot, unsigned int tg);
 
 	bool open();
 
-	void linkedTo(unsigned int number, unsigned int room);
+	void linkedTo(unsigned int number);
 	void unlinked();
 
 	bool read(CDMRData& data);
@@ -57,17 +59,18 @@ public:
 private:
 	std::string                            m_indxFile;
 	std::string                            m_ambeFile;
+	unsigned int                           m_id;
 	unsigned int                           m_slot;
 	CDMRLC                                 m_lc;
 	CDMREmbeddedData                       m_embeddedLC;
-	XLXVOICE_STATUS                        m_status;
+	DYNVOICE_STATUS                        m_status;
 	CTimer                                 m_timer;
 	CStopWatch                             m_stopWatch;
 	unsigned int                           m_seqNo;
 	unsigned int                           m_streamId;
 	unsigned int                           m_sent;
 	unsigned char*                         m_ambe;
-	std::unordered_map<std::string, CXLXPositions*> m_positions;
+	std::unordered_map<std::string, CDynPositions*> m_positions;
 	std::vector<CDMRData*>                 m_data;
 	std::vector<CDMRData*>::const_iterator m_it;
 

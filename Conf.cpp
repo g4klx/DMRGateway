@@ -410,14 +410,16 @@ bool CConf::read()
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p5 = ::strtok(NULL, ", ");
+				char* p6 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
-					rewrite.m_slot   = ::atoi(p1);
-					rewrite.m_fromTG = ::atoi(p2);
-					rewrite.m_discTG = ::atoi(p3);
-					rewrite.m_toTG   = ::atoi(p4);
-					rewrite.m_range  = ::atoi(p5);
+					rewrite.m_slot     = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_discTG   = ::atoi(p3);
+					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_toTG     = ::atoi(p5);
+					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork1TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -520,14 +522,16 @@ bool CConf::read()
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p5 = ::strtok(NULL, ", ");
+				char* p6 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
-					rewrite.m_slot = ::atoi(p1);
-					rewrite.m_fromTG = ::atoi(p2);
-					rewrite.m_discTG = ::atoi(p3);
-					rewrite.m_toTG = ::atoi(p4);
-					rewrite.m_range = ::atoi(p5);
+					rewrite.m_slot     = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_discTG   = ::atoi(p3);
+					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_toTG     = ::atoi(p5);
+					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork2TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -630,14 +634,16 @@ bool CConf::read()
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p5 = ::strtok(NULL, ", ");
+				char* p6 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
-					rewrite.m_slot = ::atoi(p1);
-					rewrite.m_fromTG = ::atoi(p2);
-					rewrite.m_discTG = ::atoi(p3);
-					rewrite.m_toTG = ::atoi(p4);
-					rewrite.m_range = ::atoi(p5);
+					rewrite.m_slot     = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_discTG   = ::atoi(p3);
+					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_toTG     = ::atoi(p5);
+					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork3TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -740,14 +746,16 @@ bool CConf::read()
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p5 = ::strtok(NULL, ", ");
+				char* p6 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
-					rewrite.m_slot = ::atoi(p1);
-					rewrite.m_fromTG = ::atoi(p2);
-					rewrite.m_discTG = ::atoi(p3);
-					rewrite.m_toTG = ::atoi(p4);
-					rewrite.m_range = ::atoi(p5);
+					rewrite.m_slot     = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_discTG   = ::atoi(p3);
+					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_toTG     = ::atoi(p5);
+					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork4TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -850,14 +858,16 @@ bool CConf::read()
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p5 = ::strtok(NULL, ", ");
+				char* p6 = ::strtok(NULL, " \r\n");
+				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
-					rewrite.m_slot = ::atoi(p1);
-					rewrite.m_fromTG = ::atoi(p2);
-					rewrite.m_discTG = ::atoi(p3);
-					rewrite.m_toTG = ::atoi(p4);
-					rewrite.m_range = ::atoi(p5);
+					rewrite.m_slot     = ::atoi(p1);
+					rewrite.m_fromTG   = ::atoi(p2);
+					rewrite.m_discTG   = ::atoi(p3);
+					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_toTG     = ::atoi(p5);
+					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork5TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {

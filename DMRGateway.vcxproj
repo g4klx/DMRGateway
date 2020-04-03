@@ -166,6 +166,7 @@
     <ClInclude Include="DMRLC.h" />
     <ClInclude Include="DMRNetwork.h" />
     <ClInclude Include="DMRSlotType.h" />
+    <ClInclude Include="DynVoice.h" />
     <ClInclude Include="Golay2087.h" />
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="DMRLC.cpp" />
     <ClCompile Include="DMRNetwork.cpp" />
     <ClCompile Include="DMRSlotType.cpp" />
+    <ClCompile Include="DynVoice.cpp" />
     <ClCompile Include="Golay2087.cpp" />
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
