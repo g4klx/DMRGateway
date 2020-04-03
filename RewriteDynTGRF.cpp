@@ -43,7 +43,7 @@ CRewriteDynTGRF::~CRewriteDynTGRF()
 {
 }
 
-bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
+PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
@@ -57,7 +57,7 @@ bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_toTG);
 
-		return true;
+		return RESULT_MATCHED;
 	}
 
 	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_discTG && m_currentTG != 0U) {
@@ -67,7 +67,7 @@ bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		m_rewriteNet->setCurrentTG(0U);
 		m_currentTG = 0U;
 
-		return true;
+		return RESULT_MATCHED;
 	}
 
 	if (flco == FLCO_GROUP && slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
@@ -81,7 +81,7 @@ bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		m_rewriteNet->setCurrentTG(dstId);
 		m_currentTG = dstId;
 
-		return true;
+		return RESULT_MATCHED;
 	}
 
 	if (trace) {
@@ -91,5 +91,5 @@ bool CRewriteDynTGRF::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u-TG%u or Dst=TG%u or Dst=TG%u: not matched", m_name.c_str(), m_slot, m_fromTGStart, m_fromTGEnd, m_toTG, m_discTG);
 	}
 
-	return false;
+	return RESULT_UNMATCHED;
 }

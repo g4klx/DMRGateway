@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ public:
 	CRewriteSrc(const std::string& name, unsigned int fromSlot, unsigned int fromId, unsigned int toSlot, unsigned int toTG, unsigned int range);
 	virtual ~CRewriteSrc();
 
-	virtual bool process(CDMRData& data, bool trace);
+	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
 private:
 	std::string  m_name;

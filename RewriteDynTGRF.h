@@ -31,7 +31,7 @@ public:
 	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int range, CRewriteDynTGNet* rewriteNet);
 	virtual ~CRewriteDynTGRF();
 
-	virtual bool process(CDMRData& data, bool trace);
+	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
 private:
 	std::string       m_name;

@@ -29,7 +29,7 @@ public:
 	CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int toTG);
 	virtual ~CRewriteDynTGNet();
 
-	virtual bool process(CDMRData& data, bool trace);
+	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
 	void setCurrentTG(unsigned int tg);
 

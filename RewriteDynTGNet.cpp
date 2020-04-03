@@ -38,7 +38,7 @@ CRewriteDynTGNet::~CRewriteDynTGNet()
 {
 }
 
-bool CRewriteDynTGNet::process(CDMRData& data, bool trace)
+PROCESS_RESULT CRewriteDynTGNet::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
@@ -48,7 +48,7 @@ bool CRewriteDynTGNet::process(CDMRData& data, bool trace)
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, m_currentTG);
 
-		return false;
+		return RESULT_UNMATCHED;
 	}
 
 	data.setDstId(m_toTG);
@@ -58,7 +58,7 @@ bool CRewriteDynTGNet::process(CDMRData& data, bool trace)
 	if (trace)
 		LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_currentTG);
 
-	return true;
+	return RESULT_MATCHED;
 }
 
 void CRewriteDynTGNet::setCurrentTG(unsigned int currentTG)

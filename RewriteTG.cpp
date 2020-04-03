@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ CRewriteTG::~CRewriteTG()
 {
 }
 
-bool CRewriteTG::process(CDMRData& data, bool trace)
+PROCESS_RESULT CRewriteTG::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
@@ -56,7 +56,7 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 				LogDebug("Rule Trace,\tRewriteTG from %s Slot=%u Dst=TG%u-TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		}
 
-		return false;
+		return RESULT_UNMATCHED;
 	}
 
 	if (m_fromSlot != m_toSlot)
@@ -81,5 +81,5 @@ bool CRewriteTG::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteTG to %s Slot=%u Dst=TG%u-TG%u", m_name.c_str(), m_toSlot, m_toTGStart, m_toTGEnd);
 	}
 
-	return true;
+	return RESULT_MATCHED;
 }

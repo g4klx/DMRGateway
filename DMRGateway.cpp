@@ -615,19 +615,19 @@ int CDMRGateway::run()
 				if (trace)
 					LogDebug("Rule Trace, RF transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO_GROUP ? "TG" : "", dstId);
 
-				bool rewritten = false;
+				PROCESS_RESULT result = RESULT_UNMATCHED;
 
 				if (m_dmrNetwork1 != NULL) {
 					// Rewrite the slot and/or TG or neither
 					for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
-						bool ret = (*it)->process(data, trace);
-						if (ret) {
-							rewritten = true;
+						PROCESS_RESULT res = (*it)->process(data, trace);
+						if (res != RESULT_UNMATCHED) {
+							result = res;
 							break;
 						}
 					}
 
-					if (rewritten) {
+					if (result == RESULT_MATCHED) {
 						if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK1) {
 							rewrite(m_dmr1SrcRewrites, data, trace);
 							m_dmrNetwork1->write(data);
@@ -638,18 +638,18 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork2 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK2) {
 								rewrite(m_dmr2SrcRewrites, data, trace);
 								m_dmrNetwork2->write(data);
@@ -661,18 +661,18 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork3 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr3RFRewrites.begin(); it != m_dmr3RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK3) {
 								rewrite(m_dmr3SrcRewrites, data, trace);
 								m_dmrNetwork3->write(data);
@@ -684,18 +684,18 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork4 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr4RFRewrites.begin(); it != m_dmr4RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK4) {
 								rewrite(m_dmr4SrcRewrites, data, trace);
 								m_dmrNetwork4->write(data);
@@ -707,18 +707,18 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork5 != NULL) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr5RFRewrites.begin(); it != m_dmr5RFRewrites.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK5) {
 								rewrite(m_dmr5SrcRewrites, data, trace);
 								m_dmrNetwork5->write(data);
@@ -730,17 +730,17 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork1 != NULL) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK1) {
 								rewrite(m_dmr1SrcRewrites, data, trace);
 								m_dmrNetwork1->write(data);
@@ -752,17 +752,17 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork2 != NULL) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK2) {
 								rewrite(m_dmr2SrcRewrites, data, trace);
 								m_dmrNetwork2->write(data);
@@ -774,17 +774,17 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork3 != NULL) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr3Passalls.begin(); it != m_dmr3Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK3) {
 								rewrite(m_dmr3SrcRewrites, data, trace);
 								m_dmrNetwork3->write(data);
@@ -796,17 +796,17 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork4 != NULL) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr4Passalls.begin(); it != m_dmr4Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK4) {
 								rewrite(m_dmr4SrcRewrites, data, trace);
 								m_dmrNetwork4->write(data);
@@ -818,17 +818,17 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten) {
+				if (result == RESULT_UNMATCHED) {
 					if (m_dmrNetwork5 != NULL) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr5Passalls.begin(); it != m_dmr5Passalls.end(); ++it) {
-							bool ret = (*it)->process(data, trace);
-							if (ret) {
-								rewritten = true;
+							PROCESS_RESULT res = (*it)->process(data, trace);
+							if (res != RESULT_UNMATCHED) {
+								result = res;
 								break;
 							}
 						}
 
-						if (rewritten) {
+						if (result == RESULT_MATCHED) {
 							if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK5) {
 								rewrite(m_dmr5SrcRewrites, data, trace);
 								m_dmrNetwork5->write(data);
@@ -840,7 +840,7 @@ int CDMRGateway::run()
 					}
 				}
 
-				if (!rewritten && trace)
+				if (result == RESULT_UNMATCHED && trace)
 					LogDebug("Rule Trace,\tnot matched so rejected");
 			}
 		}
