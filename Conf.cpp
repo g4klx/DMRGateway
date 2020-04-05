@@ -416,8 +416,8 @@ bool CConf::read()
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
-					rewrite.m_discTG   = ::atoi(p3);
-					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_discPC   = ::atoi(p3);
+					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork1TGDynRewrites.push_back(rewrite);
@@ -528,8 +528,8 @@ bool CConf::read()
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
-					rewrite.m_discTG   = ::atoi(p3);
-					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_discPC   = ::atoi(p3);
+					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork2TGDynRewrites.push_back(rewrite);
@@ -640,8 +640,8 @@ bool CConf::read()
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
-					rewrite.m_discTG   = ::atoi(p3);
-					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_discPC   = ::atoi(p3);
+					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork3TGDynRewrites.push_back(rewrite);
@@ -752,8 +752,8 @@ bool CConf::read()
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
-					rewrite.m_discTG   = ::atoi(p3);
-					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_discPC   = ::atoi(p3);
+					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork4TGDynRewrites.push_back(rewrite);
@@ -864,8 +864,8 @@ bool CConf::read()
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
-					rewrite.m_discTG   = ::atoi(p3);
-					rewrite.m_statusTG = ::atoi(p4);
+					rewrite.m_discPC   = ::atoi(p3);
+					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					m_dmrNetwork5TGDynRewrites.push_back(rewrite);

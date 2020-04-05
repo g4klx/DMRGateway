@@ -29,7 +29,7 @@
 
 class CRewriteDynTGRF : public CRewrite {
 public:
-	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discTG, unsigned int statusTG, unsigned int range, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
+	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
 	virtual ~CRewriteDynTGRF();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
@@ -40,8 +40,8 @@ private:
 	unsigned int      m_fromTGStart;
 	unsigned int      m_fromTGEnd;
 	unsigned int      m_toTG;
-	unsigned int      m_discTG;
-	unsigned int      m_statusTG;
+	unsigned int      m_discPC;
+	unsigned int      m_statusPC;
 	CRewriteDynTGNet* m_rewriteNet;
 	CDynVoice*        m_voice;
 	unsigned int      m_currentTG;
