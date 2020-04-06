@@ -72,6 +72,8 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 
 		data.setFLCO(FLCO_GROUP);
 
+		processMessage(data);
+
 		if (type == DT_TERMINATOR_WITH_LC) {
 			m_rewriteNet->setCurrentTG(0U);
 			m_currentTG = 0U;
@@ -91,6 +93,8 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		}
 
 		data.setFLCO(FLCO_GROUP);
+
+		processMessage(data);
 
 		if (type == DT_TERMINATOR_WITH_LC) {
 			m_rewriteNet->setCurrentTG(dstId);
