@@ -180,7 +180,8 @@ m_dmr1Passalls(),
 m_dmr2Passalls(),
 m_dmr3Passalls(),
 m_dmr4Passalls(),
-m_dmr5Passalls()
+m_dmr5Passalls(),
+m_dynVoices()
 {
 	m_status = new DMRGW_STATUS[3U];
 	m_status[1U] = DMRGWS_NONE;
@@ -201,10 +202,10 @@ CDMRGateway::~CDMRGateway()
 		delete *it;
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr2NetRewrites.begin(); it != m_dmr2NetRewrites.end(); ++it)
-			delete *it;
+		delete *it;
 	
 	for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it)
-			delete *it;
+		delete *it;
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr2SrcRewrites.begin(); it != m_dmr2SrcRewrites.end(); ++it)
 		delete *it;
@@ -250,6 +251,9 @@ CDMRGateway::~CDMRGateway()
 
 	for (std::vector<CRewrite*>::iterator it = m_dmr5Passalls.begin(); it != m_dmr5Passalls.end(); ++it)
 		delete *it;
+
+	for (std::vector<CDynVoice*>::iterator it = m_dynVoices.begin(); it != m_dynVoices.end(); ++it)
+		delete* it;
 
 	delete m_rptRewrite;
 	delete m_xlxRewrite;
@@ -377,8 +381,6 @@ int CDMRGateway::run()
 	}
 
 	CXLXVoice* xlxVoice = NULL;
-	CDynVoice* dynVoice = NULL;
-
 	if (m_conf.getVoiceEnabled()) {
 		std::string language = m_conf.getVoiceLanguage();
 		std::string directory = m_conf.getVoiceDirectory();
@@ -396,41 +398,34 @@ int CDMRGateway::run()
 				xlxVoice = NULL;
 			}
 		}
-
-		dynVoice = new CDynVoice(directory, language, m_repeater->getId());
-		bool ret = dynVoice->open();
-		if (!ret) {
-			delete dynVoice;
-			dynVoice = NULL;
-		}
 	}
 
 	if (m_conf.getDMRNetwork1Enabled()) {
-		ret = createDMRNetwork1(dynVoice);
+		ret = createDMRNetwork1();
 		if (!ret)
 			return 1;
 	}
 
 	if (m_conf.getDMRNetwork2Enabled()) {
-		ret = createDMRNetwork2(dynVoice);
+		ret = createDMRNetwork2();
 		if (!ret)
 			return 1;
 	}
 
 	if (m_conf.getDMRNetwork3Enabled()) {
-		ret = createDMRNetwork3(dynVoice);
+		ret = createDMRNetwork3();
 		if (!ret)
 			return 1;
 	}
 
 	if (m_conf.getDMRNetwork4Enabled()) {
-		ret = createDMRNetwork4(dynVoice);
+		ret = createDMRNetwork4();
 		if (!ret)
 			return 1;
 	}
 
 	if (m_conf.getDMRNetwork5Enabled()) {
-		ret = createDMRNetwork5(dynVoice);
+		ret = createDMRNetwork5();
 		if (!ret)
 			return 1;
 	}
@@ -1132,8 +1127,8 @@ int CDMRGateway::run()
 			}
 		}
 
-		if (dynVoice != NULL) {
-			ret = dynVoice->read(data);
+		for (std::vector<CDynVoice*>::iterator it = m_dynVoices.begin(); it != m_dynVoices.end(); ++it) {
+			ret = (*it)->read(data);
 			if (ret)
 				m_repeater->write(data);
 		}
@@ -1169,8 +1164,8 @@ int CDMRGateway::run()
 		if (xlxVoice != NULL)
 			xlxVoice->clock(ms);
 
-		if (dynVoice != NULL)
-			dynVoice->clock(ms);
+		for (std::vector<CDynVoice*>::iterator it = m_dynVoices.begin(); it != m_dynVoices.end(); ++it)
+			(*it)->clock(ms);
 
 		for (unsigned int i = 1U; i < 3U; i++) {
 			timer[i]->clock(ms);
@@ -1185,7 +1180,6 @@ int CDMRGateway::run()
 	}
 
 	delete xlxVoice;
-	delete dynVoice;
 
 	m_repeater->close();
 	delete m_repeater;
@@ -1254,7 +1248,7 @@ bool CDMRGateway::createMMDVM()
 	return true;
 }
 
-bool CDMRGateway::createDMRNetwork1(CDynVoice* voice)
+bool CDMRGateway::createDMRNetwork1()
 {
 	std::string address  = m_conf.getDMRNetwork1Address();
 	unsigned int port    = m_conf.getDMRNetwork1Port();
@@ -1363,8 +1357,23 @@ bool CDMRGateway::createDMRNetwork1(CDynVoice* voice)
 	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
 		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:%u) (status %u:%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discPC, (*it).m_slot, (*it).m_statusPC);
 
+		CDynVoice* voice = NULL;
+		if (m_conf.getVoiceEnabled()) {
+			std::string language  = m_conf.getVoiceLanguage();
+			std::string directory = m_conf.getVoiceDirectory();
+
+			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			bool ret = voice->open();
+			if (!ret) {
+				delete voice;
+				voice = NULL;
+			} else {
+				m_dynVoices.push_back(voice);
+			}
+		}
+
 		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr1Name, (*it).m_slot, (*it).m_toTG);
-		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr1Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, netRewriteDynTG, voice);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr1Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, (*it).m_exclTGs, netRewriteDynTG, voice);
 
 		m_dmr1RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr1NetRewrites.push_back(netRewriteDynTG);
@@ -1406,7 +1415,7 @@ bool CDMRGateway::createDMRNetwork1(CDynVoice* voice)
 	return true;
 }
 
-bool CDMRGateway::createDMRNetwork2(CDynVoice* voice)
+bool CDMRGateway::createDMRNetwork2()
 {
 	std::string address  = m_conf.getDMRNetwork2Address();
 	unsigned int port    = m_conf.getDMRNetwork2Port();
@@ -1515,8 +1524,23 @@ bool CDMRGateway::createDMRNetwork2(CDynVoice* voice)
 	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
 		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:%u) (status %u:%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discPC, (*it).m_slot, (*it).m_statusPC);
 
+		CDynVoice* voice = NULL;
+		if (m_conf.getVoiceEnabled()) {
+			std::string language = m_conf.getVoiceLanguage();
+			std::string directory = m_conf.getVoiceDirectory();
+
+			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			bool ret = voice->open();
+			if (!ret) {
+				delete voice;
+				voice = NULL;
+			} else {
+				m_dynVoices.push_back(voice);
+			}
+		}
+
 		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr2Name, (*it).m_slot, (*it).m_toTG);
-		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr2Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, netRewriteDynTG, voice);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr2Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, (*it).m_exclTGs, netRewriteDynTG, voice);
 
 		m_dmr2RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr2NetRewrites.push_back(netRewriteDynTG);
@@ -1558,7 +1582,7 @@ bool CDMRGateway::createDMRNetwork2(CDynVoice* voice)
 	return true;
 }
 
-bool CDMRGateway::createDMRNetwork3(CDynVoice* voice)
+bool CDMRGateway::createDMRNetwork3()
 {
 	std::string address  = m_conf.getDMRNetwork3Address();
 	unsigned int port    = m_conf.getDMRNetwork3Port();
@@ -1667,8 +1691,23 @@ bool CDMRGateway::createDMRNetwork3(CDynVoice* voice)
 	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
 		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:%u) (status %u:%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discPC, (*it).m_slot, (*it).m_statusPC);
 
+		CDynVoice* voice = NULL;
+		if (m_conf.getVoiceEnabled()) {
+			std::string language = m_conf.getVoiceLanguage();
+			std::string directory = m_conf.getVoiceDirectory();
+
+			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			bool ret = voice->open();
+			if (!ret) {
+				delete voice;
+				voice = NULL;
+			} else {
+				m_dynVoices.push_back(voice);
+			}
+		}
+
 		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr3Name, (*it).m_slot, (*it).m_toTG);
-		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr3Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, netRewriteDynTG, voice);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr3Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, (*it).m_exclTGs, netRewriteDynTG, voice);
 
 		m_dmr3RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr3NetRewrites.push_back(netRewriteDynTG);
@@ -1710,7 +1749,7 @@ bool CDMRGateway::createDMRNetwork3(CDynVoice* voice)
 	return true;
 }
 
-bool CDMRGateway::createDMRNetwork4(CDynVoice* voice)
+bool CDMRGateway::createDMRNetwork4()
 {
 	std::string address  = m_conf.getDMRNetwork4Address();
 	unsigned int port    = m_conf.getDMRNetwork4Port();
@@ -1819,8 +1858,23 @@ bool CDMRGateway::createDMRNetwork4(CDynVoice* voice)
 	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
 		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:%u) (status %u:%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discPC, (*it).m_slot, (*it).m_statusPC);
 
+		CDynVoice* voice = NULL;
+		if (m_conf.getVoiceEnabled()) {
+			std::string language = m_conf.getVoiceLanguage();
+			std::string directory = m_conf.getVoiceDirectory();
+
+			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			bool ret = voice->open();
+			if (!ret) {
+				delete voice;
+				voice = NULL;
+			} else {
+				m_dynVoices.push_back(voice);
+			}
+		}
+
 		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr4Name, (*it).m_slot, (*it).m_toTG);
-		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr4Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, netRewriteDynTG, voice);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr4Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, (*it).m_exclTGs, netRewriteDynTG, voice);
 
 		m_dmr4RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr4NetRewrites.push_back(netRewriteDynTG);
@@ -1862,7 +1916,7 @@ bool CDMRGateway::createDMRNetwork4(CDynVoice* voice)
 	return true;
 }
 
-bool CDMRGateway::createDMRNetwork5(CDynVoice* voice)
+bool CDMRGateway::createDMRNetwork5()
 {
 	std::string address  = m_conf.getDMRNetwork5Address();
 	unsigned int port    = m_conf.getDMRNetwork5Port();
@@ -1971,8 +2025,23 @@ bool CDMRGateway::createDMRNetwork5(CDynVoice* voice)
 	for (std::vector<CTGDynRewriteStruct>::const_iterator it = dynRewrites.begin(); it != dynRewrites.end(); ++it) {
 		LogInfo("    Dyn Rewrite: %u:TG%u-%u:TG%u <-> %u:TG%u (disc %u:%u) (status %u:%u)", (*it).m_slot, (*it).m_fromTG, (*it).m_slot, (*it).m_fromTG + (*it).m_range - 1U, (*it).m_slot, (*it).m_toTG, (*it).m_slot, (*it).m_discPC, (*it).m_slot, (*it).m_statusPC);
 
+		CDynVoice* voice = NULL;
+		if (m_conf.getVoiceEnabled()) {
+			std::string language = m_conf.getVoiceLanguage();
+			std::string directory = m_conf.getVoiceDirectory();
+
+			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			bool ret = voice->open();
+			if (!ret) {
+				delete voice;
+				voice = NULL;
+			} else {
+				m_dynVoices.push_back(voice);
+			}
+		}
+
 		CRewriteDynTGNet* netRewriteDynTG = new CRewriteDynTGNet(m_dmr5Name, (*it).m_slot, (*it).m_toTG);
-		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr5Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, netRewriteDynTG, voice);
+		CRewriteDynTGRF* rfRewriteDynTG = new CRewriteDynTGRF(m_dmr5Name, (*it).m_slot, (*it).m_fromTG, (*it).m_toTG, (*it).m_discPC, (*it).m_statusPC, (*it).m_range, (*it).m_exclTGs, netRewriteDynTG, voice);
 
 		m_dmr5RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr5NetRewrites.push_back(netRewriteDynTG);

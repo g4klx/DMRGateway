@@ -42,10 +42,8 @@ struct CDynPositions {
 
 class CDynVoice {
 public:
-	CDynVoice(const std::string& directory, const std::string& language, unsigned int id);
+	CDynVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
 	~CDynVoice();
-
-	void setSlotAndTG(unsigned int slot, unsigned int tg);
 
 	bool open();
 
