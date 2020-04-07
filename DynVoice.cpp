@@ -35,11 +35,11 @@ const unsigned char COLOR_CODE = 3U;
 const unsigned int SILENCE_LENGTH = 9U;
 const unsigned int AMBE_LENGTH = 9U;
 
-CDynVoice::CDynVoice(const std::string& directory, const std::string& language, unsigned int id) :
+CDynVoice::CDynVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg) :
 m_indxFile(),
 m_ambeFile(),
 m_id(id),
-m_slot(0U),
+m_slot(slot),
 m_lc(),
 m_embeddedLC(),
 m_status(DYNVS_NONE),
@@ -60,6 +60,12 @@ m_it()
 	m_indxFile = directory + "/" + language + ".indx";
 	m_ambeFile = directory + "/" + language + ".ambe";
 #endif
+
+	m_lc.setFLCO(FLCO_GROUP);
+	m_lc.setSrcId(id);
+	m_lc.setDstId(tg);
+
+	m_embeddedLC.setLC(m_lc);
 }
 
 CDynVoice::~CDynVoice()
@@ -74,17 +80,6 @@ CDynVoice::~CDynVoice()
 	m_positions.clear();
 
 	delete[] m_ambe;
-}
-
-void CDynVoice::setSlotAndTG(unsigned int slot, unsigned int tg)
-{
-	m_slot = slot;
-
-	m_lc.setFLCO(FLCO_GROUP);
-	m_lc.setSrcId(m_id);
-	m_lc.setDstId(tg);
-
-	m_embeddedLC.setLC(m_lc);
 }
 
 bool CDynVoice::open()
