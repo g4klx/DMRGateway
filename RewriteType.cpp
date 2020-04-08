@@ -61,11 +61,10 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
 
-	if (m_fromTGStart != m_fromTGEnd) {
+	if (m_fromTGStart != m_toIdStart) {
 		unsigned int newDstId = dstId + m_toIdStart - m_fromTGStart;
 		data.setDstId(newDstId);
-	} else
-		data.setDstId(toId);
+	}
 	data.setFLCO(FLCO_USER_USER);
 
 	processMessage(data);
