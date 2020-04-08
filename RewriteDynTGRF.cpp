@@ -54,43 +54,65 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 	unsigned int slotNo = data.getSlotNo();
 	unsigned char type  = data.getDataType();
 
-	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_toTG && m_currentTG != 0U) {
-		data.setDstId(m_currentTG);
-
-		processMessage(data);
-
+	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_toTG) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_toTG);
 
-		return RESULT_MATCHED;
+		if (m_currentTG != 0U) {
+			data.setDstId(m_currentTG);
+
+			processMessage(data);
+
+			return RESULT_MATCHED;
+		} else {
+			return RESULT_IGNORED;
+		}
 	}
 
-	if (flco == FLCO_GROUP && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
-		if (trace)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, dstId);
-
-		return RESULT_UNMATCHED;
-	}
-
-	if (flco == FLCO_USER_USER && slotNo == m_slot && dstId == m_discPC && m_currentTG != 0U) {
+	if (slotNo == m_slot && dstId == m_discPC) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_discPC);
 
-		data.setFLCO(FLCO_GROUP);
+		if (m_currentTG != 0U) {
+			data.setFLCO(FLCO_GROUP);
 
-		processMessage(data);
+			processMessage(data);
 
-		if (type == DT_TERMINATOR_WITH_LC) {
-			m_rewriteNet->setCurrentTG(0U);
-			m_currentTG = 0U;
-			if (m_voice != NULL)
-				m_voice->unlinked();
+			if (type == DT_TERMINATOR_WITH_LC) {
+				m_rewriteNet->setCurrentTG(0U);
+				m_currentTG = 0U;
+				if (m_voice != NULL)
+					m_voice->unlinked();
+			}
+
+			return RESULT_MATCHED;
+		} else {
+			return RESULT_IGNORED;
 		}
-
-		return RESULT_MATCHED;
 	}
 
-	if (flco == FLCO_USER_USER && slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
+	if (slotNo == m_slot && dstId == m_statusPC) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_statusPC);
+
+		if (type == DT_TERMINATOR_WITH_LC && m_voice != NULL) {
+			if (m_currentTG == 0U)
+				m_voice->unlinked();
+			else
+				m_voice->linkedTo(m_currentTG);
+		}
+
+		return RESULT_IGNORED;
+	}
+
+	if (std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, dstId);
+
+		return RESULT_IGNORED;
+	}
+
+	if (slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
 		if (trace) {
 			if (m_fromTGStart == m_fromTGEnd)
 				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_fromTGStart);
@@ -110,20 +132,6 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		}
 
 		return RESULT_MATCHED;
-	}
-
-	if (flco == FLCO_USER_USER && slotNo == m_slot && dstId == m_statusPC) {
-		if (trace)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_statusPC);
-
-		if (type == DT_TERMINATOR_WITH_LC && m_voice != NULL) {
-			if (m_currentTG == 0U)
-				m_voice->unlinked();
-			else
-				m_voice->linkedTo(m_currentTG);
-		}
-
-		return RESULT_IGNORED;
 	}
 
 	if (trace) {
