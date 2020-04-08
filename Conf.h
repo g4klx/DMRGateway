@@ -43,6 +43,7 @@ struct CTypeRewriteStruct {
 	unsigned int m_fromTG;
 	unsigned int m_toSlot;
 	unsigned int m_toId;
+	unsigned int m_range;
 };
 
 struct CSrcRewriteStruct {

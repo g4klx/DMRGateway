@@ -24,13 +24,15 @@
 #include <cstdio>
 #include <cassert>
 
-CRewriteType::CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId) :
+CRewriteType::CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId, unsigned int range) :
 CRewrite(),
 m_name(name),
 m_fromSlot(fromSlot),
-m_fromTG(fromTG),
+m_fromTGStart(fromTG),
+m_fromTGEnd(fromTG + range - 1U),
 m_toSlot(toSlot),
-m_toId(toId)
+m_toIdStart(toId),
+m_toIdEnd(toId + range - 1U)
 {
 	assert(fromSlot == 1U || fromSlot == 2U);
 	assert(toSlot == 1U || toSlot == 2U);
@@ -46,23 +48,38 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId != m_fromTG) {
-		if (trace)
-			LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTG);
-
+	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
+		if (trace) {
+			if (m_fromTGStart == m_fromTGEnd)
+				LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
+			else
+				LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
+		}
 		return RESULT_UNMATCHED;
 	}
 
 	if (m_fromSlot != m_toSlot)
 		data.setSlotNo(m_toSlot);
 
-	data.setDstId(m_toId);
+	if (m_fromTGStart != m_fromTGEnd) {
+		unsigned int newDstId = dstId + m_toIdStart - m_fromTGStart;
+		data.setDstId(newDstId);
+	} else
+		data.setDstId(toId);
 	data.setFLCO(FLCO_USER_USER);
 
 	processMessage(data);
 
-	if (trace)
-		LogDebug("Rule Trace,\tRewriteType %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_fromSlot, m_fromTG);
+	if (trace) {
+		if (m_fromTGStart == m_fromTGEnd)
+			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
+		else
+			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
+		if (m_toIdStart == m_toIdEnd)
+			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u: matched", m_name.c_str(), m_toSlot, m_toIdStart);
+		else
+			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdTGEnd);
+	}
 
 	return RESULT_MATCHED;
 }
