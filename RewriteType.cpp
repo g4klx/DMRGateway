@@ -71,13 +71,13 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 
 	if (trace) {
 		if (m_fromTGStart == m_fromTGEnd)
-			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
+			LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
 		else
-			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
+			LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		if (m_toIdStart == m_toIdEnd)
 			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u: matched", m_name.c_str(), m_toSlot, m_toIdStart);
 		else
-			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdTGEnd);
+			LogDebug("Rule Trace,\tRewriteType  to  \"\s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdEnd);
 	}
 
 	return RESULT_MATCHED;
