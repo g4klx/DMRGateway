@@ -26,7 +26,7 @@
 
 class CRewriteType : public CRewrite {
 public:
-	CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId);
+	CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId, unsigned int range);
 	virtual ~CRewriteType();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
@@ -34,9 +34,11 @@ public:
 private:
 	std::string  m_name;
 	unsigned int m_fromSlot;
-	unsigned int m_fromTG;
+	unsigned int m_fromTGStart;
+	unsigned int m_fromTGEnd;
 	unsigned int m_toSlot;
-	unsigned int m_toId;
+	unsigned int m_toIdStart;
+	unsigned int m_toIdEnd;
 };
 
 
