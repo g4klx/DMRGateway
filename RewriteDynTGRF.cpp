@@ -105,7 +105,7 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		return RESULT_IGNORED;
 	}
 
-	if (std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
+	if (slotNo == m_slot && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: not matched", m_name.c_str(), m_slot, dstId);
 
@@ -155,6 +155,12 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 		}
 		return;
 	}
+
+	if (slot == m_slot && tg == m_statusPC)
+		return;
+
+	if (slot == m_slot && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), tg) != m_exclTGs.cend())
+		return;
 
 	if (slot == m_slot && tg >= m_fromTGStart && tg <= m_fromTGEnd) {
 		if (m_currentTG != tg) {
