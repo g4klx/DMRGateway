@@ -143,3 +143,20 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 
 	return RESULT_UNMATCHED;
 }
+
+void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
+{
+	if (slot == m_slot && tg == m_discPC && m_currentTG != 0U) {
+		m_currentTG = 0U;
+		m_rewriteNet->setCurrentTG(0U);
+		if (m_voice != NULL)
+			m_voice->unlinked();
+	}
+
+	if (slot == m_slot && tg >= m_fromTGStart && tg <= m_fromTGEnd && m_currentTG != tg) {
+		m_currentTG = tg;
+		m_rewriteNet->setCurrentTG(tg);
+		if (m_voice != NULL)
+			m_voice->linkedTo(tg);
+	}
+}

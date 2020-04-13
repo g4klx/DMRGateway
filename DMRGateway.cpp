@@ -24,8 +24,6 @@
 #include "RewritePC.h"
 #include "RewriteSrcId.h"
 #include "RewriteDstId.h"
-#include "RewriteDynTGNet.h"
-#include "RewriteDynTGRF.h"
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
@@ -181,7 +179,9 @@ m_dmr2Passalls(),
 m_dmr3Passalls(),
 m_dmr4Passalls(),
 m_dmr5Passalls(),
-m_dynVoices()
+m_dynVoices(),
+m_dynRF(),
+m_socket(NULL)
 {
 	m_status = new DMRGW_STATUS[3U];
 	m_status[1U] = DMRGWS_NONE;
@@ -426,6 +426,12 @@ int CDMRGateway::run()
 
 	if (m_conf.getDMRNetwork5Enabled()) {
 		ret = createDMRNetwork5();
+		if (!ret)
+			return 1;
+	}
+
+	if (m_conf.getDynamicTGControlEnabled()) {
+		bool ret = createDynamicTGControl();
 		if (!ret)
 			return 1;
 	}
@@ -1133,6 +1139,9 @@ int CDMRGateway::run()
 				m_repeater->write(data);
 		}
 
+		if (m_socket != NULL)
+			processDynamicTGControl();
+
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
@@ -1212,6 +1221,11 @@ int CDMRGateway::run()
 	if (m_xlxNetwork != NULL) {
 		m_xlxNetwork->close();
 		delete m_xlxNetwork;
+	}
+
+	if (m_socket != NULL) {
+		m_socket->close();
+		delete m_socket;
 	}
 
 	delete timer[1U];
@@ -1377,6 +1391,7 @@ bool CDMRGateway::createDMRNetwork1()
 
 		m_dmr1RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr1NetRewrites.push_back(netRewriteDynTG);
+		m_dynRF.push_back(rfRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork1IdRewrites();
@@ -1544,6 +1559,7 @@ bool CDMRGateway::createDMRNetwork2()
 
 		m_dmr2RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr2NetRewrites.push_back(netRewriteDynTG);
+		m_dynRF.push_back(rfRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork2IdRewrites();
@@ -1711,6 +1727,7 @@ bool CDMRGateway::createDMRNetwork3()
 
 		m_dmr3RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr3NetRewrites.push_back(netRewriteDynTG);
+		m_dynRF.push_back(rfRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork3IdRewrites();
@@ -1878,6 +1895,7 @@ bool CDMRGateway::createDMRNetwork4()
 
 		m_dmr4RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr4NetRewrites.push_back(netRewriteDynTG);
+		m_dynRF.push_back(rfRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork4IdRewrites();
@@ -2045,6 +2063,7 @@ bool CDMRGateway::createDMRNetwork5()
 
 		m_dmr5RFRewrites.push_back(rfRewriteDynTG);
 		m_dmr5NetRewrites.push_back(netRewriteDynTG);
+		m_dynRF.push_back(rfRewriteDynTG);
 	}
 
 	std::vector<CIdRewriteStruct> idRewrites = m_conf.getDMRNetwork5IdRewrites();
@@ -2149,6 +2168,22 @@ bool CDMRGateway::createXLXNetwork()
 
 	m_rptRewrite = new CRewriteTG("XLX", XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG, 1U);
 	m_xlxRewrite = new CRewriteTG("XLX", m_xlxSlot, m_xlxTG, XLX_SLOT, XLX_TG, 1U);
+
+	return true;
+}
+
+bool CDMRGateway::createDynamicTGControl()
+{
+	unsigned int port = m_conf.getDynamicTGControlPort();
+
+	m_socket = new CUDPSocket(port);
+
+	bool ret = m_socket->open();
+	if (!ret) {
+		delete m_socket;
+		m_socket = NULL;
+		return false;
+	}
 
 	return true;
 }
@@ -2394,4 +2429,35 @@ void CDMRGateway::processHomePosition()
 
 	if (m_dmrNetwork5 != NULL)
 		m_dmrNetwork5->writeHomePosition(buffer, length);
+}
+
+void CDMRGateway::processDynamicTGControl()
+{
+	unsigned char buffer[100U];
+	in_addr address;
+	unsigned int port;
+
+	int len = m_socket->read(buffer, 100U, address, port);
+	if (len <= 0)
+		return;
+
+	buffer[len] = '\0';
+
+	if (::memcmp(buffer + 0U, "DynTG", 5U) == 0) {
+		char* pSlot = ::strtok((char*)(buffer + 5U), ", \r\n");
+		char* pTG   = ::strtok(NULL, ", \r\n");
+
+		if (pSlot == NULL || pTG == NULL) {
+			LogWarning("Malformed dynamic TG control message");
+			return;
+		}
+
+		unsigned int slot = (unsigned int)::atoi(pSlot);
+		unsigned int tg   = (unsigned int)::atoi(pTG);
+
+		for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+			(*it)->tgChange(slot, tg);
+	} else {
+		LogWarning("Unknown dynamic TG control message: %s", buffer);
+	}
 }

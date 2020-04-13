@@ -228,6 +228,10 @@ public:
     bool         getXLXNetworkUserControl() const;
     char         getXLXNetworkModule() const;
 
+	// The Dynamic TG Control section
+	bool         getDynamicTGControlEnabled() const;
+	unsigned int getDynamicTGControlPort() const;
+
 private:
 	std::string  m_file;
 	bool         m_daemon;
@@ -370,6 +374,9 @@ private:
 	bool         m_xlxNetworkDebug;
     bool         m_xlxNetworkUserControl;
     char         m_xlxNetworkModule;
+
+	bool         m_dynamicTGControlEnabled;
+	unsigned int m_dynamicTGControlPort;
 };
 
 #endif
