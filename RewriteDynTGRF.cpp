@@ -23,9 +23,8 @@
 
 #include <cstdio>
 #include <cassert>
-#include <algorithm>
 
-CRewriteDynTGRF::CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<unsigned int>& exclTGs,  CRewriteDynTGNet* rewriteNet, CDynVoice* voice) :
+CRewriteDynTGRF::CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, CRewriteDynTGNet* rewriteNet, CDynVoice* voice) :
 CRewrite(),
 m_name(name),
 m_slot(slot),
@@ -34,13 +33,15 @@ m_fromTGEnd(fromTG + range - 1U),
 m_toTG(toTG),
 m_discPC(discPC),
 m_statusPC(statusPC),
-m_exclTGs(exclTGs),
 m_rewriteNet(rewriteNet),
 m_voice(voice),
 m_currentTG(0U)
 {
 	assert(slot == 1U || slot == 2U);
 	assert(rewriteNet != NULL);
+
+	if (voice != NULL)
+		voice->setSlotAndTG(slot, toTG);
 }
 
 CRewriteDynTGRF::~CRewriteDynTGRF()
@@ -63,13 +64,6 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_toTG);
 
 		return RESULT_MATCHED;
-	}
-
-	if (flco == FLCO_GROUP && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
-		if (trace)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, dstId);
-
-		return RESULT_UNMATCHED;
 	}
 
 	if (flco == FLCO_USER_USER && slotNo == m_slot && dstId == m_discPC && m_currentTG != 0U) {

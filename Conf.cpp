@@ -408,16 +408,12 @@ bool CConf::read()
 					m_dmrNetwork1SrcRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
-				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
-				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
-					p7.push_back(p);
+				char* p6 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
@@ -426,10 +422,6 @@ bool CConf::read()
 					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
-					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
-					}
 					m_dmrNetwork1TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -530,16 +522,12 @@ bool CConf::read()
 					m_dmrNetwork2SrcRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
-				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
-				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
-					p7.push_back(p);
+				char* p6 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
@@ -548,10 +536,6 @@ bool CConf::read()
 					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
-					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
-					}
 					m_dmrNetwork2TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -652,16 +636,12 @@ bool CConf::read()
 					m_dmrNetwork3SrcRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
-				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
-				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
-					p7.push_back(p);
+				char* p6 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
@@ -670,10 +650,6 @@ bool CConf::read()
 					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
-					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
-					}
 					m_dmrNetwork3TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -774,16 +750,12 @@ bool CConf::read()
 					m_dmrNetwork4SrcRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
-				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
-				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
-					p7.push_back(p);
+				char* p6 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
@@ -792,10 +764,6 @@ bool CConf::read()
 					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
-					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
-					}
 					m_dmrNetwork4TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
@@ -896,16 +864,12 @@ bool CConf::read()
 					m_dmrNetwork5SrcRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
-				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
 				char* p2 = ::strtok(NULL, ", ");
 				char* p3 = ::strtok(NULL, ", ");
 				char* p4 = ::strtok(NULL, ", ");
 				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
-				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
-					p7.push_back(p);
+				char* p6 = ::strtok(NULL, " \r\n");
 				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
@@ -914,10 +878,6 @@ bool CConf::read()
 					rewrite.m_statusPC = ::atoi(p4);
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
-					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
-					}
 					m_dmrNetwork5TGDynRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {

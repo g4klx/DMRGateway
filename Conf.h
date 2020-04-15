@@ -61,7 +61,6 @@ struct CTGDynRewriteStruct {
 	unsigned int m_statusPC;
 	unsigned int m_toTG;
 	unsigned int m_range;
-	std::vector<unsigned int> m_exclTGs;
 };
 
 struct CIdRewriteStruct {

@@ -105,14 +105,13 @@ private:
 	std::vector<CRewrite*> m_dmr3Passalls;
 	std::vector<CRewrite*> m_dmr4Passalls;
 	std::vector<CRewrite*> m_dmr5Passalls;
-	std::vector<CDynVoice*> m_dynVoices;
 
 	bool createMMDVM();
-	bool createDMRNetwork1();
-	bool createDMRNetwork2();
-	bool createDMRNetwork3();
-	bool createDMRNetwork4();
-	bool createDMRNetwork5();
+	bool createDMRNetwork1(CDynVoice* voice);
+	bool createDMRNetwork2(CDynVoice* voice);
+	bool createDMRNetwork3(CDynVoice* voice);
+	bool createDMRNetwork4(CDynVoice* voice);
+	bool createDMRNetwork5(CDynVoice* voice);
 	bool createXLXNetwork();
 
 	bool linkXLX(unsigned int number);
