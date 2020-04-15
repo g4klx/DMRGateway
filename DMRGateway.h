@@ -20,12 +20,9 @@
 #define	DMRGateway_H
 
 #include "RepeaterProtocol.h"
-#include "RewriteDynTGNet.h"
-#include "RewriteDynTGRF.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
 #include "Reflectors.h"
-#include "UDPSocket.h"
 #include "RewriteTG.h"
 #include "DynVoice.h"
 #include "Rewrite.h"
@@ -109,8 +106,6 @@ private:
 	std::vector<CRewrite*> m_dmr4Passalls;
 	std::vector<CRewrite*> m_dmr5Passalls;
 	std::vector<CDynVoice*> m_dynVoices;
-	std::vector<CRewriteDynTGRF*> m_dynRF;
-	CUDPSocket*            m_socket;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
@@ -119,7 +114,6 @@ private:
 	bool createDMRNetwork4();
 	bool createDMRNetwork5();
 	bool createXLXNetwork();
-	bool createDynamicTGControl();
 
 	bool linkXLX(unsigned int number);
 	void unlinkXLX();
@@ -132,7 +126,6 @@ private:
 	void processRadioPosition();
 	void processTalkerAlias();
 	void processHomePosition();
-	void processDynamicTGControl();
 };
 
 #endif

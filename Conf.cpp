@@ -37,8 +37,7 @@ enum SECTION {
 	SECTION_DMR_NETWORK_3,
 	SECTION_DMR_NETWORK_4,
 	SECTION_DMR_NETWORK_5,
-	SECTION_XLX_NETWORK,
-	SECTION_DYNAMIC_TG_CONTROL
+	SECTION_XLX_NETWORK
 };
 
 CConf::CConf(const std::string& file) :
@@ -173,9 +172,7 @@ m_xlxNetworkStartup(4000U),
 m_xlxNetworkRelink(0U),
 m_xlxNetworkDebug(false),
 m_xlxNetworkUserControl(true),
-m_xlxNetworkModule(),
-m_dynamicTGControlEnabled(false),
-m_dynamicTGControlPort(3769U)
+m_xlxNetworkModule()
 {
 }
 
@@ -219,8 +216,6 @@ bool CConf::read()
 			section = SECTION_DMR_NETWORK_4;
 		else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
 			section = SECTION_DMR_NETWORK_5;
-		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
-			section = SECTION_DYNAMIC_TG_CONTROL;
 		else
 			section = SECTION_NONE;
 
@@ -941,11 +936,6 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork5PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
-			if (::strcmp(key, "Enabled") == 0)
-				m_dynamicTGControlEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Port") == 0)
-				m_dynamicTGControlPort = (unsigned int)::atoi(value);
 		}
 	}
 
@@ -1620,14 +1610,4 @@ std::vector<unsigned int> CConf::getDMRNetwork5PassAllPC() const
 std::vector<unsigned int> CConf::getDMRNetwork5PassAllTG() const
 {
 	return m_dmrNetwork5PassAllTG;
-}
-
-bool CConf::getDynamicTGControlEnabled() const
-{
-	return m_dynamicTGControlEnabled;
-}
-
-unsigned int CConf::getDynamicTGControlPort() const
-{
-	return m_dynamicTGControlPort;
 }

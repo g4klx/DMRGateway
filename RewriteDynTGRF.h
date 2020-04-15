@@ -35,8 +35,6 @@ public:
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
-	void tgChange(unsigned int slot, unsigned int tg);
-
 private:
 	std::string       m_name;
 	unsigned int      m_slot;
