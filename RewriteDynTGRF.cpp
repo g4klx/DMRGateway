@@ -107,9 +107,9 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 
 	if (std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
 		if (trace)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: not matched", m_name.c_str(), m_slot, dstId);
+			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, dstId);
 
-		return RESULT_UNMATCHED;
+		return RESULT_IGNORED;
 	}
 
 	if (slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
