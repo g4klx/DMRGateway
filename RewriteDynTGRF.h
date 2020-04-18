@@ -35,6 +35,8 @@ public:
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
+	void stopVoice(unsigned int slot);
+
 	void tgChange(unsigned int slot, unsigned int tg);
 
 private:

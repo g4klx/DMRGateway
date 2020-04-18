@@ -162,6 +162,17 @@ void CDynVoice::unlinked()
 	createVoice(words);
 }
 
+void CDynVoice::abort()
+{
+	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
+		delete* it;
+
+	m_data.clear();
+	m_timer.stop();
+
+	m_status = DYNVS_NONE;
+}
+
 void CDynVoice::createVoice(const std::vector<std::string>& words)
 {
 	unsigned int ambeLength = 0U;

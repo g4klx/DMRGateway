@@ -172,3 +172,9 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 		return;
 	}
 }
+
+void CRewriteDynTGRF::stopVoice(unsigned int slot)
+{
+	if (slot == m_slot && m_voice != NULL)
+		m_voice->abort();
+}

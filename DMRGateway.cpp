@@ -909,6 +909,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK1) {
+						for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+							(*it)->stopVoice(slotNo);
 						m_repeater->write(data);
 						m_status[slotNo] = DMRGWS_DMRNETWORK1;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -957,6 +959,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK2) {
+						for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+							(*it)->stopVoice(slotNo);
 						m_repeater->write(data);
 						m_status[slotNo] = DMRGWS_DMRNETWORK2;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -1005,6 +1009,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK3) {
+						for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+							(*it)->stopVoice(slotNo);
 						m_repeater->write(data);
 						m_status[slotNo] = DMRGWS_DMRNETWORK3;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -1053,6 +1059,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK4) {
+						for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+							(*it)->stopVoice(slotNo);
 						m_repeater->write(data);
 						m_status[slotNo] = DMRGWS_DMRNETWORK4;
 						timer[slotNo]->setTimeout(netTimeout);
@@ -1101,6 +1109,8 @@ int CDMRGateway::run()
 					// Check that the rewritten slot is free to use.
 					slotNo = data.getSlotNo();
 					if (m_status[slotNo] == DMRGWS_NONE || m_status[slotNo] == DMRGWS_DMRNETWORK5) {
+						for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
+							(*it)->stopVoice(slotNo);
 						m_repeater->write(data);
 						m_status[slotNo] = DMRGWS_DMRNETWORK5;
 						timer[slotNo]->setTimeout(netTimeout);

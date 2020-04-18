@@ -52,6 +52,8 @@ public:
 
 	bool read(CDMRData& data);
 
+	void abort();
+
 	void clock(unsigned int ms);
 
 private:
