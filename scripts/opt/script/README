@@ -1,0 +1,130 @@
+
+
+
+
+
+
+
+These scripts are supplied as is and work in conjuction with DMRGateway Mid April 2020 Onwards .....If you don't understand the notes ask someone who does please     
+
+Tested on rasp pi running MMDVMHost and DMRGateway Using SUDO-Reflector-TalkGroups 
+
+
+These scripts provide a means to setup via the config file default TG's for each slot on a repeater. These should be also setup as only Static TG setup via Brandmeister Selfcare, so that when 
+a slot is commanded to another dynamic TG by a user and then after use they forget to unlink. The BM Dynamic TG timer which is monitored by this script (expires 10 minutes after inactivity) 
+the slot will be returned to the configured Static default TG.
+
+Both slots can be monitored together and as they maybe taken off to other dynamics at the same time or individually it is worth getting users in the habit of sending a PC 4000 once they finish    
+using a different TG as it ensures the repeater when not in use is in the correct place for most of the time.       
+
+
+A default TG of choice which can be configured linking provided on on both slots. 
+
+
+
+Installation 
+
+Firstly DMRGateway should have the following lines minimum configuring if running both timeslots for SUDO Reflector on a repeater  
+
+
+# Dynamic rewriting of slot 2 TGs 90-999999 to TG9 to emulate reflector behaviour Private call manual dial commands  PC 2351 for SUDO REF TG 2351 PC 4000 unlink PC 5000 Status PC 9990 echo BM     
+
+
+TGDynRewrite0=1,90,4000,5000,9,999910,9990
+TGDynRewrite1=2,90,4000,5000,9,999910,9990
+
+Check you also have the following section added in your DMRGateway config file its usually at the bottom
+
+[Dynamic TG Control]
+Enabled=1
+Port=3769
+
+
+copy the package DMRGateway-TGDynRewrite-relinker-2.0.tgz to the folder /   unpack with tar -xvf packagename  which should create folders /opt/script/script runtimes and /var/log/script/various working files and log       
+
+configure the config file /opt/script/script.conf   call repeater=235??? ID   with your default slots and dont forget to set these static via BM selfcare also min relink timer minrelinktimer in seconds
+
+this is the time before reconnection on a slot after someone finishes and either the slot is unlinked by the user or the dynamic times out 
+
+
+
+
+
+Add the following line to crontab on the rasp pi you dont need to do anything else just save crontab and exit
+
+17 *	* * *	root    echo -n "" > /var/log/script/checkBMAPI.log
+
+
+Add one of the following to etc/rc.local right at end just before exit 0
+
+
+/opt/script/./run-relinker.sh
+
+or
+ 
+/opt/script/./run-relinker-hotspot.sh
+
+
+
+pi-star additional step
+
+
+Also in same file etc/rc.local 
+
+look for 
+
+if [ ! -d /var/log/unattended-upgrades ]; then
+	mkdir -p /var/log/unattended-upgrades
+
+
+
+
+fi
+
+add only the below lines just below the above block 
+
+if [ ! -d /var/log/script ]; then
+	/opt/script/./start.sh
+fi
+ 
+
+reboot 
+
+
+
+you can tail the log file at the command prompt 
+
+
+tail -f /var/log/script/checkBMAPI.log
+
+
+
+
+
+
+
+
+
+Have fun
+
+73,
+
+Jon G4TSN 
+
+jon@g4tsn.com
+
+ 
+ 
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
