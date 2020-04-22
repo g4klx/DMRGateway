@@ -124,12 +124,11 @@ check_if_nothing_linked_slot2(){
 
 check_BM_API
 echo
-check_status_slot1
-check_status_slot2
-check_if_nothing_linked_slot1
-check_if_nothing_linked_slot2
-echo 
+$checkslot1
+$checkslot2
+$slot1notlinked
+$slot2notlinked
 echo
-sleep 5
-#/opt/script/./check.sh >> /var/log/script/checkBMAPI.log
+sleep $slowdown 
+/bin/bash /opt/script/relink-repeater.sh >> /var/log/script/checkBMAPI.log 2>&1
  

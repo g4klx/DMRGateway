@@ -1,11 +1,17 @@
 #!/bin/bash
 
-cp DMRG*.tgz /
+
+
+
 cd /
+rm -rf DMRGa*
+cd /opt 
+rm -rf script
+cd /var/log
+rm -rf script
 
-tar -xvf DMRG*
-
-
-
-
-
+cd /boot
+cp DMRGateway*.tgz /
+cd /
+tar -xvf DMRGateway*.tgz
+systemctl daemon-reload

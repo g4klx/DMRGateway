@@ -24,7 +24,7 @@ check_BM_API(){
 
 	#sed -n -e 's/^.*slot":2,"timeout"://p' /var/log/script/test3.txt > /var/log/script/test4.txt
 
-	sed -n -e 's/^.*slot":0,"timeout"://p' /Var/log/script/test3.txt > /var/log/script/test4.txt
+	sed -n -e 's/^.*slot":0,"timeout"://p' /var/log/script/test3.txt > /var/log/script/test4.txt
 
 	
 	sed 's/},{"repeaterid.*//' /var/log/script/test4.txt > /var/log/script/slot2.txt
@@ -124,11 +124,14 @@ check_if_nothing_linked_slot2(){
 
 check_BM_API
 echo
-#check_status_slot1
-check_status_slot2
-#check_if_nothing_linked_slot1
-check_if_nothing_linked_slot2
-echo 
+$checkslot1
+$checkslot2
+$slot1notlinked
+$slot2notlinked
+echo
+sleep $slowdown 
+/bin/bash /opt/script/relink-hotspot.sh >> /var/log/script/checkBMAPI.log 2>&1
+
 
 
 
