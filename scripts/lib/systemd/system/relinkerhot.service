@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=idle
 
-ExecStart=/bin/bash /opt/script/relink-hotspot.sh >> /var/log/script/checkBMAPI.log 2>&1
+ExecStart=/bin/bash /opt/script/relink-hotspot.sh 
 
 
 [Install]

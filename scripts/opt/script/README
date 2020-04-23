@@ -4,7 +4,7 @@ DMR SUDO Reflector - TG
 
 
 
-This is the first release version of the relinker scripts 3.1 
+This is the first release version of the relinker scripts 3.2 
 
 
 
@@ -48,7 +48,7 @@ Port=3769
 
 
 
-1.  Copy the package DMRGateway-TGDynRewrite-relinker-3.1.tgz to the folder/boot  and also the install-relinker.sh script supplied (you can do this with a card reader from windows if you like) 
+1.  Copy the package DMRGateway-TGDynRewrite-relinker-3.2.tgz to the folder/boot  and also the install-relinker.sh script supplied (you can do this with a card reader from windows if you like) 
 
 
 2.  run /boot#./install-relinker     which should create folders /opt/script/script  and /var/log/script/various working files and logfile. it also sets up services in systemd 

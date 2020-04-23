@@ -3,6 +3,13 @@
 
 source /opt/script/script.conf
 
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>/var/log/script/checkBMAPI.log 2>&1
+
+
+
+
 
 #check BM API
 
@@ -122,6 +129,9 @@ check_if_nothing_linked_slot2(){
 }
 
 
+
+while :
+do
 check_BM_API
 echo
 $checkslot1
@@ -129,6 +139,5 @@ $checkslot2
 $slot1notlinked
 $slot2notlinked
 echo
-sleep $slowdown 
-/bin/bash /opt/script/relink-repeater.sh >> /var/log/script/checkBMAPI.log 2>&1
- 
+sleep $slowdown
+done

@@ -1,1 +1,0 @@
-{"reflector":{"reflector":0,"interval":0,"active":4000},"blockedGroups":[],"staticSubscriptions":[{"talkgroup":91,"networkid":2341,"repeaterid":235192,"slot":2,"type":"tarantool"},{"talkgroup":23590,"networkid":2341,"repeaterid":235192,"slot":1,"type":"tarantool"}],"dynamicSubscriptions":[],"timedSubscriptions":[],"clusters":[]}
