@@ -432,8 +432,16 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
+						const char* exclusion = *it;
+						const char* p = NULL;
+						if ((p = ::strchr(exclusion, '-')) != NULL) {
+							unsigned int tgstart = (unsigned int)::atoi(exclusion);
+							unsigned int tgend   = (unsigned int)::atoi(p + 1U);
+							rewrite.m_exclTGs.push_back(std::make_pair(tgstart, tgend));
+						} else {
+							unsigned int tg = (unsigned int)::atoi(*it);
+							rewrite.m_exclTGs.push_back(std::make_pair(tg, tg));
+						}
 					}
 					m_dmrNetwork1TGDynRewrites.push_back(rewrite);
 				}
@@ -554,8 +562,16 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
+						const char* exclusion = *it;
+						const char* p = NULL;
+						if ((p = ::strchr(exclusion, '-')) != NULL) {
+							unsigned int tgstart = (unsigned int)::atoi(exclusion);
+							unsigned int tgend   = (unsigned int)::atoi(p + 1U);
+							rewrite.m_exclTGs.push_back(std::make_pair(tgstart, tgend));
+						} else {
+							unsigned int tg = (unsigned int)::atoi(*it);
+							rewrite.m_exclTGs.push_back(std::make_pair(tg, tg));
+						}
 					}
 					m_dmrNetwork2TGDynRewrites.push_back(rewrite);
 				}
@@ -676,8 +692,16 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
+						const char* exclusion = *it;
+						const char* p = NULL;
+						if ((p = ::strchr(exclusion, '-')) != NULL) {
+							unsigned int tgstart = (unsigned int)::atoi(exclusion);
+							unsigned int tgend   = (unsigned int)::atoi(p + 1U);
+							rewrite.m_exclTGs.push_back(std::make_pair(tgstart, tgend));
+						} else {
+							unsigned int tg = (unsigned int)::atoi(*it);
+							rewrite.m_exclTGs.push_back(std::make_pair(tg, tg));
+						}
 					}
 					m_dmrNetwork3TGDynRewrites.push_back(rewrite);
 				}
@@ -798,8 +822,16 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
+						const char* exclusion = *it;
+						const char* p = NULL;
+						if ((p = ::strchr(exclusion, '-')) != NULL) {
+							unsigned int tgstart = (unsigned int)::atoi(exclusion);
+							unsigned int tgend   = (unsigned int)::atoi(p + 1U);
+							rewrite.m_exclTGs.push_back(std::make_pair(tgstart, tgend));
+						} else {
+							unsigned int tg = (unsigned int)::atoi(*it);
+							rewrite.m_exclTGs.push_back(std::make_pair(tg, tg));
+						}
 					}
 					m_dmrNetwork4TGDynRewrites.push_back(rewrite);
 				}
@@ -920,8 +952,16 @@ bool CConf::read()
 					rewrite.m_toTG     = ::atoi(p5);
 					rewrite.m_range    = ::atoi(p6);
 					for (std::vector<char*>::const_iterator it = p7.cbegin(); it != p7.cend(); ++it) {
-						unsigned int tg = ::atoi(*it);
-						rewrite.m_exclTGs.push_back(tg);
+						const char* exclusion = *it;
+						const char* p = NULL;
+						if ((p = ::strchr(exclusion, '-')) != NULL) {
+							unsigned int tgstart = (unsigned int)::atoi(exclusion);
+							unsigned int tgend   = (unsigned int)::atoi(p + 1U);
+							rewrite.m_exclTGs.push_back(std::make_pair(tgstart, tgend));
+						} else {
+							unsigned int tg = (unsigned int)::atoi(*it);
+							rewrite.m_exclTGs.push_back(std::make_pair(tg, tg));
+						}
 					}
 					m_dmrNetwork5TGDynRewrites.push_back(rewrite);
 				}

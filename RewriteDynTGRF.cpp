@@ -25,7 +25,7 @@
 #include <cassert>
 #include <algorithm>
 
-CRewriteDynTGRF::CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<unsigned int>& exclTGs,  CRewriteDynTGNet* rewriteNet, CDynVoice* voice) :
+CRewriteDynTGRF::CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<std::pair<unsigned int, unsigned int>>& exclTGs,  CRewriteDynTGNet* rewriteNet, CDynVoice* voice) :
 CRewrite(),
 m_name(name),
 m_slot(slot),
@@ -105,11 +105,15 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		return RESULT_IGNORED;
 	}
 
-	if (slotNo == m_slot && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
-		if (trace)
-			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: not matched", m_name.c_str(), m_slot, dstId);
+	if (slotNo == m_slot) {
+		for (std::vector<std::pair<unsigned int, unsigned int>>::const_iterator it = m_exclTGs.cbegin(); it != m_exclTGs.cend(); ++it) {
+			if (dstId >= (*it).first && dstId <= (*it).second) {
+				if (trace)
+					LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: not matched", m_name.c_str(), m_slot, dstId);
 
-		return RESULT_UNMATCHED;
+				return RESULT_UNMATCHED;
+			}
+		}
 	}
 
 	if (slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
@@ -159,8 +163,12 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 	if (slot == m_slot && tg == m_statusPC)
 		return;
 
-	if (slot == m_slot && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), tg) != m_exclTGs.cend())
-		return;
+	if (slot == m_slot) {
+		for (std::vector<std::pair<unsigned int, unsigned int>>::const_iterator it = m_exclTGs.cbegin(); it != m_exclTGs.cend(); ++it) {
+			if (tg >= (*it).first && tg <= (*it).second)
+				return;
+		}
+	}
 
 	if (slot == m_slot && tg >= m_fromTGStart && tg <= m_fromTGEnd) {
 		if (m_currentTG != tg) {

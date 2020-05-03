@@ -34,10 +34,10 @@ public:
 	void setCurrentTG(unsigned int tg);
 
 private:
-	std::string       m_name;
-	unsigned int      m_slot;
-	unsigned int      m_toTG;
-	unsigned int      m_currentTG;
+	std::string  m_name;
+	unsigned int m_slot;
+	unsigned int m_toTG;
+	unsigned int m_currentTG;
 };
 
 #endif

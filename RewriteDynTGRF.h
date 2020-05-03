@@ -30,7 +30,7 @@
 
 class CRewriteDynTGRF : public CRewrite {
 public:
-	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<unsigned int>& exclTGs, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
+	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<std::pair<unsigned int, unsigned int>>& exclTGs, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
 	virtual ~CRewriteDynTGRF();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
@@ -47,7 +47,7 @@ private:
 	unsigned int      m_toTG;
 	unsigned int      m_discPC;
 	unsigned int      m_statusPC;
-	std::vector<unsigned int> m_exclTGs;
+	std::vector<std::pair<unsigned int, unsigned int>> m_exclTGs;
 	CRewriteDynTGNet* m_rewriteNet;
 	CDynVoice*        m_voice;
 	unsigned int      m_currentTG;
