@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ CRewriteSrcId::~CRewriteSrcId()
 {
 }
 
-bool CRewriteSrcId::process(CDMRData& data, bool trace)
+PROCESS_RESULT CRewriteSrcId::process(CDMRData& data, bool trace)
 {
 	unsigned int srcId = data.getSrcId();
 
@@ -43,7 +43,7 @@ bool CRewriteSrcId::process(CDMRData& data, bool trace)
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteSrcId from %s Src=%u: not matched", m_name.c_str(), m_fromId);
 
-		return false;
+		return RESULT_UNMATCHED;
 	}
 
 	data.setSrcId(m_toId);
@@ -55,5 +55,5 @@ bool CRewriteSrcId::process(CDMRData& data, bool trace)
 		LogDebug("Rule Trace,\tRewriteSrcId to %s Src=%u", m_name.c_str(), m_toId);
 	}
 
-	return true;
+	return RESULT_MATCHED;
 }

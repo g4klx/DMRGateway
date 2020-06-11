@@ -16,7 +16,7 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "PassAllPC.h"
+#include "RewriteDynTGNet.h"
 
 #include "DMRDefines.h"
 #include "Log.h"
@@ -24,27 +24,44 @@
 #include <cstdio>
 #include <cassert>
 
-CPassAllPC::CPassAllPC(const std::string& name, unsigned int slot) :
+CRewriteDynTGNet::CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int toTG) :
 CRewrite(),
 m_name(name),
-m_slot(slot)
+m_slot(slot),
+m_toTG(toTG),
+m_currentTG(0U)
 {
 	assert(slot == 1U || slot == 2U);
 }
 
-CPassAllPC::~CPassAllPC()
+CRewriteDynTGNet::~CRewriteDynTGNet()
 {
 }
 
-PROCESS_RESULT CPassAllPC::process(CDMRData& data, bool trace)
+PROCESS_RESULT CRewriteDynTGNet::process(CDMRData& data, bool trace)
 {
-	FLCO flco = data.getFLCO();
+	FLCO flco           = data.getFLCO();
+	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	bool ret = (flco == FLCO_USER_USER && slotNo == m_slot);
+	if (flco != FLCO_GROUP || slotNo != m_slot || dstId != m_currentTG) {
+		if (trace)
+			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, m_currentTG);
+
+		return RESULT_UNMATCHED;
+	}
+
+	data.setDstId(m_toTG);
+
+	processMessage(data);
 
 	if (trace)
-		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name.c_str(), m_slot, ret ? "matched" : "not matched");
+		LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_currentTG);
 
-	return ret ? RESULT_MATCHED : RESULT_UNMATCHED;
+	return RESULT_MATCHED;
+}
+
+void CRewriteDynTGNet::setCurrentTG(unsigned int currentTG)
+{
+	m_currentTG = currentTG;
 }

@@ -95,9 +95,6 @@
     <ClInclude Include="QR1676.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Voice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RewriteTG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -132,6 +129,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Reflectors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RewriteDynTGNet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RewriteDynTGRF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XLXVoice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -211,9 +220,6 @@
     <ClCompile Include="QR1676.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Voice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RewriteTG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -248,6 +254,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Reflectors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RewriteDynTGNet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RewriteDynTGRF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XLXVoice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DynVoice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

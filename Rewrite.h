@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -23,12 +23,18 @@
 #include "DMRData.h"
 #include "DMRLC.h"
 
+enum PROCESS_RESULT {
+	RESULT_UNMATCHED,
+	RESULT_MATCHED,
+	RESULT_IGNORED
+};
+
 class CRewrite {
 public:
 	CRewrite();
 	virtual ~CRewrite();
 
-	virtual bool process(CDMRData& data, bool trace) = 0;
+	virtual PROCESS_RESULT process(CDMRData& data, bool trace) = 0;
 
 protected:
 	void processMessage(CDMRData& data);

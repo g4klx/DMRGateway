@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(Voice_H)
-#define	Voice_H
+#if !defined(XLXVoice_H)
+#define	XLXVoice_H
 
 #include "DMREmbeddedData.h"
 #include "StopWatch.h"
@@ -29,21 +29,21 @@
 #include <vector>
 #include <unordered_map>
 
-enum VOICE_STATUS {
-	VS_NONE,
-	VS_WAITING,
-	VS_SENDING
+enum XLXVOICE_STATUS {
+	XLXVS_NONE,
+	XLXVS_WAITING,
+	XLXVS_SENDING
 };
 
-struct CPositions {
+struct CXLXPositions {
 	unsigned int m_start;
 	unsigned int m_length;
 };
 
-class CVoice {
+class CXLXVoice {
 public:
-	CVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
-	~CVoice();
+	CXLXVoice(const std::string& directory, const std::string& language, unsigned int id, unsigned int slot, unsigned int tg);
+	~CXLXVoice();
 
 	bool open();
 
@@ -60,14 +60,14 @@ private:
 	unsigned int                           m_slot;
 	CDMRLC                                 m_lc;
 	CDMREmbeddedData                       m_embeddedLC;
-	VOICE_STATUS                           m_status;
+	XLXVOICE_STATUS                        m_status;
 	CTimer                                 m_timer;
 	CStopWatch                             m_stopWatch;
 	unsigned int                           m_seqNo;
 	unsigned int                           m_streamId;
 	unsigned int                           m_sent;
 	unsigned char*                         m_ambe;
-	std::unordered_map<std::string, CPositions*> m_positions;
+	std::unordered_map<std::string, CXLXPositions*> m_positions;
 	std::vector<CDMRData*>                 m_data;
 	std::vector<CDMRData*>::const_iterator m_it;
 
