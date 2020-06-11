@@ -42,6 +42,7 @@ public:
 	~CUDPSocket();
 
 	bool open();
+	bool open(const unsigned int af);
 
 	int  read(unsigned char* buffer, unsigned int length, sockaddr_storage& address, unsigned int &address_length);
 	bool write(const unsigned char* buffer, unsigned int length, const sockaddr_storage& address, unsigned int address_length);
@@ -49,6 +50,9 @@ public:
 	void close();
 
 	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage &address, unsigned int &address_length);
+	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage &address, unsigned int &address_length, struct addrinfo &hints);
+	static bool match(const sockaddr_storage &addr1, const sockaddr_storage &addr2);
+	static bool isnone(const sockaddr_storage &addr);
 
 private:
 	std::string    m_address;
