@@ -1,0 +1,14 @@
+[Unit]
+Description=relinker service
+After=multi-user.target
+
+[Service]
+Type=idle
+
+ExecStart=/bin/bash /opt/script/relink-repeater.sh
+
+
+
+
+[Install]
+WantedBy=multi-user.target

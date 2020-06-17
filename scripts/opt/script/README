@@ -1,0 +1,213 @@
+DMR SUDO Reflector - TG  
+
+
+
+
+
+This is the first release version of the relinker scripts 3.2 
+
+
+
+
+
+
+These scripts are supplied as is and work in conjuction with DMRGateway Mid April 2020 Onwards .....If you don't understand the notes ask someone who does please     
+
+Tested on rasp pi running MMDVMHost and DMRGateway Using SUDO-Reflector-TalkGroups 
+
+
+These scripts provide a means to setup via the config file default TG's for each slot on a repeater. These should be also setup as only Static TG setup via Brandmeister Selfcare, so that when 
+a slot is commanded to another dynamic TG by a user and then after use they forget to unlink. The BM Dynamic TG timer which is monitored by this script (expires 10 minutes after inactivity) 
+the slot will be returned to the configured Static default TG.
+
+Both slots can be monitored together and as they maybe taken off to other dynamics at the same time or individually it is worth getting users in the habit of sending a PC 4000 once they finish    
+using a different TG as it ensures the repeater when not in use is in the correct place for most of the time.       
+
+
+A default TG of choice which can be configured linking provided on on both slots. 
+
+
+
+Installation 
+
+Firstly DMRGateway should have the following lines minimum configuring if running both timeslots for SUDO Reflector on a repeater  
+
+
+# Dynamic rewriting of slot 2 TGs 90-999999 to TG9 to emulate reflector behaviour Private call manual dial commands  PC 2351 for SUDO REF TG 2351 PC 4000 unlink PC 5000 Status PC 9990 echo BM     
+
+
+TGDynRewrite0=1,90,4000,5000,9,999910,9990
+TGDynRewrite1=2,90,4000,5000,9,999910,9990
+
+Check you also have the following section added in your DMRGateway config file its usually at the bottom
+
+[Dynamic TG Control]
+Enabled=1
+Port=3769
+
+
+
+
+1.  Copy the package DMRGateway-TGDynRewrite-relinker-3.2.tgz to the folder/boot  and also the install-relinker.sh script supplied (you can do this with a card reader from windows if you like) 
+
+
+2.  run /boot#./install-relinker     which should create folders /opt/script/script  and /var/log/script/various working files and logfile. it also sets up services in systemd 
+
+ready to run the script required
+
+       
+
+3. Edit the config file /opt/script/script.conf repeater=235??? ID  call callsign your defaults for slot linking   
+
+also min relink timer minrelinktimer in seconds this is the time before reconnection on a slot after someone finishes RF and either the slot is unlinked by the user 
+
+or the dynamic times out i.e BM timer 
+
+it waits a further minlinktimer seconds before relinking 
+
+slowdown=10   This is higher for faster rasp pi 10 for  pi 3B +  or 1  for original Pi B   
+
+checkslot1=check_status_slot1
+checkslot2=check_status_slot2
+slot1notlinked=check_if_nothing_linked_slot1  
+slot2notlinked=check_if_nothing_linked_slot2
+
+Above checks all slots default for repeater with prefered config SUDO Reflectors both slots ............if in doubt include all these lines !!!!
+
+ 
+checkslot1=
+checkslot2=check_status_slot2
+slot1notlinked=   
+slot2notlinked=check_if_nothing_linked_slot2
+
+Above checks only slot 2 typically a hotspot........ or a repeater that only has SUDO Reflectors enabled in DMRGateway on one of the slots 
+ 
+
+............if in doubt include all these lines in first example!!!!
+
+
+
+
+4. Don't forget to set these static via Brandmeister selfcare
+ 
+
+
+5. Add the following line to crontab on the rasp pi you dont need to do anything else just save crontab and exit 
+
+17 *	* * *	root    echo -n "" > /var/log/script/checkBMAPI.log
+
+
+
+
+
+
+6. Pi-star additional step
+
+
+Also in same file etc/rc.local 
+
+look for 
+
+if [ ! -d /var/log/unattended-upgrades ]; then
+	mkdir -p /var/log/unattended-upgrades
+
+
+
+
+fi
+
+add only the below lines just below the above block 
+
+if [ ! -d /var/log/script ]; then
+	/opt/script/./start.sh
+fi
+ 
+
+7. start one of the services with following command
+
+
+choose either Repeater 
+
+systemctl start relinker.service
+
+
+
+or Hotspot ?
+
+systemctl start relinkerhot.service
+
+
+systemctl status relinker.service     
+
+or 
+
+systemctl status relinkerhot.service
+
+
+will show if its running if it is running ?  
+
+
+you can tail the log file at the command prompt 
+
+
+tail -f /var/log/script/checkBMAPI.log
+
+
+once it is confirmed running and working 
+
+
+enable the service you chose to enable automatically at boot example 
+
+systemctl enable relinker.service 
+
+for repeater 
+
+or
+
+systemctl enable relinkerhot.service
+
+for hotspot
+
+
+reboot 
+
+
+once you have rebooted check all is auto starting 
+
+
+you can tail the log file at the command prompt 
+
+
+tail -f /var/log/script/checkBMAPI.log
+
+
+
+
+
+
+
+
+
+Have fun
+
+73,
+
+Jon G4TSN 
+
+jon@g4tsn.com
+
+ 
+ 
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+

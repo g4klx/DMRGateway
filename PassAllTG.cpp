@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ CPassAllTG::~CPassAllTG()
 {
 }
 
-bool CPassAllTG::process(CDMRData& data, bool trace)
+PROCESS_RESULT CPassAllTG::process(CDMRData& data, bool trace)
 {
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
@@ -46,5 +46,5 @@ bool CPassAllTG::process(CDMRData& data, bool trace)
 	if (trace)
 		LogDebug("Rule Trace,\tPassAllTG %s Slot=%u: %s", m_name.c_str(), m_slot, ret ? "matched" : "not matched");
 
-	return ret;
+	return ret ? RESULT_MATCHED : RESULT_UNMATCHED;
 }

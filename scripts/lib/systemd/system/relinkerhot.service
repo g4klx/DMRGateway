@@ -1,0 +1,12 @@
+[Unit]
+Description=relinkerhot service
+After=multi-user.target
+
+[Service]
+Type=idle
+
+ExecStart=/bin/bash /opt/script/relink-hotspot.sh 
+
+
+[Install]
+WantedBy=multi-user.target 

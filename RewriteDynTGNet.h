@@ -16,30 +16,28 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(REWRITETYPE_H)
-#define	REWRITETYPE_H
+#if !defined(REWRITEDYNTGNET_H)
+#define	REWRITEDYNTGNET_H
 
 #include "Rewrite.h"
 #include "DMRData.h"
 
 #include <string>
 
-class CRewriteType : public CRewrite {
+class CRewriteDynTGNet : public CRewrite {
 public:
-	CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId, unsigned int range);
-	virtual ~CRewriteType();
+	CRewriteDynTGNet(const std::string& name, unsigned int slot, unsigned int toTG);
+	virtual ~CRewriteDynTGNet();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
-private:
-	std::string  m_name;
-	unsigned int m_fromSlot;
-	unsigned int m_fromTGStart;
-	unsigned int m_fromTGEnd;
-	unsigned int m_toSlot;
-	unsigned int m_toIdStart;
-	unsigned int m_toIdEnd;
-};
+	void setCurrentTG(unsigned int tg);
 
+private:
+	std::string       m_name;
+	unsigned int      m_slot;
+	unsigned int      m_toTG;
+	unsigned int      m_currentTG;
+};
 
 #endif

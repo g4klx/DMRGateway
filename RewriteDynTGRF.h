@@ -16,29 +16,41 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#if !defined(REWRITETYPE_H)
-#define	REWRITETYPE_H
+#if !defined(REWRITEDYNTGRF_H)
+#define	REWRITEDYNTGRF_H
 
+#include "DynVoice.h"
 #include "Rewrite.h"
 #include "DMRData.h"
 
-#include <string>
+#include "RewriteDynTGNet.h"
 
-class CRewriteType : public CRewrite {
+#include <string>
+#include <vector>
+
+class CRewriteDynTGRF : public CRewrite {
 public:
-	CRewriteType(const std::string& name, unsigned int fromSlot, unsigned int fromTG, unsigned int toSlot, unsigned int toId, unsigned int range);
-	virtual ~CRewriteType();
+	CRewriteDynTGRF(const std::string& name, unsigned int slot, unsigned int fromTG, unsigned int toTG, unsigned int discPC, unsigned int statusPC, unsigned int range, const std::vector<unsigned int>& exclTGs, CRewriteDynTGNet* rewriteNet, CDynVoice* voice);
+	virtual ~CRewriteDynTGRF();
 
 	virtual PROCESS_RESULT process(CDMRData& data, bool trace);
 
+	void stopVoice(unsigned int slot);
+
+	void tgChange(unsigned int slot, unsigned int tg);
+
 private:
-	std::string  m_name;
-	unsigned int m_fromSlot;
-	unsigned int m_fromTGStart;
-	unsigned int m_fromTGEnd;
-	unsigned int m_toSlot;
-	unsigned int m_toIdStart;
-	unsigned int m_toIdEnd;
+	std::string       m_name;
+	unsigned int      m_slot;
+	unsigned int      m_fromTGStart;
+	unsigned int      m_fromTGEnd;
+	unsigned int      m_toTG;
+	unsigned int      m_discPC;
+	unsigned int      m_statusPC;
+	std::vector<unsigned int> m_exclTGs;
+	CRewriteDynTGNet* m_rewriteNet;
+	CDynVoice*        m_voice;
+	unsigned int      m_currentTG;
 };
 
 

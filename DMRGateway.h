@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,10 +20,14 @@
 #define	DMRGateway_H
 
 #include "RepeaterProtocol.h"
+#include "RewriteDynTGNet.h"
+#include "RewriteDynTGRF.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
 #include "Reflectors.h"
+#include "UDPSocket.h"
 #include "RewriteTG.h"
+#include "DynVoice.h"
 #include "Rewrite.h"
 #include "Timer.h"
 #include "Conf.h"
@@ -104,6 +108,9 @@ private:
 	std::vector<CRewrite*> m_dmr3Passalls;
 	std::vector<CRewrite*> m_dmr4Passalls;
 	std::vector<CRewrite*> m_dmr5Passalls;
+	std::vector<CDynVoice*> m_dynVoices;
+	std::vector<CRewriteDynTGRF*> m_dynRF;
+	CUDPSocket*            m_socket;
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
@@ -112,6 +119,7 @@ private:
 	bool createDMRNetwork4();
 	bool createDMRNetwork5();
 	bool createXLXNetwork();
+	bool createDynamicTGControl();
 
 	bool linkXLX(unsigned int number);
 	void unlinkXLX();
@@ -124,6 +132,7 @@ private:
 	void processRadioPosition();
 	void processTalkerAlias();
 	void processHomePosition();
+	void processDynamicTGControl();
 };
 
 #endif

@@ -22,32 +22,32 @@
     <ProjectGuid>{862A3182-C71A-4B01-B58D-5F0725927A56}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DMRGateway</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -166,6 +166,7 @@
     <ClInclude Include="DMRLC.h" />
     <ClInclude Include="DMRNetwork.h" />
     <ClInclude Include="DMRSlotType.h" />
+    <ClInclude Include="DynVoice.h" />
     <ClInclude Include="Golay2087.h" />
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
@@ -177,6 +178,8 @@
     <ClInclude Include="RepeaterProtocol.h" />
     <ClInclude Include="Rewrite.h" />
     <ClInclude Include="RewriteDstId.h" />
+    <ClInclude Include="RewriteDynTGNet.h" />
+    <ClInclude Include="RewriteDynTGRF.h" />
     <ClInclude Include="RewritePC.h" />
     <ClInclude Include="RewriteSrc.h" />
     <ClInclude Include="RewriteSrcId.h" />
@@ -192,7 +195,7 @@
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Version.h" />
-    <ClInclude Include="Voice.h" />
+    <ClInclude Include="XLXVoice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BPTC19696.cpp" />
@@ -208,6 +211,7 @@
     <ClCompile Include="DMRLC.cpp" />
     <ClCompile Include="DMRNetwork.cpp" />
     <ClCompile Include="DMRSlotType.cpp" />
+    <ClCompile Include="DynVoice.cpp" />
     <ClCompile Include="Golay2087.cpp" />
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
@@ -219,6 +223,8 @@
     <ClCompile Include="RepeaterProtocol.cpp" />
     <ClCompile Include="Rewrite.cpp" />
     <ClCompile Include="RewriteDstId.cpp" />
+    <ClCompile Include="RewriteDynTGNet.cpp" />
+    <ClCompile Include="RewriteDynTGRF.cpp" />
     <ClCompile Include="RewritePC.cpp" />
     <ClCompile Include="RewriteSrc.cpp" />
     <ClCompile Include="RewriteSrcId.cpp" />
@@ -232,7 +238,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="Voice.cpp" />
+    <ClCompile Include="XLXVoice.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
