@@ -100,14 +100,9 @@ public:
 	std::string  getVoiceDirectory() const;
 
 	// The Info section
-	bool         getInfoEnabled() const;
-	unsigned int getInfoRXFrequency() const;
-	unsigned int getInfoTXFrequency() const;
-	unsigned int getInfoPower() const;
 	float        getInfoLatitude() const;
 	float        getInfoLongitude() const;
 	int          getInfoHeight() const;
-	std::string  getInfoLocation() const;
 	std::string  getInfoDescription() const;
 	std::string  getInfoURL() const;
 
@@ -232,6 +227,11 @@ public:
 	bool         getDynamicTGControlEnabled() const;
 	unsigned int getDynamicTGControlPort() const;
 
+	// The GPSD section
+	bool         getGPSDEnabled() const;
+	std::string  getGPSDAddress() const;
+	std::string  getGPSDPort() const;
+
 private:
 	std::string  m_file;
 	bool         m_daemon;
@@ -253,14 +253,9 @@ private:
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
 
-	bool         m_infoEnabled;
-	unsigned int m_infoRXFrequency;
-	unsigned int m_infoTXFrequency;
-	unsigned int m_infoPower;
 	float        m_infoLatitude;
 	float        m_infoLongitude;
 	int          m_infoHeight;
-	std::string  m_infoLocation;
 	std::string  m_infoDescription;
 	std::string  m_infoURL;
 
@@ -377,6 +372,10 @@ private:
 
 	bool         m_dynamicTGControlEnabled;
 	unsigned int m_dynamicTGControlPort;
+
+	bool         m_gpsdEnabled;
+	std::string  m_gpsdAddress;
+	std::string  m_gpsdPort;
 };
 
 #endif

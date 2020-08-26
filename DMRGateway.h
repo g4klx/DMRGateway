@@ -19,7 +19,6 @@
 #if !defined(DMRGateway_H)
 #define	DMRGateway_H
 
-#include "RepeaterProtocol.h"
 #include "RewriteDynTGNet.h"
 #include "RewriteDynTGRF.h"
 #include "MMDVMNetwork.h"
@@ -31,6 +30,7 @@
 #include "Rewrite.h"
 #include "Timer.h"
 #include "Conf.h"
+#include "GPSD.h"
 
 #include <string>
 
@@ -55,7 +55,7 @@ public:
 private:
 	CConf              m_conf;
 	DMRGW_STATUS*      m_status;
-	IRepeaterProtocol* m_repeater;
+	CMMDVMNetwork*     m_repeater;
 	unsigned char*     m_config;
 	unsigned int       m_configLen;
 	CDMRNetwork*       m_dmrNetwork1;
@@ -111,6 +111,9 @@ private:
 	std::vector<CDynVoice*> m_dynVoices;
 	std::vector<CRewriteDynTGRF*> m_dynRF;
 	CUDPSocket*            m_socket;
+#if defined(USE_GPSD)
+	CGPSD*                 m_gpsd;
+#endif
 
 	bool createMMDVM();
 	bool createDMRNetwork1();
@@ -131,7 +134,6 @@ private:
 
 	void processRadioPosition();
 	void processTalkerAlias();
-	void processHomePosition();
 	void processDynamicTGControl();
 };
 

@@ -182,6 +182,9 @@ m_dmr5Passalls(),
 m_dynVoices(),
 m_dynRF(),
 m_socket(NULL)
+#if defined(USE_GPSD)
+,m_gpsd(NULL)
+#endif
 {
 	m_status = new DMRGW_STATUS[3U];
 	m_status[1U] = DMRGWS_NONE;
@@ -354,7 +357,7 @@ int CDMRGateway::run()
 	LogMessage("Waiting for MMDVM to connect.....");
 
 	while (!m_killed) {
-		m_configLen = m_repeater->getConfig(m_config);
+		m_configLen = m_repeater->getShortConfig(m_config);
 		if (m_configLen > 0U && m_repeater->getId() > 1000U)
 			break;
 
@@ -370,6 +373,26 @@ int CDMRGateway::run()
 	}
 
 	LogMessage("MMDVM has connected");
+
+#if defined(USE_GPSD)
+	bool gpsdEnabled = m_conf.getGPSDEnabled();
+	if (gpsdEnabled) {
+		std::string gpsdAddress = m_conf.getGPSDAddress();
+		std::string gpsdPort = m_conf.getGPSDPort();
+
+		LogInfo("GPSD Parameters");
+		LogInfo("    Address: %s", gpsdAddress.c_str());
+		LogInfo("    Port: %s", gpsdPort.c_str());
+
+		m_gpsd = new CGPSD(gpsdAddress, gpsdPort, m_dmrNetwork);
+
+		ret = m_gpsd->open();
+		if (!ret) {
+			delete m_gpsd;
+			m_gpsd = NULL;
+		}
+	}
+#endif
 
 	bool ruleTrace = m_conf.getRuleTrace();
 	LogInfo("Rule trace: %s", ruleTrace ? "yes" : "no");
@@ -1131,8 +1154,6 @@ int CDMRGateway::run()
 
 		processTalkerAlias();
 
-		processHomePosition();
-
 		if (xlxVoice != NULL) {
 			ret = xlxVoice->read(data);
 			if (ret) {
@@ -1183,6 +1204,11 @@ int CDMRGateway::run()
 		if (xlxVoice != NULL)
 			xlxVoice->clock(ms);
 
+#if defined(USE_GPSD)
+		if (m_gpsd != NULL)
+			m_gpsd->clock(ms);
+#endif
+
 		for (std::vector<CDynVoice*>::iterator it = m_dynVoices.begin(); it != m_dynVoices.end(); ++it)
 			(*it)->clock(ms);
 
@@ -1202,6 +1228,13 @@ int CDMRGateway::run()
 
 	m_repeater->close();
 	delete m_repeater;
+
+#if defined(USE_GPSD)
+	if (m_gpsd != NULL) {
+		m_gpsd->close();
+		delete m_gpsd;
+	}
+#endif
 
 	if (m_dmrNetwork1 != NULL) {
 		m_dmrNetwork1->close();
@@ -1297,11 +1330,9 @@ bool CDMRGateway::createDMRNetwork1()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, VERSION, debug);
+	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, VERSION, location, debug);
 
 	std::string options = m_conf.getDMRNetwork1Options();
-	if (options.empty())
-		options = m_repeater->getOptions();
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
@@ -1310,10 +1341,6 @@ bool CDMRGateway::createDMRNetwork1()
 
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr1Name, config);
-
-	if (!location)
-		::memcpy(config + 30U, "0.00000000.000000", 17U);
-
 	m_dmrNetwork1->setConfig(config, len);
 
 	bool ret = m_dmrNetwork1->open();
@@ -1322,6 +1349,11 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmrNetwork1 = NULL;
 		return false;
 	}
+
+#if defined(USE_GPSD)
+	if (location)
+		m_gpsd->addNetwork(m_dmrNetwork1);
+#endif
 
 	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork1TGRewrites();
 	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
@@ -1465,11 +1497,9 @@ bool CDMRGateway::createDMRNetwork2()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, VERSION, debug);
+	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, VERSION, location, debug);
 
 	std::string options = m_conf.getDMRNetwork2Options();
-	if (options.empty())
-		options = m_repeater->getOptions();
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
@@ -1479,9 +1509,6 @@ bool CDMRGateway::createDMRNetwork2()
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr2Name, config);
 
-	if (!location)
-		::memcpy(config + 30U, "0.00000000.000000", 17U);
-
 	m_dmrNetwork2->setConfig(config, len);
 
 	bool ret = m_dmrNetwork2->open();
@@ -1490,6 +1517,11 @@ bool CDMRGateway::createDMRNetwork2()
 		m_dmrNetwork2 = NULL;
 		return false;
 	}
+
+#if defined(USE_GPSD)
+	if (location)
+		m_gpsd->addNetwork(m_dmrNetwork2);
+#endif
 
 	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork2TGRewrites();
 	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
@@ -1633,11 +1665,9 @@ bool CDMRGateway::createDMRNetwork3()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, VERSION, debug);
+	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, VERSION, location, debug);
 
 	std::string options = m_conf.getDMRNetwork3Options();
-	if (options.empty())
-		options = m_repeater->getOptions();
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
@@ -1646,10 +1676,6 @@ bool CDMRGateway::createDMRNetwork3()
 
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr3Name, config);
-
-	if (!location)
-		::memcpy(config + 30U, "0.00000000.000000", 17U);
-
 	m_dmrNetwork3->setConfig(config, len);
 
 	bool ret = m_dmrNetwork3->open();
@@ -1658,6 +1684,11 @@ bool CDMRGateway::createDMRNetwork3()
 		m_dmrNetwork3 = NULL;
 		return false;
 	}
+
+#if defined(USE_GPSD)
+	if (location)
+		m_gpsd->addNetwork(m_dmrNetwork3);
+#endif
 
 	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork3TGRewrites();
 	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
@@ -1801,11 +1832,9 @@ bool CDMRGateway::createDMRNetwork4()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr4Name, VERSION, debug);
+	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr4Name, VERSION, location, debug);
 
 	std::string options = m_conf.getDMRNetwork4Options();
-	if (options.empty())
-		options = m_repeater->getOptions();
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
@@ -1814,10 +1843,6 @@ bool CDMRGateway::createDMRNetwork4()
 
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr4Name, config);
-
-	if (!location)
-		::memcpy(config + 30U, "0.00000000.000000", 17U);
-
 	m_dmrNetwork4->setConfig(config, len);
 
 	bool ret = m_dmrNetwork4->open();
@@ -1826,6 +1851,11 @@ bool CDMRGateway::createDMRNetwork4()
 		m_dmrNetwork4 = NULL;
 		return false;
 	}
+
+#if defined(USE_GPSD)
+	if (location)
+		m_gpsd->addNetwork(m_dmrNetwork4);
+#endif
 
 	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork4TGRewrites();
 	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
@@ -1969,11 +1999,9 @@ bool CDMRGateway::createDMRNetwork5()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork5 = new CDMRNetwork(address, port, local, id, password, m_dmr5Name, VERSION, debug);
+	m_dmrNetwork5 = new CDMRNetwork(address, port, local, id, password, m_dmr5Name, VERSION, location, debug);
 
 	std::string options = m_conf.getDMRNetwork5Options();
-	if (options.empty())
-		options = m_repeater->getOptions();
 
 	if (!options.empty()) {
 		LogInfo("    Options: %s", options.c_str());
@@ -1982,10 +2010,6 @@ bool CDMRGateway::createDMRNetwork5()
 
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr5Name, config);
-
-	if (!location)
-		::memcpy(config + 30U, "0.00000000.000000", 17U);
-
 	m_dmrNetwork5->setConfig(config, len);
 
 	bool ret = m_dmrNetwork5->open();
@@ -1994,6 +2018,11 @@ bool CDMRGateway::createDMRNetwork5()
 		m_dmrNetwork5 = NULL;
 		return false;
 	}
+
+#if defined(USE_GPSD)
+	if (location)
+		m_gpsd->addNetwork(m_dmrNetwork5);
+#endif
 
 	std::vector<CTGRewriteStruct> tgRewrites = m_conf.getDMRNetwork5TGRewrites();
 	for (std::vector<CTGRewriteStruct>::const_iterator it = tgRewrites.begin(); it != tgRewrites.end(); ++it) {
@@ -2213,7 +2242,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", VERSION, m_xlxDebug);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", VERSION, false, m_xlxDebug);
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);
@@ -2319,16 +2348,6 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 {
 	assert(buffer != NULL);
 
-	bool enabled = m_conf.getInfoEnabled();
-
-	if (!enabled) {
-		LogInfo("%s: Using original configuration message: %*s", name.c_str(), m_configLen, m_config);
-		::memcpy(buffer, m_config, m_configLen);
-		return m_configLen;
-	}
-
-	LogInfo("%s: Original configuration message: %*s", name.c_str(), m_configLen, m_config);
-
 	char latitude[20U];
 	float lat = m_conf.getInfoLatitude();
 	::sprintf(latitude, "%08f", lat);
@@ -2337,25 +2356,18 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	float lon = m_conf.getInfoLongitude();
 	::sprintf(longitude, "%09f", lon);
 
-	unsigned int power = m_conf.getInfoPower();
-	if (power > 99U)
-		power = 99U;
-
 	int height = m_conf.getInfoHeight();
 	if (height > 999)
 		height = 999;
 
-	unsigned int rxFrequency = m_conf.getInfoRXFrequency();
-	unsigned int txFrequency = m_conf.getInfoTXFrequency();
-	std::string location     = m_conf.getInfoLocation();
-	std::string description  = m_conf.getInfoDescription();
-	std::string url          = m_conf.getInfoURL();
+	std::string description = m_conf.getInfoDescription();
+	std::string url         = m_conf.getInfoURL();
 
-	::sprintf((char*)buffer, "%-8.8s%09u%09u%02u%2.2s%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%-40.40s%-40.40s", m_config + 0U,
-		rxFrequency, txFrequency, power, m_config + 28U, latitude, longitude, height, location.c_str(),
-		description.c_str(), m_config[89U], url.c_str(), m_config + 214U, m_config + 254U);
+	::sprintf((char*)buffer, "%30.30s%9.9s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%80.80s",
+		m_config + 0U, latitude, longitude, height, m_config + 30U,
+		description.c_str(), m_config[50U], url.c_str(), m_config + 51U);
 
-	LogInfo("%s: New configuration message: %s", name.c_str(), buffer);
+	LogInfo("%s: configuration message: %s", name.c_str(), buffer);
 
 	return (unsigned int)::strlen((char*)buffer);
 }
@@ -2367,9 +2379,6 @@ void CDMRGateway::processRadioPosition()
 	bool ret = m_repeater->readRadioPosition(buffer, length);
 	if (!ret)
 		return;
-
-	if (m_xlxNetwork != NULL && (m_status[1U] == DMRGWS_XLXREFLECTOR || m_status[2U] == DMRGWS_XLXREFLECTOR))
-		m_xlxNetwork->writeRadioPosition(buffer, length);
 
 	if (m_dmrNetwork1 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
 		m_dmrNetwork1->writeRadioPosition(buffer, length);
@@ -2412,33 +2421,6 @@ void CDMRGateway::processTalkerAlias()
 
 	if (m_dmrNetwork5 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
 		m_dmrNetwork5->writeTalkerAlias(buffer, length);
-}
-
-void CDMRGateway::processHomePosition()
-{
-	unsigned char buffer[50U];
-	unsigned int length;
-	bool ret = m_repeater->readHomePosition(buffer, length);
-	if (!ret)
-		return;
-
-	if (m_xlxNetwork != NULL)
-		m_xlxNetwork->writeHomePosition(buffer, length);
-
-	if (m_dmrNetwork1 != NULL)
-		m_dmrNetwork1->writeHomePosition(buffer, length);
-
-	if (m_dmrNetwork2 != NULL)
-		m_dmrNetwork2->writeHomePosition(buffer, length);
-
-	if (m_dmrNetwork3 != NULL)
-		m_dmrNetwork3->writeHomePosition(buffer, length);
-
-	if (m_dmrNetwork4 != NULL)
-		m_dmrNetwork4->writeHomePosition(buffer, length);
-
-	if (m_dmrNetwork5 != NULL)
-		m_dmrNetwork5->writeHomePosition(buffer, length);
 }
 
 void CDMRGateway::processDynamicTGControl()

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 #include "MMDVMNetwork.h"
 
 #include "StopWatch.h"
-#include "SHA256.h"
 #include "Utils.h"
 #include "Log.h"
 
@@ -40,15 +39,12 @@ m_debug(debug),
 m_socket(localAddress, localPort),
 m_buffer(NULL),
 m_rxData(1000U, "MMDVM Network"),
-m_options(),
 m_configData(NULL),
 m_configLen(0U),
 m_radioPositionData(NULL),
 m_radioPositionLen(0U),
 m_talkerAliasData(NULL),
-m_talkerAliasLen(0U),
-m_homePositionData(NULL),
-m_homePositionLen(0U)
+m_talkerAliasLen(0U)
 {
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
@@ -60,7 +56,6 @@ m_homePositionLen(0U)
 
 	m_radioPositionData = new unsigned char[50U];
 	m_talkerAliasData   = new unsigned char[50U];
-	m_homePositionData  = new unsigned char[50U];
 
 	CStopWatch stopWatch;
 	::srand(stopWatch.start());
@@ -73,15 +68,9 @@ CMMDVMNetwork::~CMMDVMNetwork()
 	delete[] m_configData;
 	delete[] m_radioPositionData;
 	delete[] m_talkerAliasData;
-	delete[] m_homePositionData;
 }
 
-std::string CMMDVMNetwork::getOptions() const
-{
-	return m_options;
-}
-
-unsigned int CMMDVMNetwork::getConfig(unsigned char* config) const
+unsigned int CMMDVMNetwork::getShortConfig(unsigned char* config) const
 {
 	if (m_configData == 0U)
 		return 0U;
@@ -248,39 +237,15 @@ bool CMMDVMNetwork::readTalkerAlias(unsigned char* data, unsigned int& length)
 	return true;
 }
 
-bool CMMDVMNetwork::readHomePosition(unsigned char* data, unsigned int& length)
-{
-	if (m_homePositionLen == 0U)
-		return false;
-
-	::memcpy(data, m_homePositionData, m_homePositionLen);
-	length = m_homePositionLen;
-
-	m_homePositionLen = 0U;
-
-	return true;
-}
-
 bool CMMDVMNetwork::writeBeacon()
 {
-	unsigned char buffer[20U];
-	::memcpy(buffer + 0U, "RPTSBKN", 7U);
-	::memcpy(buffer + 7U, m_netId, 4U);
-
-	return m_socket.write(buffer, 11U, m_rptAddress, m_rptPort);
+	return m_socket.write((unsigned char*)"DMRB", 4U, m_rptAddress, m_rptPort);
 }
 
 void CMMDVMNetwork::close()
 {
-	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
-	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);
-
 	LogMessage("MMDVM Network, Closing");
 
-	::memcpy(buffer + 0U, "MSTCL", 5U);
-	::memcpy(buffer + 5U, m_netId, 4U);
-
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
 	m_socket.close();
 }
 
@@ -289,74 +254,36 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	in_addr address;
 	unsigned int port;
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
-	if (length < 0) {
-		LogError("MMDVM Network, Socket has failed, reopening");
-		close();
-		open();
+	if (length <= 0)
+		return;
+
+	if (m_rptAddress.s_addr != address.s_addr || m_rptPort != port) {
+		LogMessage("Packet received from an invalid source, %08X != %08X and/or %u != %u", m_rptAddress.s_addr, address.s_addr, m_rptPort, port);
 		return;
 	}
 
-	// if (m_debug && length > 0)
-	//	CUtils::dump(1U, "Network Received", m_buffer, length);
+	if (m_debug)
+		CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0 && m_rptAddress.s_addr == address.s_addr && m_rptPort == port) {
-		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-			if (m_debug)
-				CUtils::dump(1U, "Network Received", m_buffer, length);
+	if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
+		unsigned char len = length;
+		m_rxData.addData(&len, 1U);
+		m_rxData.addData(m_buffer, len);
+	} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
+		::memcpy(m_radioPositionData, m_buffer, length);
+		m_radioPositionLen = length;
+	} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
+		::memcpy(m_talkerAliasData, m_buffer, length);
+		m_talkerAliasLen = length;
+	} else if (::memcmp(m_buffer, "DMRC", 4U) == 0) {
+		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 
-			unsigned char len = length;
-			m_rxData.addData(&len, 1U);
-			m_rxData.addData(m_buffer, len);
-		} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
-			::memcpy(m_radioPositionData, m_buffer, length);
-			m_radioPositionLen = length;
-		} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
-			::memcpy(m_talkerAliasData, m_buffer, length);
-			m_talkerAliasLen = length;
-		} else if (::memcmp(m_buffer, "RPTG", 4U) == 0) {
-			::memcpy(m_homePositionData, m_buffer, length);
-			m_homePositionLen = length;
-		} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
-			m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
-			::memcpy(m_netId, m_buffer + 4U, 4U);
+		m_configLen = length - 8U;
+		m_configData = new unsigned char[m_configLen];
+		::memcpy(m_configData, m_buffer + 8U, m_configLen);
 
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-
-			uint32_t salt = 1U;
-			::memcpy(ack + 6U, &salt, sizeof(uint32_t));
-
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
-		} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
-		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
-			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
-		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
-			m_configLen = length - 8U;
-			m_configData = new unsigned char[m_configLen];
-			::memcpy(m_configData, m_buffer + 8U, m_configLen);
-
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
-		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
-			m_options = std::string((char*)(m_buffer + 8U), length - 8U);
-
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddress, m_rptPort);
-		} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
-			unsigned char pong[11U];
-			::memcpy(pong + 0U, "MSTPONG", 7U);
-			::memcpy(pong + 7U, m_netId, 4U);
-			m_socket.write(pong, 11U, m_rptAddress, m_rptPort);
-		} else {
-			CUtils::dump("Unknown packet from the master", m_buffer, length);
-		}
+		m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddress, m_rptPort);
+	} else {
+		CUtils::dump("Unknown packet from the MMDVM", m_buffer, length);
 	}
 }

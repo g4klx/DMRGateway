@@ -38,7 +38,8 @@ enum SECTION {
 	SECTION_DMR_NETWORK_4,
 	SECTION_DMR_NETWORK_5,
 	SECTION_XLX_NETWORK,
-	SECTION_DYNAMIC_TG_CONTROL
+	SECTION_DYNAMIC_TG_CONTROL,
+	SECTION_GPSD,
 };
 
 CConf::CConf(const std::string& file) :
@@ -59,14 +60,9 @@ m_logDisplayLevel(0U),
 m_logFileLevel(0U),
 m_logFilePath(),
 m_logFileRoot(),
-m_infoEnabled(false),
-m_infoRXFrequency(0U),
-m_infoTXFrequency(0U),
-m_infoPower(0U),
 m_infoLatitude(0.0F),
 m_infoLongitude(0.0F),
 m_infoHeight(0),
-m_infoLocation(),
 m_infoDescription(),
 m_infoURL(),
 m_dmrNetwork1Enabled(false),
@@ -175,7 +171,10 @@ m_xlxNetworkDebug(false),
 m_xlxNetworkUserControl(true),
 m_xlxNetworkModule(),
 m_dynamicTGControlEnabled(false),
-m_dynamicTGControlPort(3769U)
+m_dynamicTGControlPort(3769U),
+m_gpsdEnabled(false),
+m_gpsdAddress(),
+m_gpsdPort()
 {
 }
 
@@ -221,6 +220,8 @@ bool CConf::read()
 			section = SECTION_DMR_NETWORK_5;
 		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
 			section = SECTION_DYNAMIC_TG_CONTROL;
+		else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
+			section = SECTION_GPSD;
 		else
 			section = SECTION_NONE;
 
@@ -280,22 +281,12 @@ bool CConf::read()
 			else if (::strcmp(key, "Directory") == 0)
 				m_voiceDirectory = value;
 		} else if (section == SECTION_INFO) {
-			if (::strcmp(key, "Enabled") == 0)
-				m_infoEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "TXFrequency") == 0)
-				m_infoTXFrequency = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "RXFrequency") == 0)
-				m_infoRXFrequency = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Power") == 0)
-				m_infoPower = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Latitude") == 0)
+			if (::strcmp(key, "Latitude") == 0)
 				m_infoLatitude = float(::atof(value));
 			else if (::strcmp(key, "Longitude") == 0)
 				m_infoLongitude = float(::atof(value));
 			else if (::strcmp(key, "Height") == 0)
 				m_infoHeight = ::atoi(value);
-			else if (::strcmp(key, "Location") == 0)
-				m_infoLocation = value;
 			else if (::strcmp(key, "Description") == 0)
 				m_infoDescription = value;
 			else if (::strcmp(key, "URL") == 0)
@@ -946,6 +937,13 @@ bool CConf::read()
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Port") == 0)
 				m_dynamicTGControlPort = (unsigned int)::atoi(value);
+		} else if (section == SECTION_GPSD) {
+			if (::strcmp(key, "Enable") == 0)
+				m_gpsdEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Address") == 0)
+				m_gpsdAddress = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_gpsdPort = value;
 		}
 	}
 
@@ -1034,26 +1032,6 @@ std::string CConf::getVoiceDirectory() const
 	return m_voiceDirectory;
 }
 
-bool CConf::getInfoEnabled() const
-{
-	return m_infoEnabled;
-}
-
-unsigned int CConf::getInfoRXFrequency() const
-{
-	return m_infoRXFrequency;
-}
-
-unsigned int CConf::getInfoTXFrequency() const
-{
-	return m_infoTXFrequency;
-}
-
-unsigned int CConf::getInfoPower() const
-{
-	return m_infoPower;
-}
-
 float CConf::getInfoLatitude() const
 {
 	return m_infoLatitude;
@@ -1067,11 +1045,6 @@ float CConf::getInfoLongitude() const
 int CConf::getInfoHeight() const
 {
 	return m_infoHeight;
-}
-
-std::string CConf::getInfoLocation() const
-{
-	return m_infoLocation;
 }
 
 std::string CConf::getInfoDescription() const
@@ -1630,4 +1603,19 @@ bool CConf::getDynamicTGControlEnabled() const
 unsigned int CConf::getDynamicTGControlPort() const
 {
 	return m_dynamicTGControlPort;
+}
+
+bool CConf::getGPSDEnabled() const
+{
+	return m_gpsdEnabled;
+}
+
+std::string CConf::getGPSDAddress() const
+{
+	return m_gpsdAddress;
+}
+
+std::string CConf::getGPSDPort() const
+{
+	return m_gpsdPort;
 }

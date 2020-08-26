@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,13 +31,14 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, const char* version, bool debug) :
+CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, const char* version, bool location, bool debug) :
 m_address(),
 m_port(port),
 m_id(NULL),
 m_password(password),
 m_name(name),
 m_version(version),
+m_location(location),
 m_debug(debug),
 m_socket(local),
 m_status(WAITING_CONNECT),
@@ -233,13 +234,16 @@ bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int len
 	if (m_status != RUNNING)
 		return false;
 
+	if (!m_location)
+		return false;
+
 	unsigned char buffer[50U];
 
 	::memcpy(buffer + 0U, "DMRG", 4U);
 
 	::memcpy(buffer + 4U, m_id, 4U);
 
-	::memcpy(buffer + 8U, data + 8U, length - 8U);
+	::memcpy(buffer + 8U, data + 4U, length - 4U);
 
 	return write(buffer, length);
 }
@@ -255,25 +259,28 @@ bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int lengt
 
 	::memcpy(buffer + 4U, m_id, 4U);
 
-	::memcpy(buffer + 8U, data + 8U, length - 8U);
+	::memcpy(buffer + 8U, data + 4U, length - 4U);
 
 	return write(buffer, length);
 }
 
-bool CDMRNetwork::writeHomePosition(const unsigned char* data, unsigned int length)
+bool CDMRNetwork::writeHomePosition(float latitude, float longitude)
 {
 	if (m_status != RUNNING)
 		return false;
 
-	unsigned char buffer[50U];
+	if (!m_location)
+		return false;
+
+	char buffer[50U];
 
 	::memcpy(buffer + 0U, "RPTG", 4U);
 
 	::memcpy(buffer + 4U, m_id, 4U);
 
-	::memcpy(buffer + 8U, data + 8U, length - 8U);
+	::sprintf(buffer + 8U, "%08f%09f", latitude, longitude);
 
-	return write(buffer, length);
+	return write((unsigned char*)buffer, 25U);
 }
 
 bool CDMRNetwork::isConnected() const
@@ -496,6 +503,9 @@ bool CDMRNetwork::writeConfig()
 
 	::memset(buffer + 222U, ' ', 40U);
 	::memcpy(buffer + 222U, software, ::strlen(software));
+
+	if (!m_location)
+		::memcpy(buffer + 30U, "0.00000000.000000", 17U);
 
 	return write((unsigned char*)buffer, m_configLen + 8U);
 }
