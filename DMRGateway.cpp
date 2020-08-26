@@ -378,13 +378,13 @@ int CDMRGateway::run()
 	bool gpsdEnabled = m_conf.getGPSDEnabled();
 	if (gpsdEnabled) {
 		std::string gpsdAddress = m_conf.getGPSDAddress();
-		std::string gpsdPort = m_conf.getGPSDPort();
+		std::string gpsdPort    = m_conf.getGPSDPort();
 
 		LogInfo("GPSD Parameters");
 		LogInfo("    Address: %s", gpsdAddress.c_str());
 		LogInfo("    Port: %s", gpsdPort.c_str());
 
-		m_gpsd = new CGPSD(gpsdAddress, gpsdPort, m_dmrNetwork);
+		m_gpsd = new CGPSD(gpsdAddress, gpsdPort);
 
 		ret = m_gpsd->open();
 		if (!ret) {
