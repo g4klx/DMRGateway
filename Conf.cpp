@@ -63,6 +63,7 @@ m_logFileRoot(),
 m_infoLatitude(0.0F),
 m_infoLongitude(0.0F),
 m_infoHeight(0),
+m_infoLocation(),
 m_infoDescription(),
 m_infoURL(),
 m_dmrNetwork1Enabled(false),
@@ -287,6 +288,8 @@ bool CConf::read()
 				m_infoLongitude = float(::atof(value));
 			else if (::strcmp(key, "Height") == 0)
 				m_infoHeight = ::atoi(value);
+			else if (::strcmp(key, "Location") == 0)
+				m_infoLocation = value;
 			else if (::strcmp(key, "Description") == 0)
 				m_infoDescription = value;
 			else if (::strcmp(key, "URL") == 0)
@@ -1045,6 +1048,11 @@ float CConf::getInfoLongitude() const
 int CConf::getInfoHeight() const
 {
 	return m_infoHeight;
+}
+
+std::string CConf::getInfoLocation() const
+{
+	return m_infoLocation;
 }
 
 std::string CConf::getInfoDescription() const

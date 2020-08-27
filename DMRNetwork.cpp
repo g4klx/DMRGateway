@@ -534,8 +534,8 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 	assert(data != NULL);
 	assert(length > 0U);
 
-	// if (m_debug)
-	//	CUtils::dump(1U, "Network Transmitted", data, length);
+	if (m_debug)
+		CUtils::dump(1U, "Network Transmitted", data, length);
 
 	bool ret = m_socket.write(data, length, m_address, m_port);
 	if (!ret) {

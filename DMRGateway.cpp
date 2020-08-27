@@ -2360,12 +2360,14 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	if (height > 999)
 		height = 999;
 
+	std::string location    = m_conf.getInfoLocation();
 	std::string description = m_conf.getInfoDescription();
 	std::string url         = m_conf.getInfoURL();
 
-	::sprintf((char*)buffer, "%30.30s%9.9s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%80.80s",
-		m_config + 0U, latitude, longitude, height, m_config + 30U,
-		description.c_str(), m_config[50U], url.c_str(), m_config + 51U);
+	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%9.9s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
+		m_config + 0U, m_config + 8U, m_config + 17U, m_config + 26U, m_config + 28U,
+		latitude, longitude, height, location.c_str(),
+		description.c_str(), m_config[30U], url.c_str(), m_config + 31U, m_config + 71U);
 
 	LogInfo("%s: configuration message: %s", name.c_str(), buffer);
 

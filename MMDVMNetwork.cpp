@@ -278,9 +278,11 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	} else if (::memcmp(m_buffer, "DMRC", 4U) == 0) {
 		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 
-		m_configLen = length - 8U;
-		m_configData = new unsigned char[m_configLen];
-		::memcpy(m_configData, m_buffer + 8U, m_configLen);
+		if (m_configData == NULL) {
+			m_configLen = length - 8U;
+			m_configData = new unsigned char[m_configLen];
+			::memcpy(m_configData, m_buffer + 8U, m_configLen);
+		}
 
 		m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddress, m_rptPort);
 	} else {
