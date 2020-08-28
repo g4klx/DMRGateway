@@ -181,7 +181,11 @@ m_dmr4Passalls(),
 m_dmr5Passalls(),
 m_dynVoices(),
 m_dynRF(),
-m_socket(NULL)
+m_socket(NULL),
+m_writer(NULL),
+m_callsign(),
+m_txFrequency(0U),
+m_rxFrequency(0U)
 #if defined(USE_GPSD)
 ,m_gpsd(NULL)
 #endif
@@ -458,6 +462,8 @@ int CDMRGateway::run()
 		if (!ret)
 			return 1;
 	}
+
+	createAPRS();
 
 	unsigned int rfTimeout  = m_conf.getRFTimeout();
 	unsigned int netTimeout = m_conf.getNetTimeout();
@@ -1209,6 +1215,9 @@ int CDMRGateway::run()
 			m_gpsd->clock(ms);
 #endif
 
+		if (m_writer != NULL)
+			m_writer->clock(ms);
+
 		for (std::vector<CDynVoice*>::iterator it = m_dynVoices.begin(); it != m_dynVoices.end(); ++it)
 			(*it)->clock(ms);
 
@@ -1235,6 +1244,11 @@ int CDMRGateway::run()
 		delete m_gpsd;
 	}
 #endif
+
+	if (m_writer != NULL) {
+		m_writer->close();
+		delete m_writer;
+	}
 
 	if (m_dmrNetwork1 != NULL) {
 		m_dmrNetwork1->close();
@@ -2367,6 +2381,20 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 		latitude, longitude, height, location.c_str(),
 		description.c_str(), m_config[30U], url.c_str(), m_config + 31U, m_config + 71U);
 
+	m_callsign = std::string((char*)m_config + 0U, 8U);
+	size_t n = m_callsign.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+	if (n != std::string::npos)
+		m_callsign.erase(n);
+
+	char frequency[10U];
+	::memset(frequency, 0x00U, 10U);
+	::memcpy(frequency, m_config + 8U, 9U);
+	m_rxFrequency = (unsigned int)::atoi(frequency);
+
+	::memset(frequency, 0x00U, 10U);
+	::memcpy(frequency, m_config + 17U, 9U);
+	m_txFrequency = (unsigned int)::atoi(frequency);
+
 	LogInfo("%s: configuration message: %s", name.c_str(), buffer);
 
 	return (unsigned int)::strlen((char*)buffer);
@@ -2421,6 +2449,41 @@ void CDMRGateway::processTalkerAlias()
 
 	if (m_dmrNetwork5 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
 		m_dmrNetwork5->writeTalkerAlias(buffer, length);
+}
+
+void CDMRGateway::createAPRS()
+{
+	if (!m_conf.getAPRSEnabled())
+		return;
+
+	std::string address = m_conf.getAPRSAddress();
+	unsigned int port   = m_conf.getAPRSPort();
+	std::string suffix  = m_conf.getAPRSSuffix();
+	bool debug          = m_conf.getDebug();
+
+	m_writer = new CAPRSWriter(m_callsign, suffix, address, port, debug);
+
+	std::string desc    = m_conf.getAPRSDescription();
+
+	m_writer->setInfo(m_txFrequency, m_rxFrequency, desc);
+
+	float latitude  = m_conf.getInfoLatitude();
+	float longitude = m_conf.getInfoLongitude();
+	int height      = m_conf.getInfoHeight();
+
+	m_writer->setLocation(latitude, longitude, height);
+
+	bool ret = m_writer->open();
+	if (!ret) {
+		delete m_writer;
+		m_writer = NULL;
+		return;
+	}
+
+#if defined(USE_GPSD)
+	if (m_gpsd != NULL)
+		m_gpsd->setAPRS(m_writer);
+#endif
 }
 
 void CDMRGateway::processDynamicTGControl()

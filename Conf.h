@@ -224,14 +224,21 @@ public:
     bool         getXLXNetworkUserControl() const;
     char         getXLXNetworkModule() const;
 
-	// The Dynamic TG Control section
-	bool         getDynamicTGControlEnabled() const;
-	unsigned int getDynamicTGControlPort() const;
-
 	// The GPSD section
 	bool         getGPSDEnabled() const;
 	std::string  getGPSDAddress() const;
 	std::string  getGPSDPort() const;
+
+	// The APRS section
+	bool         getAPRSEnabled() const;
+	std::string  getAPRSAddress() const;
+	unsigned int getAPRSPort() const;
+	std::string  getAPRSSuffix() const;
+	std::string  getAPRSDescription() const;
+
+	// The Dynamic TG Control section
+	bool         getDynamicTGControlEnabled() const;
+	unsigned int getDynamicTGControlPort() const;
 
 private:
 	std::string  m_file;
@@ -372,12 +379,18 @@ private:
     bool         m_xlxNetworkUserControl;
     char         m_xlxNetworkModule;
 
-	bool         m_dynamicTGControlEnabled;
-	unsigned int m_dynamicTGControlPort;
-
 	bool         m_gpsdEnabled;
 	std::string  m_gpsdAddress;
 	std::string  m_gpsdPort;
+
+	bool         m_aprsEnabled;
+	std::string  m_aprsAddress;
+	unsigned int m_aprsPort;
+	std::string  m_aprsSuffix;
+	std::string  m_aprsDescription;
+
+	bool         m_dynamicTGControlEnabled;
+	unsigned int m_dynamicTGControlPort;
 };
 
 #endif

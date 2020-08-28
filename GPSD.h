@@ -21,6 +21,7 @@
 
 #if defined(USE_GPSD)
 
+#include "APRSWriter.h"
 #include "DMRNetwork.h"
 #include "Timer.h"
 
@@ -36,6 +37,8 @@ public:
 
 	void addNetwork(CDMRNetwork* network);
 
+	void setAPRS(CAPRSWriter* aprs);
+
 	bool open();
 
 	void clock(unsigned int ms);
@@ -48,6 +51,7 @@ private:
 	struct gps_data_t         m_gpsdData;
 	CTimer                    m_idTimer;
 	std::vector<CDMRNetwork*> m_networks;
+	CAPRSWriter*              m_aprs;
 
 	void sendReport();
 };

@@ -38,8 +38,9 @@ enum SECTION {
 	SECTION_DMR_NETWORK_4,
 	SECTION_DMR_NETWORK_5,
 	SECTION_XLX_NETWORK,
-	SECTION_DYNAMIC_TG_CONTROL,
 	SECTION_GPSD,
+	SECTION_APRS,
+	SECTION_DYNAMIC_TG_CONTROL
 };
 
 CConf::CConf(const std::string& file) :
@@ -171,11 +172,16 @@ m_xlxNetworkRelink(0U),
 m_xlxNetworkDebug(false),
 m_xlxNetworkUserControl(true),
 m_xlxNetworkModule(),
-m_dynamicTGControlEnabled(false),
-m_dynamicTGControlPort(3769U),
 m_gpsdEnabled(false),
 m_gpsdAddress(),
-m_gpsdPort()
+m_gpsdPort(),
+m_aprsEnabled(false),
+m_aprsAddress(),
+m_aprsPort(0U),
+m_aprsSuffix(),
+m_aprsDescription(),
+m_dynamicTGControlEnabled(false),
+m_dynamicTGControlPort(3769U)
 {
 }
 
@@ -219,10 +225,12 @@ bool CConf::read()
 			section = SECTION_DMR_NETWORK_4;
 		else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
 			section = SECTION_DMR_NETWORK_5;
-		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
-			section = SECTION_DYNAMIC_TG_CONTROL;
 		else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
 			section = SECTION_GPSD;
+		else if (::strncmp(buffer, "[APRS]", 6U) == 0)
+			section = SECTION_APRS;
+		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
+			section = SECTION_DYNAMIC_TG_CONTROL;
 		else
 			section = SECTION_NONE;
 
@@ -935,11 +943,6 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork5PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
-			if (::strcmp(key, "Enabled") == 0)
-				m_dynamicTGControlEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Port") == 0)
-				m_dynamicTGControlPort = (unsigned int)::atoi(value);
 		} else if (section == SECTION_GPSD) {
 			if (::strcmp(key, "Enable") == 0)
 				m_gpsdEnabled = ::atoi(value) == 1;
@@ -947,6 +950,20 @@ bool CConf::read()
 				m_gpsdAddress = value;
 			else if (::strcmp(key, "Port") == 0)
 				m_gpsdPort = value;
+		} else if (section == SECTION_APRS) {
+			if (::strcmp(key, "Enable") == 0)
+				m_aprsEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Address") == 0)
+				m_aprsAddress = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_aprsPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Suffix") == 0)
+				m_aprsSuffix = value;
+		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
+			if (::strcmp(key, "Enabled") == 0)
+				m_dynamicTGControlEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Port") == 0)
+				m_dynamicTGControlPort = (unsigned int)::atoi(value);
 		}
 	}
 
@@ -1603,16 +1620,6 @@ std::vector<unsigned int> CConf::getDMRNetwork5PassAllTG() const
 	return m_dmrNetwork5PassAllTG;
 }
 
-bool CConf::getDynamicTGControlEnabled() const
-{
-	return m_dynamicTGControlEnabled;
-}
-
-unsigned int CConf::getDynamicTGControlPort() const
-{
-	return m_dynamicTGControlPort;
-}
-
 bool CConf::getGPSDEnabled() const
 {
 	return m_gpsdEnabled;
@@ -1626,4 +1633,39 @@ std::string CConf::getGPSDAddress() const
 std::string CConf::getGPSDPort() const
 {
 	return m_gpsdPort;
+}
+
+bool CConf::getAPRSEnabled() const
+{
+	return m_aprsEnabled;
+}
+
+std::string CConf::getAPRSAddress() const
+{
+	return m_aprsAddress;
+}
+
+unsigned int CConf::getAPRSPort() const
+{
+	return m_aprsPort;
+}
+
+std::string CConf::getAPRSSuffix() const
+{
+	return m_aprsSuffix;
+}
+
+std::string CConf::getAPRSDescription() const
+{
+	return m_aprsDescription;
+}
+
+bool CConf::getDynamicTGControlEnabled() const
+{
+	return m_dynamicTGControlEnabled;
+}
+
+unsigned int CConf::getDynamicTGControlPort() const
+{
+	return m_dynamicTGControlPort;
 }

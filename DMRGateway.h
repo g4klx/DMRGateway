@@ -23,6 +23,7 @@
 #include "RewriteDynTGRF.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
+#include "APRSWriter.h"
 #include "Reflectors.h"
 #include "UDPSocket.h"
 #include "RewriteTG.h"
@@ -111,6 +112,10 @@ private:
 	std::vector<CDynVoice*> m_dynVoices;
 	std::vector<CRewriteDynTGRF*> m_dynRF;
 	CUDPSocket*            m_socket;
+	CAPRSWriter*           m_writer;
+	std::string            m_callsign;
+	unsigned int           m_txFrequency;
+	unsigned int           m_rxFrequency;
 #if defined(USE_GPSD)
 	CGPSD*                 m_gpsd;
 #endif
@@ -134,6 +139,7 @@ private:
 
 	void processRadioPosition();
 	void processTalkerAlias();
+	void createAPRS();
 	void processDynamicTGControl();
 };
 

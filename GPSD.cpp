@@ -30,7 +30,8 @@ m_gpsdAddress(address),
 m_gpsdPort(port),
 m_gpsdData(),
 m_idTimer(1000U, 60U),
-m_networks()
+m_networks(),
+m_aprs(NULL)
 {
 	assert(!address.empty());
 	assert(!port.empty());
@@ -45,6 +46,13 @@ void CGPSD::addNetwork(CDMRNetwork* network)
 	assert(network != NULL);
 
 	m_networks.push_back(network);
+}
+
+void CGPSD::addAPRS(CAPRSWriter* aprs)
+{
+	assert(aprs != NULL);
+
+	m_aprs = aprs;
 }
 
 bool CGPSD::open()
@@ -100,8 +108,18 @@ void CGPSD::sendReport()
 	if (!latlonSet)
 		return;
 
+	bool altitudeSet = (m_gpsdData.set & ALTITUDE_SET) == ALTITUDE_SET;
+
 	float latitude  = float(m_gpsdData.fix.latitude);
 	float longitude = float(m_gpsdData.fix.longitude);
+#if GPSD_API_MAJOR_VERSION >= 9
+	float altitude  = float(m_gpsdData.fix.altMSL);
+#else
+	float altitude  = float(m_gpsdData.fix.altitude);
+#endif
+
+	if (m_aprs != NULL)
+		m_aprs->setLocation(;latitude, longitude, altitudeSet ? altitude : 0.0F);
 
 	for (std::vector<CDMRNetwork*>::const_iterator it = m_networks.begin(); it != m_networks.end(); ++it)
 		(*it)->writeHomePosition(latitude, longitude);

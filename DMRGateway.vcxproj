@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="APRSWriter.h" />
     <ClInclude Include="BPTC19696.h" />
     <ClInclude Include="Conf.h" />
     <ClInclude Include="CRC.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="XLXVoice.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="APRSWriter.cpp" />
     <ClCompile Include="BPTC19696.cpp" />
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="CRC.cpp" />
