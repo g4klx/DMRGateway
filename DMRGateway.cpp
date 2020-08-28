@@ -1508,7 +1508,6 @@ bool CDMRGateway::createDMRNetwork2()
 
 	unsigned char config[400U];
 	unsigned int len = getConfig(m_dmr2Name, config);
-
 	m_dmrNetwork2->setConfig(config, len);
 
 	bool ret = m_dmrNetwork2->open();
@@ -2246,7 +2245,6 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);
-
 	m_xlxNetwork->setConfig(config, len);
 
 	bool ret = m_xlxNetwork->open();
@@ -2364,7 +2362,7 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	std::string description = m_conf.getInfoDescription();
 	std::string url         = m_conf.getInfoURL();
 
-	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%9.9s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
+	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
 		m_config + 0U, m_config + 8U, m_config + 17U, m_config + 26U, m_config + 28U,
 		latitude, longitude, height, location.c_str(),
 		description.c_str(), m_config[30U], url.c_str(), m_config + 31U, m_config + 71U);

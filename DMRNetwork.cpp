@@ -505,7 +505,7 @@ bool CDMRNetwork::writeConfig()
 	::memcpy(buffer + 222U, software, ::strlen(software));
 
 	if (!m_location)
-		::memcpy(buffer + 30U, "0.00000000.000000", 17U);
+		::memcpy(buffer + 38U, "0.00000000.000000", 17U);
 
 	return write((unsigned char*)buffer, m_configLen + 8U);
 }
