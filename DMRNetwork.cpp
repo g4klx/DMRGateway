@@ -31,13 +31,12 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, const char* version, bool location, bool debug) :
+CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, bool location, bool debug) :
 m_address(),
 m_port(port),
 m_id(NULL),
 m_password(password),
 m_name(name),
-m_version(version),
 m_location(location),
 m_debug(debug),
 m_socket(local),
@@ -56,7 +55,6 @@ m_beacon(false)
 	assert(port > 0U);
 	assert(id > 1000U);
 	assert(!password.empty());
-	assert(version != NULL);
 
 	m_address = CUDPSocket::lookup(address);
 
@@ -221,9 +219,6 @@ bool CDMRNetwork::write(const CDMRData& data)
 
 	buffer[54U] = data.getRSSI();
 
-	if (m_debug)
-		CUtils::dump(1U, "Network Transmitted", buffer, HOMEBREW_DATA_PACKET_LENGTH);
-
 	write(buffer, HOMEBREW_DATA_PACKET_LENGTH);
 
 	return true;
@@ -335,9 +330,6 @@ void CDMRNetwork::clock(unsigned int ms)
 		open();
 		return;
 	}
-
-	// if (m_debug && length > 0)
-	//	CUtils::dump(1U, "Network Received", m_buffer, length);
 
 	if (length > 0 && m_address.s_addr == address.s_addr && m_port == port) {
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
@@ -497,12 +489,6 @@ bool CDMRNetwork::writeConfig()
 	::memcpy(buffer + 0U, "RPTC", 4U);
 	::memcpy(buffer + 4U, m_id, 4U);
 	::memcpy(buffer + 8U, m_configData, m_configLen);
-
-	char software[40U];
-	::sprintf(software, "DMRGateway-%s", m_version);
-
-	::memset(buffer + 222U, ' ', 40U);
-	::memcpy(buffer + 222U, software, ::strlen(software));
 
 	if (!m_location)
 		::memcpy(buffer + 38U, "0.00000000.000000", 17U);

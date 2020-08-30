@@ -1344,7 +1344,7 @@ bool CDMRGateway::createDMRNetwork1()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, VERSION, location, debug);
+	m_dmrNetwork1 = new CDMRNetwork(address, port, local, id, password, m_dmr1Name, location, debug);
 
 	std::string options = m_conf.getDMRNetwork1Options();
 
@@ -1511,7 +1511,7 @@ bool CDMRGateway::createDMRNetwork2()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, VERSION, location, debug);
+	m_dmrNetwork2 = new CDMRNetwork(address, port, local, id, password, m_dmr2Name, location, debug);
 
 	std::string options = m_conf.getDMRNetwork2Options();
 
@@ -1678,7 +1678,7 @@ bool CDMRGateway::createDMRNetwork3()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, VERSION, location, debug);
+	m_dmrNetwork3 = new CDMRNetwork(address, port, local, id, password, m_dmr3Name, location, debug);
 
 	std::string options = m_conf.getDMRNetwork3Options();
 
@@ -1845,7 +1845,7 @@ bool CDMRGateway::createDMRNetwork4()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr4Name, VERSION, location, debug);
+	m_dmrNetwork4 = new CDMRNetwork(address, port, local, id, password, m_dmr4Name, location, debug);
 
 	std::string options = m_conf.getDMRNetwork4Options();
 
@@ -2012,7 +2012,7 @@ bool CDMRGateway::createDMRNetwork5()
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetwork5 = new CDMRNetwork(address, port, local, id, password, m_dmr5Name, VERSION, location, debug);
+	m_dmrNetwork5 = new CDMRNetwork(address, port, local, id, password, m_dmr5Name, location, debug);
 
 	std::string options = m_conf.getDMRNetwork5Options();
 
@@ -2255,7 +2255,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", VERSION, false, m_xlxDebug);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", false, m_xlxDebug);
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);
@@ -2431,9 +2431,6 @@ void CDMRGateway::processTalkerAlias()
 	bool ret = m_repeater->readTalkerAlias(buffer, length);
 	if (!ret)
 		return;
-
-	if (m_xlxNetwork != NULL && (m_status[1U] == DMRGWS_XLXREFLECTOR || m_status[2U] == DMRGWS_XLXREFLECTOR))
-		m_xlxNetwork->writeTalkerAlias(buffer, length);
 
 	if (m_dmrNetwork1 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
 		m_dmrNetwork1->writeTalkerAlias(buffer, length);
