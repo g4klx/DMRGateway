@@ -48,7 +48,7 @@ void CGPSD::addNetwork(CDMRNetwork* network)
 	m_networks.push_back(network);
 }
 
-void CGPSD::addAPRS(CAPRSWriter* aprs)
+void CGPSD::setAPRS(CAPRSWriter* aprs)
 {
 	assert(aprs != NULL);
 
@@ -119,7 +119,7 @@ void CGPSD::sendReport()
 #endif
 
 	if (m_aprs != NULL)
-		m_aprs->setLocation(;latitude, longitude, altitudeSet ? altitude : 0.0F);
+		m_aprs->setLocation(latitude, longitude, altitudeSet ? altitude : 0.0F);
 
 	for (std::vector<CDMRNetwork*>::const_iterator it = m_networks.begin(); it != m_networks.end(); ++it)
 		(*it)->writeHomePosition(latitude, longitude);
