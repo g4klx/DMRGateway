@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011,2013,2015,2016 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2009-2011,2013,2015,2016,2020 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #else
-#include <winsock.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 class CUDPSocket {
@@ -41,13 +42,17 @@ public:
 	~CUDPSocket();
 
 	bool open();
+	bool open(const unsigned int af);
 
-	int  read(unsigned char* buffer, unsigned int length, in_addr& address, unsigned int& port);
-	bool write(const unsigned char* buffer, unsigned int length, const in_addr& address, unsigned int port);
+	int  read(unsigned char* buffer, unsigned int length, sockaddr_storage& address, unsigned int &address_length);
+	bool write(const unsigned char* buffer, unsigned int length, const sockaddr_storage& address, unsigned int address_length);
 
 	void close();
 
-	static in_addr lookup(const std::string& hostName);
+	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length);
+	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length, struct addrinfo& hints);
+	static bool match(const sockaddr_storage& addr1, const sockaddr_storage& addr2);
+	static bool isnone(const sockaddr_storage& addr);
 
 private:
 	std::string    m_address;

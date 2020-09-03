@@ -36,7 +36,7 @@ m_longitude(0.0F),
 m_height(0),
 m_desc(),
 m_aprsAddress(),
-m_aprsPort(port),
+m_aprsLen(),
 m_aprsSocket()
 {
 	assert(!callsign.empty());
@@ -48,7 +48,7 @@ m_aprsSocket()
 		m_callsign.append(suffix.substr(0U, 1U));
 	}
 
-	m_aprsAddress = CUDPSocket::lookup(address);
+	CUDPSocket::lookup(address, port, m_aprsAddress, m_aprsLen);
 }
 
 CAPRSWriter::~CAPRSWriter()
@@ -159,5 +159,5 @@ void CAPRSWriter::sendIdFrame()
 	if (m_debug)
 		LogDebug("APRS ==> %s", output);
 
-	m_aprsSocket.write((unsigned char*)output, (unsigned int)::strlen(output), m_aprsAddress, m_aprsPort);
+	m_aprsSocket.write((unsigned char*)output, (unsigned int)::strlen(output), m_aprsAddress, m_aprsLen);
 }

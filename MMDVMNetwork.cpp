@@ -32,7 +32,7 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
 m_rptAddress(),
-m_rptPort(rptPort),
+m_rptAddrLen(),
 m_id(0U),
 m_netId(NULL),
 m_debug(debug),
@@ -49,7 +49,7 @@ m_talkerAliasLen(0U)
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
 
-	m_rptAddress = CUDPSocket::lookup(rptAddress);
+	CUDPSocket::lookup(rptAddress, rptPort, m_rptAddress, m_rptAddrLen);
 
 	m_buffer = new unsigned char[BUFFER_LENGTH];
 	m_netId  = new unsigned char[4U];
@@ -206,7 +206,7 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	if (m_debug)
 		CUtils::dump(1U, "Network Transmitted", buffer, HOMEBREW_DATA_PACKET_LENGTH);
 
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptPort);
+	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddress, m_rptAddrLen);
 
 	return true;
 }
@@ -239,7 +239,7 @@ bool CMMDVMNetwork::readTalkerAlias(unsigned char* data, unsigned int& length)
 
 bool CMMDVMNetwork::writeBeacon()
 {
-	return m_socket.write((unsigned char*)"DMRB", 4U, m_rptAddress, m_rptPort);
+	return m_socket.write((unsigned char*)"DMRB", 4U, m_rptAddress, m_rptAddrLen);
 }
 
 void CMMDVMNetwork::close()
@@ -251,14 +251,14 @@ void CMMDVMNetwork::close()
 
 void CMMDVMNetwork::clock(unsigned int ms)
 {
-	in_addr address;
-	unsigned int port;
-	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, port);
+	sockaddr_storage address;
+	unsigned int addrlen;
+	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length <= 0)
 		return;
 
-	if (m_rptAddress.s_addr != address.s_addr || m_rptPort != port) {
-		LogMessage("Packet received from an invalid source, %08X != %08X and/or %u != %u", m_rptAddress.s_addr, address.s_addr, m_rptPort, port);
+	if (!CUDPSocket::match(m_rptAddress, address)) {
+		LogMessage("MMDVM packet received from an invalid source");
 		return;
 	}
 
@@ -284,7 +284,7 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			::memcpy(m_configData, m_buffer + 8U, m_configLen);
 		}
 
-		m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddress, m_rptPort);
+		m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddress, m_rptAddrLen);
 	} else {
 		CUtils::dump("Unknown packet from the MMDVM", m_buffer, length);
 	}

@@ -62,8 +62,8 @@ private:
 	float             m_longitude;
 	int               m_height;
 	std::string       m_desc;
-	in_addr           m_aprsAddress;
-	unsigned int      m_aprsPort;
+	sockaddr_storage  m_aprsAddress;
+	unsigned int      m_aprsLen;
 	CUDPSocket        m_aprsSocket;
 
 	void sendIdFrame();
