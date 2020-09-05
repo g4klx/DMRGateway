@@ -89,7 +89,7 @@ bool CMMDVMNetwork::open()
 {
 	LogMessage("MMDVM Network, Opening");
 
-	return m_socket.open();
+	return m_socket.open(m_rptAddress);
 }
 
 bool CMMDVMNetwork::read(CDMRData& data)
