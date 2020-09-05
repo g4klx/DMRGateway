@@ -54,7 +54,7 @@ public:
 	void close();
 
 private: 
-	sockaddr_storage           m_rptAddress;
+	sockaddr_storage           m_rptAddr;
 	unsigned int               m_rptAddrLen;
 	unsigned int               m_id;
 	unsigned char*             m_netId;

@@ -46,8 +46,7 @@ public:
 	CUDPSocket(unsigned int port = 0U);
 	~CUDPSocket();
 
-	bool open();
-	bool open(unsigned int af);
+	bool open(unsigned int af = AF_UNSPEC);
 	bool open(const sockaddr_storage& address);
 
 	int  read(unsigned char* buffer, unsigned int length, sockaddr_storage& address, unsigned int &address_length);
@@ -69,3 +68,4 @@ private:
 };
 
 #endif
+

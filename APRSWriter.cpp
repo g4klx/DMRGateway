@@ -35,8 +35,8 @@ m_latitude(0.0F),
 m_longitude(0.0F),
 m_height(0),
 m_desc(),
-m_aprsAddress(),
-m_aprsLen(),
+m_aprsAddr(),
+m_aprsLen(0U),
 m_aprsSocket()
 {
 	assert(!callsign.empty());
@@ -48,7 +48,8 @@ m_aprsSocket()
 		m_callsign.append(suffix.substr(0U, 1U));
 	}
 
-	CUDPSocket::lookup(address, port, m_aprsAddress, m_aprsLen);
+	if (CUDPSocket::lookup(address, port, m_aprsAddr, m_aprsLen) != 0)
+		m_aprsLen = 0U;
 }
 
 CAPRSWriter::~CAPRSWriter()
@@ -71,7 +72,12 @@ void CAPRSWriter::setLocation(float latitude, float longitude, int height)
 
 bool CAPRSWriter::open()
 {
-	bool ret = m_aprsSocket.open();
+	if (m_aprsLen == 0U) {
+		LogError("Could not lookup the address of the APRS-IS server");
+		return false;
+	}
+
+	bool ret = m_aprsSocket.open(m_aprsAddr);
 	if (!ret)
 		return false;
 
@@ -159,5 +165,5 @@ void CAPRSWriter::sendIdFrame()
 	if (m_debug)
 		LogDebug("APRS ==> %s", output);
 
-	m_aprsSocket.write((unsigned char*)output, (unsigned int)::strlen(output), m_aprsAddress, m_aprsLen);
+	m_aprsSocket.write((unsigned char*)output, (unsigned int)::strlen(output), m_aprsAddr, m_aprsLen);
 }

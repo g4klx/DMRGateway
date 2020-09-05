@@ -143,11 +143,6 @@ bool CUDPSocket::isNone(const sockaddr_storage& addr)
 	return ((addr.ss_family == AF_INET) && (in->sin_addr.s_addr == htonl(INADDR_NONE)));
 }
 
-bool CUDPSocket::open()
-{
-	return open(AF_UNSPEC);
-}
-
 bool CUDPSocket::open(const sockaddr_storage& address)
 {
 	return open(address.ss_family);

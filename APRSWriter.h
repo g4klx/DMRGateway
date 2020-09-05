@@ -62,7 +62,7 @@ private:
 	float             m_longitude;
 	int               m_height;
 	std::string       m_desc;
-	sockaddr_storage  m_aprsAddress;
+	sockaddr_storage  m_aprsAddr;
 	unsigned int      m_aprsLen;
 	CUDPSocket        m_aprsSocket;
 

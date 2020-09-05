@@ -32,8 +32,8 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
 CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, bool location, bool debug) :
-m_address(),
-m_addrlen(),
+m_addr(),
+m_addrLen(0U),
 m_id(NULL),
 m_password(password),
 m_name(name),
@@ -56,7 +56,8 @@ m_beacon(false)
 	assert(id > 1000U);
 	assert(!password.empty());
 
-	CUDPSocket::lookup(address, port, m_address, m_addrlen);
+	if (CUDPSocket::lookup(address, port, m_addr, m_addrLen) != 0)
+		m_addrLen = 0U;
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
@@ -93,6 +94,11 @@ void CDMRNetwork::setConfig(const unsigned char* data, unsigned int len)
 
 bool CDMRNetwork::open()
 {
+	if (m_addrLen == 0U) {
+		LogError("%s, Could not lookup the address of the master", m_name.c_str());
+		return false;
+	}
+
 	LogMessage("%s, Opening DMR Network", m_name.c_str());
 
 	m_status = WAITING_CONNECT;
@@ -305,7 +311,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_status == WAITING_CONNECT) {
 		m_retryTimer.clock(ms);
 		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-			bool ret = m_socket.open(m_address.ss_family);
+			bool ret = m_socket.open(m_addr);
 			if (ret) {
 				ret = writeLogin();
 				if (!ret)
@@ -334,7 +340,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_debug && length > 0)
 		CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0 && CUDPSocket::match(m_address, address)) {
+	if (length > 0 && CUDPSocket::match(m_addr, address)) {
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
 			if (m_debug)
 				CUtils::dump(1U, "Network Received", m_buffer, length);
@@ -526,7 +532,7 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 	if (m_debug)
 		CUtils::dump(1U, "Network Transmitted", data, length);
 
-	bool ret = m_socket.write(data, length, m_address, m_addrlen);
+	bool ret = m_socket.write(data, length, m_addr, m_addrLen);
 	if (!ret) {
 		LogError("%s, Socket has failed when writing data to the master, retrying connection", m_name.c_str());
 		m_socket.close();
