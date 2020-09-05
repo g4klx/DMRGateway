@@ -17,7 +17,6 @@
  */
 
 #include "UDPSocket.h"
-#include "Log.h"
 
 #include <cassert>
 
@@ -26,6 +25,12 @@
 #include <cstring>
 #endif
 
+#if defined(HAVE_LOG_H)
+#include "Log.h"
+#else
+#define LogError(fmt, ...)	::fprintf(stderr, fmt "\n", ## __VA_ARGS__)
+#define LogInfo(fmt, ...)	::fprintf(stderr, fmt "\n", ## __VA_ARGS__)
+#endif
 
 CUDPSocket::CUDPSocket(const std::string& address, unsigned int port) :
 m_address(address),
