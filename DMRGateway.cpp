@@ -2444,10 +2444,10 @@ void CDMRGateway::processHomePosition()
 void CDMRGateway::processDynamicTGControl()
 {
 	unsigned char buffer[100U];
-	in_addr address;
-	unsigned int port;
+	sockaddr_storage address;
+	unsigned int addrlen;
 
-	int len = m_socket->read(buffer, 100U, address, port);
+	int len = m_socket->read(buffer, 100U, address, addrlen);
 	if (len <= 0)
 		return;
 
