@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <poll.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -33,6 +34,10 @@
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#endif
+
+#if !defined(UDP_SOCKET_MAX)
+#define UDP_SOCKET_MAX	1
 #endif
 
 enum IPMATCHTYPE {
@@ -48,11 +53,13 @@ public:
 
 	bool open(unsigned int af = AF_UNSPEC);
 	bool open(const sockaddr_storage& address);
+	bool open(const unsigned int index, const unsigned int af, const std::string& address, const unsigned int port);
 
 	int  read(unsigned char* buffer, unsigned int length, sockaddr_storage& address, unsigned int &address_length);
 	bool write(const unsigned char* buffer, unsigned int length, const sockaddr_storage& address, unsigned int address_length);
 
 	void close();
+	void close(const unsigned int index);
 
 	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length);
 	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length, struct addrinfo& hints);
@@ -62,9 +69,13 @@ public:
 	static bool isNone(const sockaddr_storage& addr);
 
 private:
-	std::string    m_address;
-	unsigned short m_port;
-	int            m_fd;
+	std::string    m_address_save;
+	unsigned short m_port_save;
+	std::string    m_address[UDP_SOCKET_MAX];
+	unsigned short m_port[UDP_SOCKET_MAX];
+	unsigned int   m_af[UDP_SOCKET_MAX];
+	int            m_fd[UDP_SOCKET_MAX];
+	unsigned int   m_counter;
 };
 
 #endif
