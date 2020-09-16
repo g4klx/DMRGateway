@@ -2360,13 +2360,9 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 {
 	assert(buffer != NULL);
 
-	char latitude[20U];
 	float lat = m_conf.getInfoLatitude();
-	::sprintf(latitude, "%08f", lat);
 
-	char longitude[20U];
 	float lon = m_conf.getInfoLongitude();
-	::sprintf(longitude, "%09f", lon);
 
 	int height = m_conf.getInfoHeight();
 	if (height > 999)
@@ -2376,9 +2372,9 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	std::string description = m_conf.getInfoDescription();
 	std::string url         = m_conf.getInfoURL();
 
-	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
+	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%+08.4f%+09.4f%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
 		m_config + 0U, m_config + 8U, m_config + 17U, m_config + 26U, m_config + 28U,
-		latitude, longitude, height, location.c_str(),
+		lat, lon, height, location.c_str(),
 		description.c_str(), m_config[30U], url.c_str(), m_config + 31U, m_config + 71U);
 
 	m_callsign = std::string((char*)m_config + 0U, 8U);

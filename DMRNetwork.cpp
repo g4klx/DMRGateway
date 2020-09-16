@@ -279,7 +279,7 @@ bool CDMRNetwork::writeHomePosition(float latitude, float longitude)
 
 	::memcpy(buffer + 4U, m_id, 4U);
 
-	::sprintf(buffer + 8U, "%08f%09f", latitude, longitude);
+	::sprintf(buffer + 8U, "%+08.4f%+09.4f", latitude, longitude);
 
 	return write((unsigned char*)buffer, 25U);
 }
