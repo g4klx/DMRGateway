@@ -141,10 +141,12 @@ void CDynVoice::linkedTo(unsigned int number)
 	::sprintf(letters, "%u", number);
 
 	std::vector<std::string> words;
-	if (m_positions.count("linkedto") == 0U)
+	if (m_positions.count("linkedto") == 0U) {
 		words.push_back("linked");
-	else
+		words.push_back("2");
+	} else {
 		words.push_back("linkedto");
+	}
 
 	for (unsigned int i = 0U; letters[i] != '\0'; i++)
 		words.push_back(std::string(1U, letters[i]));
