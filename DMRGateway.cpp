@@ -190,6 +190,8 @@ m_rxFrequency(0U)
 ,m_gpsd(NULL)
 #endif
 {
+	CUDPSocket::startup();
+
 	m_status = new DMRGW_STATUS[3U];
 	m_status[1U] = DMRGWS_NONE;
 	m_status[2U] = DMRGWS_NONE;
@@ -267,6 +269,8 @@ CDMRGateway::~CDMRGateway()
 
 	delete[] m_status;
 	delete[] m_config;
+
+	CUDPSocket::shutdown();
 }
 
 int CDMRGateway::run()

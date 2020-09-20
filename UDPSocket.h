@@ -60,6 +60,9 @@ public:
 	void close();
 	void close(const unsigned int index);
 
+	static void startup();
+	static void shutdown();
+
 	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length);
 	static int lookup(const std::string& hostName, unsigned int port, sockaddr_storage& address, unsigned int& address_length, struct addrinfo& hints);
 
@@ -78,4 +81,3 @@ private:
 };
 
 #endif
-
