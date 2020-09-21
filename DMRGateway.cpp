@@ -2161,7 +2161,7 @@ bool CDMRGateway::createDMRNetwork5()
 bool CDMRGateway::createXLXNetwork()
 {
 	std::string fileName    = m_conf.getXLXNetworkFile();
-    unsigned int reloadTime = m_conf.getXLXNetworkReloadTime();
+	unsigned int reloadTime = m_conf.getXLXNetworkReloadTime();
 
 	m_xlxReflectors = new CReflectors(fileName, reloadTime);
 
@@ -2172,11 +2172,11 @@ bool CDMRGateway::createXLXNetwork()
 	}
 
 	m_xlxLocal         = m_conf.getXLXNetworkLocal();
-    m_xlxPort          = m_conf.getXLXNetworkPort();
-    m_xlxPassword      = m_conf.getXLXNetworkPassword();
-    m_xlxId            = m_conf.getXLXNetworkId();
+	m_xlxPort          = m_conf.getXLXNetworkPort();
+	m_xlxPassword      = m_conf.getXLXNetworkPassword();
+	m_xlxId            = m_conf.getXLXNetworkId();
 	m_xlxDebug         = m_conf.getXLXNetworkDebug();
-    m_xlxUserControl   = m_conf.getXLXNetworkUserControl();
+	m_xlxUserControl   = m_conf.getXLXNetworkUserControl();
 
 	if (m_xlxId == 0U)
 		m_xlxId = m_repeater->getId();
@@ -2185,39 +2185,40 @@ bool CDMRGateway::createXLXNetwork()
 	m_xlxTG      = m_conf.getXLXNetworkTG();
 	m_xlxBase    = m_conf.getXLXNetworkBase();
 	m_xlxStartup = m_conf.getXLXNetworkStartup();
-    m_xlxModule  = m_conf.getXLXNetworkModule();
+	m_xlxModule  = m_conf.getXLXNetworkModule();
 
 	unsigned int xlxRelink  = m_conf.getXLXNetworkRelink();
 
 	LogInfo("XLX Network Parameters");
 	LogInfo("    Id: %u", m_xlxId);
 	LogInfo("    Hosts file: %s", fileName.c_str());
-    LogInfo("    Reload time: %u minutes", reloadTime);
+	LogInfo("    Reload time: %u minutes", reloadTime);
 	if (m_xlxLocal > 0U)
 		LogInfo("    Local: %u", m_xlxLocal);
 	else
 		LogInfo("    Local: random");
-    LogInfo("    Port: %u", m_xlxPort);
+	LogInfo("    Port: %u", m_xlxPort);
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
 	LogInfo("    Base: %u", m_xlxBase);
+
 	if (m_xlxStartup > 0U)
 		LogInfo("    Startup: XLX%03u", m_xlxStartup);
+
 	if (xlxRelink > 0U) {
 		m_xlxRelink.setTimeout(xlxRelink * 60U);
 		LogInfo("    Relink: %u minutes", xlxRelink);
 	} else {
 		LogInfo("    Relink: disabled");
 	}
-	if (m_xlxUserControl) {
-        LogInfo("    User Control: enabled");
-    } else {
-        LogInfo("    User Control: disabled");
-    }
-    if (m_xlxModule) {
-        LogInfo("     Module: %c",m_xlxModule);
-    }
-    
+
+	if (m_xlxUserControl)
+		LogInfo("    User Control: enabled");
+	else
+		LogInfo("    User Control: disabled");
+
+	if (m_xlxModule != 0U)
+		LogInfo("     Module: %c", m_xlxModule);
 
 	if (m_xlxStartup > 0U)
 		linkXLX(m_xlxStartup);
@@ -2272,12 +2273,11 @@ bool CDMRGateway::linkXLX(unsigned int number)
 		return false;
 	}
 
-	m_xlxNumber    = number;
-    if (m_xlxModule) {
-        m_xlxRoom  = ((int(m_xlxModule) - 64U) + 4000U);
-    } else {
-        m_xlxRoom      = reflector->m_startup;
-    }
+	m_xlxNumber = number;
+	if (m_xlxModule != 0U)
+		m_xlxRoom  = ((int(m_xlxModule) - 64U) + 4000U);
+	else
+		m_xlxRoom  = reflector->m_startup;
 	m_xlxReflector = 4000U;
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
