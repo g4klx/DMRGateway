@@ -325,7 +325,11 @@ int CDMRGateway::run()
 	}
 #endif
 
-	ret = ::LogInitialise(m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel());
+#if !defined(_WIN32) && !defined(_WIN64)
+        ret = ::LogInitialise(m_daemon, m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel());
+#else
+        ret = ::LogInitialise(false, m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel());
+#endif
 	if (!ret) {
 		::fprintf(stderr, "DMRGateway: unable to open the log file\n");
 		return 1;
