@@ -93,6 +93,7 @@ public:
 	unsigned int getLogFileLevel() const;
 	std::string  getLogFilePath() const;
 	std::string  getLogFileRoot() const;
+	bool         getLogFileRotate() const;
 
 	// The Voice section
 	bool         getVoiceEnabled() const;
@@ -260,6 +261,7 @@ private:
 	unsigned int m_logFileLevel;
 	std::string  m_logFilePath;
 	std::string  m_logFileRoot;
+	bool         m_logFileRotate;
 
 	float        m_infoLatitude;
 	float        m_infoLongitude;
