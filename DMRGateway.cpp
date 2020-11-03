@@ -1373,7 +1373,7 @@ bool CDMRGateway::createDMRNetwork1()
 	}
 
 #if defined(USE_GPSD)
-	if (location)
+	if (location && (m_gpsd != NULL))
 		m_gpsd->addNetwork(m_dmrNetwork1);
 #endif
 
@@ -1540,7 +1540,7 @@ bool CDMRGateway::createDMRNetwork2()
 	}
 
 #if defined(USE_GPSD)
-	if (location)
+	if (location && (m_gpsd != NULL))
 		m_gpsd->addNetwork(m_dmrNetwork2);
 #endif
 
@@ -1707,7 +1707,7 @@ bool CDMRGateway::createDMRNetwork3()
 	}
 
 #if defined(USE_GPSD)
-	if (location)
+	if (location && (m_gpsd != NULL))
 		m_gpsd->addNetwork(m_dmrNetwork3);
 #endif
 
@@ -1874,7 +1874,7 @@ bool CDMRGateway::createDMRNetwork4()
 	}
 
 #if defined(USE_GPSD)
-	if (location)
+	if (location && (m_gpsd != NULL))
 		m_gpsd->addNetwork(m_dmrNetwork4);
 #endif
 
@@ -2041,7 +2041,7 @@ bool CDMRGateway::createDMRNetwork5()
 	}
 
 #if defined(USE_GPSD)
-	if (location)
+	if (location && (m_gpsd != NULL))
 		m_gpsd->addNetwork(m_dmrNetwork5);
 #endif
 
