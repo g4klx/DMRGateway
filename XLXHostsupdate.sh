@@ -112,6 +112,8 @@ BEGIN {
 		reflector=4001
 	if ($1 == "XLX359")
 		reflector=4002
+	if ($1 == "XLX389")
+		reflector=4017
 	if ($1 == "XLX518")
 		reflector=4006
 	if ($1 == "XLX755")
