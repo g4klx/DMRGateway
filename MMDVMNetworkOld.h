@@ -33,9 +33,7 @@ public:
 	CMMDVMNetworkOld(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
 	virtual ~CMMDVMNetworkOld();
 
-	virtual std::string getOptions() const;
-
-	virtual unsigned int getConfig(unsigned char* config) const;
+	virtual unsigned int getShortConfig(unsigned char* config) const;
 
 	virtual unsigned int getId() const;
 
@@ -66,7 +64,6 @@ private:
 	CUDPSocket                 m_socket;
 	unsigned char*             m_buffer;
 	CRingBuffer<unsigned char> m_rxData;
-	std::string                m_options;
 	unsigned char*             m_configData;
 	unsigned int               m_configLen;
 	unsigned char*             m_radioPositionData;

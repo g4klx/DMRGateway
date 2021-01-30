@@ -40,7 +40,6 @@ m_debug(debug),
 m_socket(localAddress, localPort),
 m_buffer(NULL),
 m_rxData(1000U, "MMDVM Network"),
-m_options(),
 m_configData(NULL),
 m_configLen(0U),
 m_radioPositionData(NULL),
@@ -77,12 +76,7 @@ CMMDVMNetworkOld::~CMMDVMNetworkOld()
 	delete[] m_homePositionData;
 }
 
-std::string CMMDVMNetworkOld::getOptions() const
-{
-	return m_options;
-}
-
-unsigned int CMMDVMNetworkOld::getConfig(unsigned char* config) const
+unsigned int CMMDVMNetworkOld::getShortConfig(unsigned char* config) const
 {
 	if (m_configData == 0U)
 		return 0U;
@@ -346,6 +340,7 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
 			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
+			// XXX FIXME !!!
 			m_configLen = length - 8U;
 			m_configData = new unsigned char[m_configLen];
 			::memcpy(m_configData, m_buffer + 8U, m_configLen);
@@ -355,8 +350,6 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 			::memcpy(ack + 6U, m_netId, 4U);
 			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
-			m_options = std::string((char*)(m_buffer + 8U), length - 8U);
-
 			unsigned char ack[10U];
 			::memcpy(ack + 0U, "RPTACK", 6U);
 			::memcpy(ack + 6U, m_netId, 4U);

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  */
 
 #include "MMDVMNetworkNew.h"
+#include "MMDVMNetworkOld.h"
 #include "RewriteType.h"
 #include "DMRSlotType.h"
 #include "RewriteSrc.h"
@@ -1308,6 +1309,8 @@ bool CDMRGateway::createMMDVM()
 	unsigned int rptPort     = m_conf.getRptPort();
 	std::string localAddress = m_conf.getLocalAddress();
 	unsigned int localPort   = m_conf.getLocalPort();
+	std::string protocol     = m_conf.getRptProtocol();
+	bool split               = m_conf.getSplit();
 	bool debug               = m_conf.getDebug();
 
 	LogInfo("MMDVM Network Parameters");
@@ -1315,8 +1318,13 @@ bool CDMRGateway::createMMDVM()
 	LogInfo("    Rpt Port: %u", rptPort);
 	LogInfo("    Local Address: %s", localAddress.c_str());
 	LogInfo("    Local Port: %u", localPort);
+	LogInfo("    Protocol: %s", protocol.c_str());
+	LogInfo("    Split: %s", split ? "yes" : "no");
 
-	m_repeater = new CMMDVMNetworkNew(rptAddress, rptPort, localAddress, localPort, debug);
+	if (protocol == "old")
+		m_repeater = new CMMDVMNetworkOld(rptAddress, rptPort, localAddress, localPort, debug);
+	else
+		m_repeater = new CMMDVMNetworkNew(rptAddress, rptPort, localAddress, localPort, debug);
 
 	bool ret = m_repeater->open();
 	if (!ret) {

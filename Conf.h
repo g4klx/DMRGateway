@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020,2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -85,6 +85,8 @@ public:
 	unsigned int getRptPort() const;
 	std::string  getLocalAddress() const;
 	unsigned int getLocalPort() const;
+	std::string  getRptProtocol() const;
+	bool         getSplit() const;
 	bool         getRuleTrace() const;
 	bool         getDebug() const;
 
@@ -244,12 +246,14 @@ public:
 private:
 	std::string  m_file;
 	bool         m_daemon;
+	unsigned int m_rfTimeout;
+	unsigned int m_netTimeout;
 	std::string  m_rptAddress;
 	unsigned int m_rptPort;
 	std::string  m_localAddress;
 	unsigned int m_localPort;
-	unsigned int m_rfTimeout;
-	unsigned int m_netTimeout;
+	std::string  m_rptProtocol;
+	bool         m_split;
 	bool         m_ruleTrace;
 	bool         m_debug;
 

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -46,12 +46,14 @@ enum SECTION {
 CConf::CConf(const std::string& file) :
 m_file(file),
 m_daemon(false),
+m_rfTimeout(10U),
+m_netTimeout(10U),
 m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
 m_localPort(62031U),
-m_rfTimeout(10U),
-m_netTimeout(10U),
+m_rptProtocol("New"),
+m_split(false),
 m_ruleTrace(false),
 m_debug(false),
 m_voiceEnabled(true),
@@ -280,6 +282,10 @@ bool CConf::read()
 				m_localAddress = value;
 			else if (::strcmp(key, "LocalPort") == 0)
 				m_localPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RptProtocol") == 0)
+				m_rptProtocol = value;
+			else if (::strcmp(key, "Split") == 0)
+				m_split = ::atoi(value) == 1;
 			else if (::strcmp(key, "RuleTrace") == 0)
 				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
@@ -990,6 +996,16 @@ bool CConf::getDaemon() const
 	return m_daemon;
 }
 
+unsigned int CConf::getRFTimeout() const
+{
+	return m_rfTimeout;
+}
+
+unsigned int CConf::getNetTimeout() const
+{
+	return m_netTimeout;
+}
+
 std::string CConf::getRptAddress() const
 {
 	return m_rptAddress;
@@ -1010,14 +1026,14 @@ unsigned int CConf::getLocalPort() const
 	return m_localPort;
 }
 
-unsigned int CConf::getRFTimeout() const
+std::string CConf::getRptProtocol() const
 {
-	return m_rfTimeout;
+	return m_rptProtocol;
 }
 
-unsigned int CConf::getNetTimeout() const
+bool CConf::getSplit() const
 {
-	return m_netTimeout;
+	return m_split;
 }
 
 bool CConf::getRuleTrace() const
