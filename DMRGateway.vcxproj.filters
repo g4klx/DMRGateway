@@ -146,6 +146,12 @@
     <ClInclude Include="APRSWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MMDVMNetworkNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MMDVMNetworkOld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -272,6 +278,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="APRSWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MMDVMNetworkNew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MMDVMNetworkOld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -16,6 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "MMDVMNetworkNew.h"
 #include "RewriteType.h"
 #include "DMRSlotType.h"
 #include "RewriteSrc.h"
@@ -1315,7 +1316,7 @@ bool CDMRGateway::createMMDVM()
 	LogInfo("    Local Address: %s", localAddress.c_str());
 	LogInfo("    Local Port: %u", localPort);
 
-	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
+	m_repeater = new CMMDVMNetworkNew(rptAddress, rptPort, localAddress, localPort, debug);
 
 	bool ret = m_repeater->open();
 	if (!ret) {

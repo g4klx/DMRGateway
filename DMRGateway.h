@@ -56,7 +56,7 @@ public:
 private:
 	CConf              m_conf;
 	DMRGW_STATUS*      m_status;
-	CMMDVMNetwork*     m_repeater;
+	IMMDVMNetwork*     m_repeater;
 	unsigned char*     m_config;
 	unsigned int       m_configLen;
 	CDMRNetwork*       m_dmrNetwork1;

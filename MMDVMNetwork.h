@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,55 +19,36 @@
 #if !defined(MMDVMNetwork_H)
 #define	MMDVMNetwork_H
 
-#include "UDPSocket.h"
-#include "Timer.h"
-#include "RingBuffer.h"
 #include "DMRData.h"
 
-#include <string>
 #include <cstdint>
 
-class CMMDVMNetwork
+class IMMDVMNetwork
 {
 public:
-	CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
-	~CMMDVMNetwork();
+	virtual ~IMMDVMNetwork() = 0;
 
-	unsigned int getShortConfig(unsigned char* config) const;
+	virtual unsigned int getShortConfig(unsigned char* config) const = 0;
 
-	unsigned int getId() const;
+	virtual unsigned int getId() const = 0;
 
-	bool open();
+	virtual bool open() = 0;
 
-	bool read(CDMRData& data);
+	virtual bool read(CDMRData& data) = 0;
 
-	bool write(const CDMRData& data);
+	virtual bool write(const CDMRData& data) = 0;
 
-	bool readRadioPosition(unsigned char* data, unsigned int& length);
+	virtual bool readRadioPosition(unsigned char* data, unsigned int& length) = 0;
 
-	bool readTalkerAlias(unsigned char* data, unsigned int& length);
+	virtual bool readTalkerAlias(unsigned char* data, unsigned int& length) = 0;
 
-	bool writeBeacon();
+	virtual bool writeBeacon() = 0;
 
-	void clock(unsigned int ms);
+	virtual void clock(unsigned int ms) = 0;
 
-	void close();
+	virtual void close() = 0;
 
 private: 
-	sockaddr_storage           m_rptAddr;
-	unsigned int               m_rptAddrLen;
-	unsigned int               m_id;
-	unsigned char*             m_netId;
-	bool                       m_debug;
-	CUDPSocket                 m_socket;
-	unsigned char*             m_buffer;
-	CRingBuffer<unsigned char> m_rxData;
-	unsigned char*             m_configData;
-	unsigned int               m_configLen;
-	unsigned char*             m_radioPositionData;
-	unsigned int               m_radioPositionLen;
-	unsigned char*             m_talkerAliasData;
-	unsigned int               m_talkerAliasLen;
 };
 
 #endif

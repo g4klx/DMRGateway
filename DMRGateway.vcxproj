@@ -173,6 +173,8 @@
     <ClInclude Include="Hamming.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MMDVMNetwork.h" />
+    <ClInclude Include="MMDVMNetworkNew.h" />
+    <ClInclude Include="MMDVMNetworkOld.h" />
     <ClInclude Include="PassAllPC.h" />
     <ClInclude Include="PassAllTG.h" />
     <ClInclude Include="QR1676.h" />
@@ -219,6 +221,8 @@
     <ClCompile Include="Hamming.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MMDVMNetwork.cpp" />
+    <ClCompile Include="MMDVMNetworkNew.cpp" />
+    <ClCompile Include="MMDVMNetworkOld.cpp" />
     <ClCompile Include="PassAllPC.cpp" />
     <ClCompile Include="PassAllTG.cpp" />
     <ClCompile Include="QR1676.cpp" />
