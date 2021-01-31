@@ -41,7 +41,7 @@ public:
 
 	virtual bool read(CDMRData& data);
 
-	virtual bool write(const CDMRData& data);
+	virtual bool write(CDMRData& data);
 
 	virtual bool readRadioPosition(unsigned char* data, unsigned int& length);
 

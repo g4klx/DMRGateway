@@ -160,7 +160,7 @@ bool CMMDVMNetworkNew::read(CDMRData& data)
 	return true;
 }
 
-bool CMMDVMNetworkNew::write(const CDMRData& data)
+bool CMMDVMNetworkNew::write(CDMRData& data)
 {
 	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
 	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);

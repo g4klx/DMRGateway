@@ -191,6 +191,7 @@
     <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="RS129.h" />
     <ClInclude Include="SHA256.h" />
+    <ClInclude Include="SplitNetwork.h" />
     <ClInclude Include="StopWatch.h" />
     <ClInclude Include="Sync.h" />
     <ClInclude Include="Thread.h" />
@@ -238,6 +239,7 @@
     <ClCompile Include="RewriteType.cpp" />
     <ClCompile Include="RS129.cpp" />
     <ClCompile Include="SHA256.cpp" />
+    <ClCompile Include="SplitNetwork.cpp" />
     <ClCompile Include="StopWatch.cpp" />
     <ClCompile Include="Sync.cpp" />
     <ClCompile Include="Thread.cpp" />

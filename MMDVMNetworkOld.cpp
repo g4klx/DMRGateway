@@ -45,9 +45,7 @@ m_configLen(0U),
 m_radioPositionData(NULL),
 m_radioPositionLen(0U),
 m_talkerAliasData(NULL),
-m_talkerAliasLen(0U),
-m_homePositionData(NULL),
-m_homePositionLen(0U)
+m_talkerAliasLen(0U)
 {
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
@@ -60,7 +58,6 @@ m_homePositionLen(0U)
 
 	m_radioPositionData = new unsigned char[50U];
 	m_talkerAliasData   = new unsigned char[50U];
-	m_homePositionData  = new unsigned char[50U];
 
 	CStopWatch stopWatch;
 	::srand(stopWatch.start());
@@ -73,7 +70,6 @@ CMMDVMNetworkOld::~CMMDVMNetworkOld()
 	delete[] m_configData;
 	delete[] m_radioPositionData;
 	delete[] m_talkerAliasData;
-	delete[] m_homePositionData;
 }
 
 unsigned int CMMDVMNetworkOld::getShortConfig(unsigned char* config) const
@@ -165,7 +161,7 @@ bool CMMDVMNetworkOld::read(CDMRData& data)
 	return true;
 }
 
-bool CMMDVMNetworkOld::write(const CDMRData& data)
+bool CMMDVMNetworkOld::write(CDMRData& data)
 {
 	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
 	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);
@@ -248,19 +244,6 @@ bool CMMDVMNetworkOld::readTalkerAlias(unsigned char* data, unsigned int& length
 	return true;
 }
 
-bool CMMDVMNetworkOld::readHomePosition(unsigned char* data, unsigned int& length)
-{
-	if (m_homePositionLen == 0U)
-		return false;
-
-	::memcpy(data, m_homePositionData, m_homePositionLen);
-	length = m_homePositionLen;
-
-	m_homePositionLen = 0U;
-
-	return true;
-}
-
 bool CMMDVMNetworkOld::writeBeacon()
 {
 	unsigned char buffer[20U];
@@ -319,8 +302,6 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 			::memcpy(m_talkerAliasData, m_buffer, length);
 			m_talkerAliasLen = length;
 		} else if (::memcmp(m_buffer, "RPTG", 4U) == 0) {
-			::memcpy(m_homePositionData, m_buffer, length);
-			m_homePositionLen = length;
 		} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
 			m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 			::memcpy(m_netId, m_buffer + 4U, 4U);
@@ -340,10 +321,28 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
 			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
-			// XXX FIXME !!!
-			m_configLen = length - 8U;
+			m_configLen = 111U;
 			m_configData = new unsigned char[m_configLen];
-			::memcpy(m_configData, m_buffer + 8U, m_configLen);
+
+			// Convert the old style config data to the new style
+			const unsigned char* p = m_buffer;
+
+			p += 4U + 4U;	// Skip the opcode and id fields
+
+			// First the callsign, frequencies, power, and color code.
+			::memcpy(m_configData + 0U, p, 8U + 9U + 9U + 2U + 2U);
+			p += 8U + 9U + 9U + 2U + 2U;
+
+			p += 8U + 9U + 3U + 20U + 19U;	// Skip the latutude, longitude, height, location and description.
+
+			// Next the slots.
+			::memcpy(m_configData + 30U, p, 1U);
+			p += 1U;
+
+			p += 124U;	// Skip the URL
+
+			// Finally the version and software.
+			::memcpy(m_configData + 31U, p, 40U + 40U);
 
 			unsigned char ack[10U];
 			::memcpy(ack + 0U, "RPTACK", 6U);

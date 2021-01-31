@@ -86,7 +86,7 @@ public:
 	std::string  getLocalAddress() const;
 	unsigned int getLocalPort() const;
 	std::string  getRptProtocol() const;
-	bool         getSplit() const;
+	unsigned int getSplit() const;
 	bool         getRuleTrace() const;
 	bool         getDebug() const;
 
@@ -253,7 +253,7 @@ private:
 	std::string  m_localAddress;
 	unsigned int m_localPort;
 	std::string  m_rptProtocol;
-	bool         m_split;
+	unsigned int m_split;
 	bool         m_ruleTrace;
 	bool         m_debug;
 

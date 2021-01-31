@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,22 +16,18 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(MMDVMNetworkOld_H)
-#define	MMDVMNetworkOld_H
+#if !defined(SplitNetwork_H)
+#define	SplitNetwork_H
 
 #include "MMDVMNetwork.h"
-#include "UDPSocket.h"
-#include "Timer.h"
-#include "RingBuffer.h"
 
-#include <string>
 #include <cstdint>
 
-class CMMDVMNetworkOld : public IMMDVMNetwork
+class CSplitNetwork : public IMMDVMNetwork
 {
 public:
-	CMMDVMNetworkOld(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
-	virtual ~CMMDVMNetworkOld();
+	CSplitNetwork(IMMDVMNetwork* network1, IMMDVMNetwork* network2, unsigned int slotNo, bool debug);
+	virtual ~CSplitNetwork();
 
 	virtual unsigned int getShortConfig(unsigned char* config) const;
 
@@ -53,21 +49,11 @@ public:
 
 	virtual void close();
 
-private: 
-	sockaddr_storage           m_rptAddr;
-	unsigned int               m_rptAddrLen;
-	unsigned int               m_id;
-	unsigned char*             m_netId;
-	bool                       m_debug;
-	CUDPSocket                 m_socket;
-	unsigned char*             m_buffer;
-	CRingBuffer<unsigned char> m_rxData;
-	unsigned char*             m_configData;
-	unsigned int               m_configLen;
-	unsigned char*             m_radioPositionData;
-	unsigned int               m_radioPositionLen;
-	unsigned char*             m_talkerAliasData;
-	unsigned int               m_talkerAliasLen;
+private:
+	IMMDVMNetwork* m_network1;
+	IMMDVMNetwork* m_network2;
+	unsigned int   m_slotNo;
+	bool           m_debug;
 };
 
 #endif

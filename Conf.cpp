@@ -53,7 +53,7 @@ m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
 m_localPort(62031U),
 m_rptProtocol("New"),
-m_split(false),
+m_split(0U),
 m_ruleTrace(false),
 m_debug(false),
 m_voiceEnabled(true),
@@ -285,7 +285,7 @@ bool CConf::read()
 			else if (::strcmp(key, "RptProtocol") == 0)
 				m_rptProtocol = value;
 			else if (::strcmp(key, "Split") == 0)
-				m_split = ::atoi(value) == 1;
+				m_split = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RuleTrace") == 0)
 				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
@@ -1031,7 +1031,7 @@ std::string CConf::getRptProtocol() const
 	return m_rptProtocol;
 }
 
-bool CConf::getSplit() const
+unsigned int CConf::getSplit() const
 {
 	return m_split;
 }
