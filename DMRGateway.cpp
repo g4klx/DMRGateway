@@ -1306,40 +1306,58 @@ int CDMRGateway::run()
 
 bool CDMRGateway::createMMDVM()
 {
-	std::string rptAddress   = m_conf.getRptAddress();
-	unsigned int rptPort     = m_conf.getRptPort();
-	std::string localAddress = m_conf.getLocalAddress();
-	unsigned int localPort   = m_conf.getLocalPort();
 	std::string protocol     = m_conf.getRptProtocol();
 	unsigned int split       = m_conf.getSplit();
 	bool debug               = m_conf.getDebug();
 
 	LogInfo("MMDVM Network Parameters");
-	LogInfo("    Rpt Address: %s", rptAddress.c_str());
-	LogInfo("    Rpt Port: %u", rptPort);
-	LogInfo("    Local Address: %s", localAddress.c_str());
-	LogInfo("    Local Port: %u", localPort);
 	LogInfo("    Protocol: %s", protocol.c_str());
 	LogInfo("    Split: %u", split);
 
 	if (split > 0U) {
+		std::string rpt1Address   = m_conf.getRpt1Address();
+		unsigned int rpt1Port     = m_conf.getRpt1Port();
+		std::string rpt2Address   = m_conf.getRpt2Address();
+		unsigned int rpt2Port     = m_conf.getRpt2Port();
+		std::string localAddress  = m_conf.getLocalAddress();
+		unsigned int localPort1   = m_conf.getLocalPort1();
+		unsigned int localPort2   = m_conf.getLocalPort2();
+
+		LogInfo("    Rpt1 Address: %s", rpt1Address.c_str());
+		LogInfo("    Rpt1 Port: %u", rpt1Port);
+		LogInfo("    Rpt2 Address: %s", rpt2Address.c_str());
+		LogInfo("    Rpt2 Port: %u", rpt2Port);
+		LogInfo("    Local Address: %s", localAddress.c_str());
+		LogInfo("    Local Port1: %u", localPort1);
+		LogInfo("    Local Port2: %u", localPort2);
+
 		IMMDVMNetwork* network1 = NULL;
 		IMMDVMNetwork* network2 = NULL;
 
 		if (protocol == "old") {
-			network1 = new CMMDVMNetworkOld(rptAddress, rptPort + 0U, localAddress, localPort + 0U, debug);
-			network2 = new CMMDVMNetworkOld(rptAddress, rptPort + 1U, localAddress, localPort + 1U, debug);
+			network1 = new CMMDVMNetworkOld("MMDVM-1", rpt1Address, rpt1Port, localAddress, localPort1, debug);
+			network2 = new CMMDVMNetworkOld("MMDVM-2", rpt2Address, rpt2Port, localAddress, localPort2, debug);
 		} else {
-			network1 = new CMMDVMNetworkNew(rptAddress, rptPort + 0U, localAddress, localPort + 0U, debug);
-			network2 = new CMMDVMNetworkNew(rptAddress, rptPort + 1U, localAddress, localPort + 1U, debug);
+			network1 = new CMMDVMNetworkNew("MMDVM-1", rpt1Address, rpt1Port, localAddress, localPort1, debug);
+			network2 = new CMMDVMNetworkNew("MMDVM-2", rpt2Address, rpt2Port, localAddress, localPort2, debug);
 		}
 
 		m_repeater = new CSplitNetwork(network1, network2, split, debug);
 	} else {
+		std::string rptAddress   = m_conf.getRptAddress();
+		unsigned int rptPort     = m_conf.getRptPort();
+		std::string localAddress = m_conf.getLocalAddress();
+		unsigned int localPort   = m_conf.getLocalPort();
+
+		LogInfo("    Rpt Address: %s", rptAddress.c_str());
+		LogInfo("    Rpt Port: %u", rptPort);
+		LogInfo("    Local Address: %s", localAddress.c_str());
+		LogInfo("    Local Port: %u", localPort);
+
 		if (protocol == "old")
-			m_repeater = new CMMDVMNetworkOld(rptAddress, rptPort, localAddress, localPort, debug);
+			m_repeater = new CMMDVMNetworkOld("MMDVM", rptAddress, rptPort, localAddress, localPort, debug);
 		else
-			m_repeater = new CMMDVMNetworkNew(rptAddress, rptPort, localAddress, localPort, debug);
+			m_repeater = new CMMDVMNetworkNew("MMDVM", rptAddress, rptPort, localAddress, localPort, debug);
 	}
 
 	bool ret = m_repeater->open();

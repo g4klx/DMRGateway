@@ -30,7 +30,8 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CMMDVMNetworkNew::CMMDVMNetworkNew(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
+CMMDVMNetworkNew::CMMDVMNetworkNew(const char* name, const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
+m_name(name),
 m_rptAddr(),
 m_rptAddrLen(0U),
 m_id(0U),
@@ -46,6 +47,7 @@ m_radioPositionLen(0U),
 m_talkerAliasData(NULL),
 m_talkerAliasLen(0U)
 {
+	assert(name != NULL);
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
 
@@ -89,11 +91,11 @@ unsigned int CMMDVMNetworkNew::getId() const
 bool CMMDVMNetworkNew::open()
 {
 	if (m_rptAddrLen == 0U) {
-		LogError("Could not lookup the address of the MMDVM Host");
+		LogError("%s Network, could not lookup the address of the MMDVM Host", m_name);
 		return false;
 	}
 
-	LogMessage("MMDVM Network, Opening");
+	LogMessage("%s Network, opening new network", m_name);
 
 	return m_socket.open(m_rptAddr);
 }
@@ -250,7 +252,7 @@ bool CMMDVMNetworkNew::writeBeacon()
 
 void CMMDVMNetworkNew::close()
 {
-	LogMessage("MMDVM Network, Closing");
+	LogMessage("%s Network, closing new network", m_name);
 
 	m_socket.close();
 }
@@ -264,7 +266,7 @@ void CMMDVMNetworkNew::clock(unsigned int ms)
 		return;
 
 	if (!CUDPSocket::match(m_rptAddr, address)) {
-		LogMessage("MMDVM packet received from an invalid source");
+		LogMessage("%s Network, packet received from an invalid source", m_name);
 		return;
 	}
 

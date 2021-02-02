@@ -50,9 +50,15 @@ m_rfTimeout(10U),
 m_netTimeout(10U),
 m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
+m_rpt1Address("127.0.0.1"),
+m_rpt1Port(62032U),
+m_rpt2Address("127.0.0.1"),
+m_rpt2Port(62033U),
 m_localAddress("127.0.0.1"),
-m_localPort(62031U),
-m_rptProtocol("New"),
+m_localPort(62030U),
+m_localPort1(62030U),
+m_localPort2(62031U),
+m_rptProtocol("new"),
 m_split(0U),
 m_ruleTrace(false),
 m_debug(false),
@@ -275,13 +281,25 @@ bool CConf::read()
 			else if (::strcmp(key, "NetTimeout") == 0)
 				m_netTimeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptAddress") == 0)
-				m_rptAddress = value;
+				m_rpt1Address = m_rpt2Address = m_rptAddress = value;
 			else if (::strcmp(key, "RptPort") == 0)
-				m_rptPort = (unsigned int)::atoi(value);
+				m_rpt1Port = m_rpt2Port = m_rptPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Rpt1Address") == 0)
+				m_rpt1Address = value;
+			else if (::strcmp(key, "Rpt1Port") == 0)
+				m_rpt1Port = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Rpt2Address") == 0)
+				m_rpt2Address = value;
+			else if (::strcmp(key, "Rpt2Port") == 0)
+				m_rpt2Port = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "LocalAddress") == 0)
 				m_localAddress = value;
 			else if (::strcmp(key, "LocalPort") == 0)
-				m_localPort = (unsigned int)::atoi(value);
+				m_localPort1 = m_localPort2 = m_localPort = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "LocalPort1") == 0)
+				m_localPort1 = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "LocalPort2") == 0)
+				m_localPort2 = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptProtocol") == 0)
 				m_rptProtocol = value;
 			else if (::strcmp(key, "Split") == 0)
@@ -1016,6 +1034,26 @@ unsigned int CConf::getRptPort() const
 	return m_rptPort;
 }
 
+std::string CConf::getRpt1Address() const
+{
+	return m_rpt1Address;
+}
+
+unsigned int CConf::getRpt1Port() const
+{
+	return m_rpt1Port;
+}
+
+std::string CConf::getRpt2Address() const
+{
+	return m_rpt2Address;
+}
+
+unsigned int CConf::getRpt2Port() const
+{
+	return m_rpt2Port;
+}
+
 std::string CConf::getLocalAddress() const
 {
 	return m_localAddress;
@@ -1024,6 +1062,16 @@ std::string CConf::getLocalAddress() const
 unsigned int CConf::getLocalPort() const
 {
 	return m_localPort;
+}
+
+unsigned int CConf::getLocalPort1() const
+{
+	return m_localPort1;
+}
+
+unsigned int CConf::getLocalPort2() const
+{
+	return m_localPort2;
 }
 
 std::string CConf::getRptProtocol() const

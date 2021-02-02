@@ -31,7 +31,8 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CMMDVMNetworkOld::CMMDVMNetworkOld(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
+CMMDVMNetworkOld::CMMDVMNetworkOld(const char* name, const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug) :
+m_name(name),
 m_rptAddr(),
 m_rptAddrLen(0U),
 m_id(0U),
@@ -47,6 +48,7 @@ m_radioPositionLen(0U),
 m_talkerAliasData(NULL),
 m_talkerAliasLen(0U)
 {
+	assert(name != NULL);
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
 
@@ -90,11 +92,11 @@ unsigned int CMMDVMNetworkOld::getId() const
 bool CMMDVMNetworkOld::open()
 {
 	if (m_rptAddrLen == 0U) {
-		LogError("Could not lookup the address of the MMDVM Host");
+		LogError("%s Network, could not lookup the address of the MMDVM Host", m_name);
 		return false;
 	}
 
-	LogMessage("MMDVM Network, Opening");
+	LogMessage("%s Network, opening old network", m_name);
 
 	return m_socket.open();
 }
@@ -258,7 +260,7 @@ void CMMDVMNetworkOld::close()
 	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
 	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);
 
-	LogMessage("MMDVM Network, Closing");
+	LogMessage("%s Network, closing old network", m_name);
 
 	::memcpy(buffer + 0U, "MSTCL", 5U);
 	::memcpy(buffer + 5U, m_netId, 4U);
@@ -273,14 +275,14 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 	unsigned int addrlen;
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length < 0) {
-		LogError("MMDVM Network, Socket has failed, reopening");
+		LogError("%s Network, socket has failed, reopening", m_name);
 		close();
 		open();
 		return;
 	}
 
 	if (!CUDPSocket::match(m_rptAddr, address)) {
-		LogMessage("MMDVM packet received from an invalid source");
+		LogMessage("%s Network, packet received from an invalid source", m_name);
 		return;
 	}
 
@@ -319,7 +321,7 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 			::memcpy(ack + 6U, m_netId, 4U);
 			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
 		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
-			::LogMessage("MMDVM Network, The connected MMDVM is closing down");
+			::LogMessage("%s Network, the connected MMDVM is closing down", m_name);
 		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
 			m_configLen = 111U;
 			m_configData = new unsigned char[m_configLen];
