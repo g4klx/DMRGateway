@@ -281,87 +281,85 @@ void CMMDVMNetworkOld::clock(unsigned int ms)
 		return;
 	}
 
+	if (length == 0)
+		return;
+
 	if (!CUDPSocket::match(m_rptAddr, address)) {
 		LogMessage("%s Network, packet received from an invalid source", m_name);
 		return;
 	}
 
-	if (m_debug && length > 0)
+	if (m_debug)
 		CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (length > 0) {
-		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-			if (m_debug)
-				CUtils::dump(1U, "Network Received", m_buffer, length);
+	if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
+		unsigned char len = length;
+		m_rxData.addData(&len, 1U);
+		m_rxData.addData(m_buffer, len);
+	} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
+		::memcpy(m_radioPositionData, m_buffer, length);
+		m_radioPositionLen = length;
+	} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
+		::memcpy(m_talkerAliasData, m_buffer, length);
+		m_talkerAliasLen = length;
+	} else if (::memcmp(m_buffer, "RPTG", 4U) == 0) {
+	} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
+		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
+		::memcpy(m_netId, m_buffer + 4U, 4U);
 
-			unsigned char len = length;
-			m_rxData.addData(&len, 1U);
-			m_rxData.addData(m_buffer, len);
-		} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
-			::memcpy(m_radioPositionData, m_buffer, length);
-			m_radioPositionLen = length;
-		} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
-			::memcpy(m_talkerAliasData, m_buffer, length);
-			m_talkerAliasLen = length;
-		} else if (::memcmp(m_buffer, "RPTG", 4U) == 0) {
-		} else if (::memcmp(m_buffer, "RPTL", 4U) == 0) {
-			m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
-			::memcpy(m_netId, m_buffer + 4U, 4U);
+		unsigned char ack[10U];
+		::memcpy(ack + 0U, "RPTACK", 6U);
 
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
+		uint32_t salt = 1U;
+		::memcpy(ack + 6U, &salt, sizeof(uint32_t));
 
-			uint32_t salt = 1U;
-			::memcpy(ack + 6U, &salt, sizeof(uint32_t));
+		m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
+	} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
+		unsigned char ack[10U];
+		::memcpy(ack + 0U, "RPTACK", 6U);
+		::memcpy(ack + 6U, m_netId, 4U);
+		m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
+	} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
+		::LogMessage("%s Network, the connected MMDVM is closing down", m_name);
+	} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
+		m_configLen = 111U;
+		m_configData = new unsigned char[m_configLen];
 
-			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
-		} else if (::memcmp(m_buffer, "RPTK", 4U) == 0) {
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
-		} else if (::memcmp(m_buffer, "RPTCL", 5U) == 0) {
-			::LogMessage("%s Network, the connected MMDVM is closing down", m_name);
-		} else if (::memcmp(m_buffer, "RPTC", 4U) == 0) {
-			m_configLen = 111U;
-			m_configData = new unsigned char[m_configLen];
+		// Convert the old style config data to the new style
+		const unsigned char* p = m_buffer;
 
-			// Convert the old style config data to the new style
-			const unsigned char* p = m_buffer;
+		p += 4U + 4U;	// Skip the opcode and id fields
 
-			p += 4U + 4U;	// Skip the opcode and id fields
+		// First the callsign, frequencies, power, and color code.
+		::memcpy(m_configData + 0U, p, 8U + 9U + 9U + 2U + 2U);
+		p += 8U + 9U + 9U + 2U + 2U;
 
-			// First the callsign, frequencies, power, and color code.
-			::memcpy(m_configData + 0U, p, 8U + 9U + 9U + 2U + 2U);
-			p += 8U + 9U + 9U + 2U + 2U;
+		p += 8U + 9U + 3U + 20U + 19U;	// Skip the latutude, longitude, height, location and description.
 
-			p += 8U + 9U + 3U + 20U + 19U;	// Skip the latutude, longitude, height, location and description.
+		// Next the slots.
+		::memcpy(m_configData + 30U, p, 1U);
+		p += 1U;
 
-			// Next the slots.
-			::memcpy(m_configData + 30U, p, 1U);
-			p += 1U;
+		p += 124U;	// Skip the URL
 
-			p += 124U;	// Skip the URL
+		// Finally the version and software.
+		::memcpy(m_configData + 31U, p, 40U + 40U);
 
-			// Finally the version and software.
-			::memcpy(m_configData + 31U, p, 40U + 40U);
-
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
-		} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
-			unsigned char ack[10U];
-			::memcpy(ack + 0U, "RPTACK", 6U);
-			::memcpy(ack + 6U, m_netId, 4U);
-			m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
-		} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
-			unsigned char pong[11U];
-			::memcpy(pong + 0U, "MSTPONG", 7U);
-			::memcpy(pong + 7U, m_netId, 4U);
-			m_socket.write(pong, 11U, m_rptAddr, m_rptAddrLen);
-		} else {
-			CUtils::dump("Unknown packet from the master", m_buffer, length);
-		}
+		unsigned char ack[10U];
+		::memcpy(ack + 0U, "RPTACK", 6U);
+		::memcpy(ack + 6U, m_netId, 4U);
+		m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
+	} else if (::memcmp(m_buffer, "RPTO", 4U) == 0) {
+		unsigned char ack[10U];
+		::memcpy(ack + 0U, "RPTACK", 6U);
+		::memcpy(ack + 6U, m_netId, 4U);
+		m_socket.write(ack, 10U, m_rptAddr, m_rptAddrLen);
+	} else if (::memcmp(m_buffer, "RPTPING", 7U) == 0) {
+		unsigned char pong[11U];
+		::memcpy(pong + 0U, "MSTPONG", 7U);
+		::memcpy(pong + 7U, m_netId, 4U);
+		m_socket.write(pong, 11U, m_rptAddr, m_rptAddrLen);
+	} else {
+		CUtils::dump("Unknown packet from the master", m_buffer, length);
 	}
 }
