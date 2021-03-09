@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 
 #include "DMRNetwork.h"
 
-#include "StopWatch.h"
 #include "SHA256.h"
 #include "Utils.h"
 #include "Log.h"
@@ -67,9 +66,6 @@ m_beacon(false)
 	m_id[1U] = id >> 16;
 	m_id[2U] = id >> 8;
 	m_id[3U] = id >> 0;
-
-	CStopWatch stopWatch;
-	::srand(stopWatch.start());
 }
 
 CDMRNetwork::~CDMRNetwork()
