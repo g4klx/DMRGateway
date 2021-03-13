@@ -31,6 +31,8 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
 CDMRNetwork::CDMRNetwork(const std::string& address, unsigned int port, unsigned int local, unsigned int id, const std::string& password, const std::string& name, bool location, bool debug) :
+m_address(address),
+m_port(port),
 m_addr(),
 m_addrLen(0U),
 m_id(NULL),
@@ -54,9 +56,6 @@ m_beacon(false)
 	assert(port > 0U);
 	assert(id > 1000U);
 	assert(!password.empty());
-
-	if (CUDPSocket::lookup(address, port, m_addr, m_addrLen) != 0)
-		m_addrLen = 0U;
 
 	m_buffer   = new unsigned char[BUFFER_LENGTH];
 	m_salt     = new unsigned char[sizeof(uint32_t)];
@@ -90,7 +89,7 @@ void CDMRNetwork::setConfig(const unsigned char* data, unsigned int len)
 
 bool CDMRNetwork::open()
 {
-	if (m_addrLen == 0U) {
+	if (CUDPSocket::lookup(m_address, m_port, m_addr, m_addrLen) != 0) {
 		LogError("%s, Could not lookup the address of the master", m_name.c_str());
 		return false;
 	}
@@ -304,23 +303,36 @@ void CDMRNetwork::close()
 
 void CDMRNetwork::clock(unsigned int ms)
 {
-	if (m_status == WAITING_CONNECT) {
-		m_retryTimer.clock(ms);
-		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-			bool ret = m_socket.open(m_addr);
-			if (ret) {
-				ret = writeLogin();
-				if (!ret)
-					return;
-
-				m_status = WAITING_LOGIN;
-				m_timeoutTimer.start();
+	m_retryTimer.clock(ms);
+	if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
+		switch (m_status) {
+		case WAITING_CONNECT:
+			if (m_socket.open(m_addr.ss_family)) {
+				if (writeLogin()) {
+					m_status = WAITING_LOGIN;
+				}
 			}
-
-			m_retryTimer.start();
+			break;
+		case WAITING_LOGIN:
+			writeLogin();
+			break;
+		case WAITING_AUTHORISATION:
+			writeAuthorisation();
+			break;
+		case WAITING_OPTIONS:
+			writeOptions();
+			break;
+		case WAITING_CONFIG:
+			writeConfig();
+			break;
+		case RUNNING:
+			writePing();
+			break;
+		default:
+			break;
 		}
 
-		return;
+		m_retryTimer.start();
 	}
 
 	sockaddr_storage address;
@@ -333,18 +345,23 @@ void CDMRNetwork::clock(unsigned int ms)
 		return;
 	}
 
-	if (m_debug && length > 0)
-		CUtils::dump(1U, "Network Received", m_buffer, length);
+	if (length > 0) {
+		if (!CUDPSocket::match(m_addr, address)) {
+			LogMessage("%s, packet received from an invalid source", m_name.c_str());
+			return;
+		}
 
-	if (length > 0 && CUDPSocket::match(m_addr, address)) {
+		if (m_debug) {
+			char buffer[100U];
+			::sprintf(buffer, "%s, Network Received", m_name.c_str());
+			CUtils::dump(1U, buffer, m_buffer, length);
+		}
+
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-			if (m_debug)
-				CUtils::dump(1U, "Network Received", m_buffer, length);
-
 			unsigned char len = length;
 			m_rxData.addData(&len, 1U);
 			m_rxData.addData(m_buffer, len);
-		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
+		} else if (::memcmp(m_buffer, "MSTNAK", 6U) == 0) {
 			if (m_status == RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
 				m_status = WAITING_LOGIN;
@@ -359,45 +376,46 @@ void CDMRNetwork::clock(unsigned int ms)
 				open();
 				return;
 			}
-		} else if (::memcmp(m_buffer, "RPTACK",  6U) == 0) {
+		} else if (::memcmp(m_buffer, "RPTACK", 6U) == 0) {
 			switch (m_status) {
-				case WAITING_LOGIN:
-					LogDebug("%s, Sending authorisation", m_name.c_str());
-					::memcpy(m_salt, m_buffer + 6U, sizeof(uint32_t));
-					writeAuthorisation();
-					m_status = WAITING_AUTHORISATION;
-					m_timeoutTimer.start();
-					m_retryTimer.start();
-					break;
-				case WAITING_AUTHORISATION:
-					LogDebug("%s, Sending configuration", m_name.c_str());
-					writeConfig();
-					m_status = WAITING_CONFIG;
-					m_timeoutTimer.start();
-					m_retryTimer.start();
-					break;
-				case WAITING_CONFIG:
-					if (m_options.empty()) {
-						LogMessage("%s, Logged into the master successfully", m_name.c_str());
-						m_status = RUNNING;
-					} else {
-						LogDebug("%s, Sending options", m_name.c_str());
-						writeOptions();
-						m_status = WAITING_OPTIONS;
-					}
-					m_timeoutTimer.start();
-					m_retryTimer.start();
-					break;
-				case WAITING_OPTIONS:
+			case WAITING_LOGIN:
+				LogDebug("%s, Sending authorisation", m_name.c_str());
+				::memcpy(m_salt, m_buffer + 6U, sizeof(uint32_t));
+				writeAuthorisation();
+				m_status = WAITING_AUTHORISATION;
+				m_timeoutTimer.start();
+				m_retryTimer.start();
+				break;
+			case WAITING_AUTHORISATION:
+				LogDebug("%s, Sending configuration", m_name.c_str());
+				writeConfig();
+				m_status = WAITING_CONFIG;
+				m_timeoutTimer.start();
+				m_retryTimer.start();
+				break;
+			case WAITING_CONFIG:
+				if (m_options.empty()) {
 					LogMessage("%s, Logged into the master successfully", m_name.c_str());
 					m_status = RUNNING;
-					m_timeoutTimer.start();
-					m_retryTimer.start();
-					break;
-				default:
-					break;
+				}
+				else {
+					LogDebug("%s, Sending options", m_name.c_str());
+					writeOptions();
+					m_status = WAITING_OPTIONS;
+				}
+				m_timeoutTimer.start();
+				m_retryTimer.start();
+				break;
+			case WAITING_OPTIONS:
+				LogMessage("%s, Logged into the master successfully", m_name.c_str());
+				m_status = RUNNING;
+				m_timeoutTimer.start();
+				m_retryTimer.start();
+				break;
+			default:
+				break;
 			}
-		} else if (::memcmp(m_buffer, "MSTCL",   5U) == 0) {
+		} else if (::memcmp(m_buffer, "MSTCL", 5U) == 0) {
 			LogError("%s, Master is closing down", m_name.c_str());
 			close();
 			open();
@@ -410,31 +428,6 @@ void CDMRNetwork::clock(unsigned int ms)
 			::sprintf(buffer, "%s, Unknown packet from the master", m_name.c_str());
 			CUtils::dump(buffer, m_buffer, length);
 		}
-	}
-
-	m_retryTimer.clock(ms);
-	if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-		switch (m_status) {
-			case WAITING_LOGIN:
-				writeLogin();
-				break;
-			case WAITING_AUTHORISATION:
-				writeAuthorisation();
-				break;
-			case WAITING_OPTIONS:
-				writeOptions();
-				break;
-			case WAITING_CONFIG:
-				writeConfig();
-				break;
-			case RUNNING:
-				writePing();
-				break;
-			default:
-				break;
-		}
-
-		m_retryTimer.start();
 	}
 
 	m_timeoutTimer.clock(ms);
