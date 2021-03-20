@@ -39,6 +39,8 @@ public:
 
 	bool open();
 
+	void enable(bool enabled);
+	
 	bool read(CDMRData& data);
 
 	bool write(const CDMRData& data);
@@ -66,6 +68,7 @@ private:
 	bool             m_location;
 	bool             m_debug;
 	CUDPSocket       m_socket;
+	bool             m_enabled;
 
 	enum STATUS {
 		WAITING_CONNECT,

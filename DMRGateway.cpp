@@ -27,7 +27,6 @@
 #include "PassAllPC.h"
 #include "PassAllTG.h"
 #include "DMRFullLC.h"
-#include "XLXVoice.h"
 #include "Version.h"
 #include "Thread.h"
 #include "DMRLC.h"
@@ -159,6 +158,7 @@ m_xlxUserControl(true),
 m_xlxModule(),
 m_rptRewrite(NULL),
 m_xlxRewrite(NULL),
+m_xlxVoice(NULL),
 m_dmr1NetRewrites(),
 m_dmr1RFRewrites(),
 m_dmr1SrcRewrites(),
@@ -185,10 +185,17 @@ m_socket(NULL),
 m_writer(NULL),
 m_callsign(),
 m_txFrequency(0U),
-m_rxFrequency(0U)
+m_rxFrequency(0U),
 #if defined(USE_GPSD)
-,m_gpsd(NULL)
+m_gpsd(NULL),
 #endif
+m_network1Enabled(false),
+m_network2Enabled(false),
+m_network3Enabled(false),
+m_network4Enabled(false),
+m_network5Enabled(false),
+m_networkXlxEnabled(false),
+m_remoteControl(NULL)
 {
 	CUDPSocket::startup();
 
@@ -354,6 +361,13 @@ int CDMRGateway::run()
 	}
 #endif
 
+	m_network1Enabled = m_conf.getDMRNetwork1Enabled();
+	m_network2Enabled = m_conf.getDMRNetwork2Enabled();
+	m_network3Enabled = m_conf.getDMRNetwork3Enabled();
+	m_network4Enabled = m_conf.getDMRNetwork4Enabled();
+	m_network5Enabled = m_conf.getDMRNetwork5Enabled();
+	m_networkXlxEnabled = m_conf.getXLXNetworkEnabled();
+
 	LogInfo(HEADER1);
 	LogInfo(HEADER2);
 	LogInfo(HEADER3);
@@ -409,13 +423,12 @@ int CDMRGateway::run()
 	bool ruleTrace = m_conf.getRuleTrace();
 	LogInfo("Rule trace: %s", ruleTrace ? "yes" : "no");
 
-	if (m_conf.getXLXNetworkEnabled()) {
+	if (m_networkXlxEnabled && m_conf.getXLXNetworkEnabled()) {
 		ret = createXLXNetwork();
 		if (!ret)
 			return 1;
 	}
 
-	CXLXVoice* xlxVoice = NULL;
 	if (m_conf.getVoiceEnabled()) {
 		std::string language = m_conf.getVoiceLanguage();
 		std::string directory = m_conf.getVoiceDirectory();
@@ -426,40 +439,59 @@ int CDMRGateway::run()
 		LogInfo("    Directory: %s", directory.c_str());
 
 		if (m_xlxNetwork != NULL) {
-			xlxVoice = new CXLXVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
-			bool ret = xlxVoice->open();
+			m_xlxVoice = new CXLXVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
+			bool ret = m_xlxVoice->open();
 			if (!ret) {
-				delete xlxVoice;
-				xlxVoice = NULL;
+				delete m_xlxVoice;
+				m_xlxVoice = NULL;
 			}
 		}
 	}
 
-	if (m_conf.getDMRNetwork1Enabled()) {
+	bool remoteControlEnabled = m_conf.getRemoteControlEnabled();
+	if (remoteControlEnabled) {
+		std::string address = m_conf.getRemoteControlAddress();
+		unsigned int port = m_conf.getRemoteControlPort();
+
+		LogInfo("Remote Control Parameters");
+		LogInfo("    Address: %s", address.c_str());
+		LogInfo("    Port: %u", port);
+
+		m_remoteControl = new CRemoteControl(this, address, port);
+
+		ret = m_remoteControl->open();
+		if (!ret) {
+			LogInfo("Failed to open Remove Control Socket");
+			delete m_remoteControl;
+			m_remoteControl = NULL;
+		}
+	}
+
+	if (m_network1Enabled && m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
 		if (!ret)
 			return 1;
 	}
 
-	if (m_conf.getDMRNetwork2Enabled()) {
+	if (m_network2Enabled && m_conf.getDMRNetwork2Enabled()) {
 		ret = createDMRNetwork2();
 		if (!ret)
 			return 1;
 	}
 
-	if (m_conf.getDMRNetwork3Enabled()) {
+	if (m_network3Enabled && m_conf.getDMRNetwork3Enabled()) {
 		ret = createDMRNetwork3();
 		if (!ret)
 			return 1;
 	}
 
-	if (m_conf.getDMRNetwork4Enabled()) {
+	if (m_network4Enabled && m_conf.getDMRNetwork4Enabled()) {
 		ret = createDMRNetwork4();
 		if (!ret)
 			return 1;
 	}
 
-	if (m_conf.getDMRNetwork5Enabled()) {
+	if (m_network5Enabled && m_conf.getDMRNetwork5Enabled()) {
 		ret = createDMRNetwork5();
 		if (!ret)
 			return 1;
@@ -510,25 +542,25 @@ int CDMRGateway::run()
 	LogMessage("DMRGateway-%s is running", VERSION);
 
 	while (!m_killed) {
-		if (m_xlxNetwork != NULL) {
+		if (m_networkXlxEnabled && (m_xlxNetwork != NULL)) {
 			bool connected = m_xlxNetwork->isConnected();
 			if (connected && !m_xlxConnected) {
 				if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxReflector, m_xlxNetwork);
 					char c = ('A' + (m_xlxReflector % 100U)) - 1U;
 					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, c);
-					if (xlxVoice != NULL)
-						xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
+					if (m_xlxVoice != NULL)
+						m_xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
 				} else if (m_xlxRoom >= 4001U && m_xlxRoom <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
 					char c = ('A' + (m_xlxRoom % 100U)) - 1U;
 					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, c);
-					if (xlxVoice != NULL)
-						xlxVoice->linkedTo(m_xlxNumber, m_xlxRoom);
+					if (m_xlxVoice != NULL)
+						m_xlxVoice->linkedTo(m_xlxNumber, m_xlxRoom);
 					m_xlxReflector = m_xlxRoom;
 				} else {
-					if (xlxVoice != NULL)
-						xlxVoice->linkedTo(m_xlxNumber, 0U);
+					if (m_xlxVoice != NULL)
+						m_xlxVoice->linkedTo(m_xlxNumber, 0U);
 				}
 
 				m_xlxConnected = true;
@@ -540,8 +572,8 @@ int CDMRGateway::run()
 			} else if (!connected && m_xlxConnected) {
 				LogMessage("XLX, Unlinking from XLX%03u due to loss of connection", m_xlxNumber);
 
-				if (xlxVoice != NULL)
-					xlxVoice->unlinked();
+				if (m_xlxVoice != NULL)
+					m_xlxVoice->unlinked();
 
 				m_xlxConnected = false;
 				m_xlxRelink.stop();
@@ -572,11 +604,11 @@ int CDMRGateway::run()
 					}
 
 					m_xlxReflector = m_xlxRoom;
-					if (xlxVoice != NULL) {
+					if (m_xlxVoice != NULL) {
 						if (m_xlxReflector < 4001U || m_xlxReflector > 4026U)
-							xlxVoice->linkedTo(m_xlxNumber, 0U);
+							m_xlxVoice->linkedTo(m_xlxNumber, 0U);
 						else
-							xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
+							m_xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
 					}
 				}
 			}
@@ -596,7 +628,9 @@ int CDMRGateway::run()
 					m_xlxRelink.start();
 
 				m_xlxRewrite->process(data, false);
-				m_xlxNetwork->write(data);
+				if (m_networkXlxEnabled) {
+					m_xlxNetwork->write(data);
+				}
 				m_status[slotNo] = DMRGWS_XLXREFLECTOR;
 				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
@@ -629,16 +663,16 @@ int CDMRGateway::run()
 				timer[slotNo]->setTimeout(rfTimeout);
 				timer[slotNo]->start();
 
-				if (xlxVoice != NULL) {
+				if (m_xlxVoice != NULL) {
 					unsigned char type = data.getDataType();
 					if (type == DT_TERMINATOR_WITH_LC) {
 						if (m_xlxConnected) {
 							if (m_xlxReflector != 4000U)
-								xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
+								m_xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
 							else
-								xlxVoice->linkedTo(m_xlxNumber, 0U);
+								m_xlxVoice->linkedTo(m_xlxNumber, 0U);
 						} else {
-							xlxVoice->unlinked();
+							m_xlxVoice->unlinked();
 						}
 					}
 				}
@@ -666,7 +700,7 @@ int CDMRGateway::run()
 
 				PROCESS_RESULT result = RESULT_UNMATCHED;
 
-				if (m_dmrNetwork1 != NULL) {
+				if (m_network1Enabled && (m_dmrNetwork1 != NULL)) {
 					// Rewrite the slot and/or TG or neither
 					for (std::vector<CRewrite*>::iterator it = m_dmr1RFRewrites.begin(); it != m_dmr1RFRewrites.end(); ++it) {
 						PROCESS_RESULT res = (*it)->process(data, trace);
@@ -688,7 +722,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork2 != NULL) {
+					if (m_network2Enabled && (m_dmrNetwork2 != NULL)) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr2RFRewrites.begin(); it != m_dmr2RFRewrites.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
@@ -711,7 +745,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork3 != NULL) {
+					if (m_network3Enabled && (m_dmrNetwork3 != NULL)) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr3RFRewrites.begin(); it != m_dmr3RFRewrites.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
@@ -734,7 +768,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork4 != NULL) {
+					if (m_network4Enabled && (m_dmrNetwork4 != NULL)) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr4RFRewrites.begin(); it != m_dmr4RFRewrites.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
@@ -757,7 +791,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork5 != NULL) {
+					if (m_network5Enabled && (m_dmrNetwork5 != NULL)) {
 						// Rewrite the slot and/or TG or neither
 						for (std::vector<CRewrite*>::iterator it = m_dmr5RFRewrites.begin(); it != m_dmr5RFRewrites.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
@@ -780,7 +814,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork1 != NULL) {
+					if (m_network1Enabled && (m_dmrNetwork1 != NULL)) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr1Passalls.begin(); it != m_dmr1Passalls.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
 							if (res != RESULT_UNMATCHED) {
@@ -802,7 +836,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork2 != NULL) {
+					if (m_network2Enabled && (m_dmrNetwork2 != NULL)) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr2Passalls.begin(); it != m_dmr2Passalls.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
 							if (res != RESULT_UNMATCHED) {
@@ -824,7 +858,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork3 != NULL) {
+					if (m_network3Enabled && (m_dmrNetwork3 != NULL)) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr3Passalls.begin(); it != m_dmr3Passalls.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
 							if (res != RESULT_UNMATCHED) {
@@ -846,7 +880,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork4 != NULL) {
+					if (m_network4Enabled && (m_dmrNetwork4 != NULL)) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr4Passalls.begin(); it != m_dmr4Passalls.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
 							if (res != RESULT_UNMATCHED) {
@@ -868,7 +902,7 @@ int CDMRGateway::run()
 				}
 
 				if (result == RESULT_UNMATCHED) {
-					if (m_dmrNetwork5 != NULL) {
+					if (m_network5Enabled && (m_dmrNetwork5 != NULL)) {
 						for (std::vector<CRewrite*>::iterator it = m_dmr5Passalls.begin(); it != m_dmr5Passalls.end(); ++it) {
 							PROCESS_RESULT res = (*it)->process(data, trace);
 							if (res != RESULT_UNMATCHED) {
@@ -894,7 +928,7 @@ int CDMRGateway::run()
 			}
 		}
 
-		if (m_xlxNetwork != NULL) {
+		if (m_networkXlxEnabled && (m_xlxNetwork != NULL)) {
 			ret = m_xlxNetwork->read(data);
 			if (ret) {
 				if (m_status[m_xlxSlot] == DMRGWS_NONE || m_status[m_xlxSlot] == DMRGWS_XLXREFLECTOR) {
@@ -914,7 +948,7 @@ int CDMRGateway::run()
 			}
 		}
 
-		if (m_dmrNetwork1 != NULL) {
+		if (m_network1Enabled && (m_dmrNetwork1 != NULL)) {
 			ret = m_dmrNetwork1->read(data);
 			if (ret) {
 				unsigned int slotNo = data.getSlotNo();
@@ -964,7 +998,7 @@ int CDMRGateway::run()
 				m_repeater->writeBeacon();
 		}
 
-		if (m_dmrNetwork2 != NULL) {
+		if (m_network2Enabled && (m_dmrNetwork2 != NULL)) {
 			ret = m_dmrNetwork2->read(data);
 			if (ret) {
 				unsigned int slotNo = data.getSlotNo();
@@ -1014,7 +1048,7 @@ int CDMRGateway::run()
 				m_repeater->writeBeacon();
 		}
 
-		if (m_dmrNetwork3 != NULL) {
+		if (m_network3Enabled && (m_dmrNetwork3 != NULL)) {
 			ret = m_dmrNetwork3->read(data);
 			if (ret) {
 				unsigned int slotNo = data.getSlotNo();
@@ -1064,7 +1098,7 @@ int CDMRGateway::run()
 				m_repeater->writeBeacon();
 		}
 
-		if (m_dmrNetwork4 != NULL) {
+		if (m_network4Enabled && (m_dmrNetwork4 != NULL)) {
 			ret = m_dmrNetwork4->read(data);
 			if (ret) {
 				unsigned int slotNo = data.getSlotNo();
@@ -1114,7 +1148,7 @@ int CDMRGateway::run()
 				m_repeater->writeBeacon();
 		}
 
-		if (m_dmrNetwork5 != NULL) {
+		if (m_network5Enabled && (m_dmrNetwork5 != NULL)) {
 			ret = m_dmrNetwork5->read(data);
 			if (ret) {
 				unsigned int slotNo = data.getSlotNo();
@@ -1168,8 +1202,8 @@ int CDMRGateway::run()
 
 		processTalkerAlias();
 
-		if (xlxVoice != NULL) {
-			ret = xlxVoice->read(data);
+		if (m_networkXlxEnabled && (m_xlxVoice != NULL)) {
+			ret = m_xlxVoice->read(data);
 			if (ret) {
 				m_repeater->write(data);
 				m_status[m_xlxSlot] = DMRGWS_XLXREFLECTOR;
@@ -1186,6 +1220,8 @@ int CDMRGateway::run()
 
 		if (m_socket != NULL)
 			processDynamicTGControl();
+
+		remoteControl();
 
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
@@ -1215,8 +1251,8 @@ int CDMRGateway::run()
 		if (m_xlxReflectors != NULL)
 			m_xlxReflectors->clock(ms);
 
-		if (xlxVoice != NULL)
-			xlxVoice->clock(ms);
+		if (m_xlxVoice != NULL)
+			m_xlxVoice->clock(ms);
 
 #if defined(USE_GPSD)
 		if (m_gpsd != NULL)
@@ -1241,10 +1277,15 @@ int CDMRGateway::run()
 			CThread::sleep(10U);
 	}
 
-	delete xlxVoice;
+	delete m_xlxVoice;
 
 	m_repeater->close();
 	delete m_repeater;
+
+	if (m_remoteControl != NULL) {
+		m_remoteControl->close();
+		delete m_remoteControl;
+	}
 
 #if defined(USE_GPSD)
 	if (m_gpsd != NULL) {
@@ -1491,6 +1532,8 @@ bool CDMRGateway::createDMRNetwork1()
 		m_dmr1NetRewrites.push_back(netPassAllPC);
 	}
 
+	m_dmrNetwork1->enable(true);
+
 	return true;
 }
 
@@ -1657,6 +1700,8 @@ bool CDMRGateway::createDMRNetwork2()
 		m_dmr2Passalls.push_back(rfPassAllPC);
 		m_dmr2NetRewrites.push_back(netPassAllPC);
 	}
+
+	m_dmrNetwork2->enable(true);
 
 	return true;
 }
@@ -1825,6 +1870,8 @@ bool CDMRGateway::createDMRNetwork3()
 		m_dmr3NetRewrites.push_back(netPassAllPC);
 	}
 
+	m_dmrNetwork3->enable(true);
+
 	return true;
 }
 
@@ -1991,6 +2038,8 @@ bool CDMRGateway::createDMRNetwork4()
 		m_dmr4Passalls.push_back(rfPassAllPC);
 		m_dmr4NetRewrites.push_back(netPassAllPC);
 	}
+
+	m_dmrNetwork4->enable(true);
 
 	return true;
 }
@@ -2159,6 +2208,8 @@ bool CDMRGateway::createDMRNetwork5()
 		m_dmr5NetRewrites.push_back(netPassAllPC);
 	}
 
+	m_dmrNetwork5->enable(true);
+
 	return true;
 }
 
@@ -2286,6 +2337,8 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
 
+	m_xlxNetwork->enable(m_networkXlxEnabled);
+
 	return true;
 }
 
@@ -2412,19 +2465,19 @@ void CDMRGateway::processRadioPosition()
 	if (!ret)
 		return;
 
-	if (m_dmrNetwork1 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
+	if (m_network1Enabled && (m_dmrNetwork1 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
 		m_dmrNetwork1->writeRadioPosition(buffer, length);
 
-	if (m_dmrNetwork2 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK2 || m_status[2U] == DMRGWS_DMRNETWORK2))
+	if (m_network2Enabled && (m_dmrNetwork2 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK2 || m_status[2U] == DMRGWS_DMRNETWORK2))
 		m_dmrNetwork2->writeRadioPosition(buffer, length);
 
-	if (m_dmrNetwork3 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK3 || m_status[2U] == DMRGWS_DMRNETWORK3))
+	if (m_network3Enabled && (m_dmrNetwork3 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK3 || m_status[2U] == DMRGWS_DMRNETWORK3))
 		m_dmrNetwork3->writeRadioPosition(buffer, length);
 
-	if (m_dmrNetwork4 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK4 || m_status[2U] == DMRGWS_DMRNETWORK4))
+	if (m_network4Enabled && (m_dmrNetwork4 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK4 || m_status[2U] == DMRGWS_DMRNETWORK4))
 		m_dmrNetwork4->writeRadioPosition(buffer, length);
 
-	if (m_dmrNetwork5 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
+	if (m_network5Enabled && (m_dmrNetwork5 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
 		m_dmrNetwork5->writeRadioPosition(buffer, length);
 }
 
@@ -2436,19 +2489,19 @@ void CDMRGateway::processTalkerAlias()
 	if (!ret)
 		return;
 
-	if (m_dmrNetwork1 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
+	if (m_network1Enabled && (m_dmrNetwork1 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK1 || m_status[2U] == DMRGWS_DMRNETWORK1))
 		m_dmrNetwork1->writeTalkerAlias(buffer, length);
 
-	if (m_dmrNetwork2 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK2 || m_status[2U] == DMRGWS_DMRNETWORK2))
+	if (m_network2Enabled && (m_dmrNetwork2 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK2 || m_status[2U] == DMRGWS_DMRNETWORK2))
 		m_dmrNetwork2->writeTalkerAlias(buffer, length);
 
-	if (m_dmrNetwork3 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK3 || m_status[2U] == DMRGWS_DMRNETWORK3))
+	if (m_network3Enabled && (m_dmrNetwork3 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK3 || m_status[2U] == DMRGWS_DMRNETWORK3))
 		m_dmrNetwork3->writeTalkerAlias(buffer, length);
 
-	if (m_dmrNetwork4 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK4 || m_status[2U] == DMRGWS_DMRNETWORK4))
+	if (m_network4Enabled && (m_dmrNetwork4 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK4 || m_status[2U] == DMRGWS_DMRNETWORK4))
 		m_dmrNetwork4->writeTalkerAlias(buffer, length);
 
-	if (m_dmrNetwork5 != NULL && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
+	if (m_network5Enabled && (m_dmrNetwork5 != NULL) && (m_status[1U] == DMRGWS_DMRNETWORK5 || m_status[2U] == DMRGWS_DMRNETWORK5))
 		m_dmrNetwork5->writeTalkerAlias(buffer, length);
 }
 
@@ -2516,3 +2569,86 @@ void CDMRGateway::processDynamicTGControl()
 		LogWarning("Unknown dynamic TG control message: %s", buffer);
 	}
 }
+
+void CDMRGateway::remoteControl()
+{
+	if (m_remoteControl == NULL)
+		return;
+
+	REMOTE_COMMAND command = m_remoteControl->getCommand();
+	switch (command) {
+		case RCD_ENABLE_NETWORK1:
+			processEnableCommand(m_dmrNetwork1, "DMR Network 1", m_network1Enabled, true);
+			break;
+		case RCD_ENABLE_NETWORK2:
+			processEnableCommand(m_dmrNetwork2, "DMR Network 2", m_network2Enabled, true);
+			break;
+		case RCD_ENABLE_NETWORK3:
+			processEnableCommand(m_dmrNetwork3, "DMR Network 3", m_network3Enabled, true);
+			break;
+		case RCD_ENABLE_NETWORK4:
+			processEnableCommand(m_dmrNetwork4, "DMR Network 4", m_network4Enabled, true);
+			break;
+		case RCD_ENABLE_NETWORK5:
+			processEnableCommand(m_dmrNetwork5, "DMR Network 5", m_network5Enabled, true);
+			break;
+		case RCD_ENABLE_XLX:
+			if (m_xlxVoice != NULL) {
+				m_xlxVoice->reset();
+			}
+			processEnableCommand(m_xlxNetwork, "XLX Network", m_networkXlxEnabled, true);
+			break;
+		case RCD_DISABLE_NETWORK1:
+			processEnableCommand(m_dmrNetwork1, "DMR Network 1", m_network1Enabled, false);
+			break;
+		case RCD_DISABLE_NETWORK2:
+			processEnableCommand(m_dmrNetwork2, "DMR Network 2", m_network2Enabled, false);
+			break;
+		case RCD_DISABLE_NETWORK3:
+			processEnableCommand(m_dmrNetwork3, "DMR Network 3", m_network3Enabled, false);
+			break;
+		case RCD_DISABLE_NETWORK4:
+			processEnableCommand(m_dmrNetwork4, "DMR Network 4", m_network4Enabled, false);
+			break;
+		case RCD_DISABLE_NETWORK5:
+			processEnableCommand(m_dmrNetwork5, "DMR Network 5", m_network5Enabled, false);
+			break;
+		case RCD_DISABLE_XLX:
+			processEnableCommand(m_xlxNetwork, "XLX Network", m_networkXlxEnabled, false);
+			break;
+		default:
+			break;
+	}
+}
+
+void CDMRGateway::processEnableCommand(CDMRNetwork* network, const std::string& name, bool& mode, bool enabled)
+{
+	LogDebug("Setting '%s' mode current=%s new=%s", name.c_str(), mode ? "true" : "false", enabled ? "true" : "false");
+
+	if (network != NULL) {
+		mode = enabled;
+		network->enable(enabled);
+	}
+}
+
+void CDMRGateway::buildNetworkStatusString(std::string &str)
+{
+	str = "";
+	buildNetworkStatusNetworkString(str, "xlx", m_xlxNetwork, m_networkXlxEnabled);
+	str += " ";
+	buildNetworkStatusNetworkString(str, "net1", m_dmrNetwork1, m_network1Enabled);
+	str += " ";
+	buildNetworkStatusNetworkString(str, "net2", m_dmrNetwork2, m_network2Enabled);
+	str += " ";
+	buildNetworkStatusNetworkString(str, "net3", m_dmrNetwork3, m_network3Enabled);
+	str += " ";
+	buildNetworkStatusNetworkString(str, "net4", m_dmrNetwork4, m_network4Enabled);
+	str += " ";
+	buildNetworkStatusNetworkString(str, "net5", m_dmrNetwork5, m_network5Enabled);
+}
+
+void CDMRGateway::buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled)
+{
+	str += name + ":"+ (((network == NULL) || (enabled == false)) ? "n/a" : (network->isConnected() ? "conn" : "disc"));
+}
+
