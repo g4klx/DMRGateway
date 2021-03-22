@@ -241,6 +241,11 @@ public:
 	bool         getDynamicTGControlEnabled() const;
 	unsigned int getDynamicTGControlPort() const;
 
+	// The Remote Control section
+	bool         getRemoteControlEnabled() const;
+	std::string  getRemoteControlAddress() const;
+	unsigned int getRemoteControlPort() const;
+
 private:
 	std::string  m_file;
 	bool         m_daemon;
@@ -393,6 +398,10 @@ private:
 
 	bool         m_dynamicTGControlEnabled;
 	unsigned int m_dynamicTGControlPort;
+
+	bool         m_remoteControlEnabled;
+	std::string  m_remoteControlAddress;
+	unsigned int m_remoteControlPort;
 };
 
 #endif
