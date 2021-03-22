@@ -111,9 +111,9 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 			}
 
 			m_command = RCD_CONNECTION_STATUS;
-		}
-		else
+		} else {
 			replyStr = "KO";
+		}
 
 		::snprintf(buffer, BUFFER_LENGTH * 2, "%s remote command of \"%s\" received", ((m_command == RCD_NONE) ? "Invalid" : "Valid"), command);
 		if (m_command == RCD_NONE) {
@@ -123,7 +123,7 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 			LogMessage(buffer);
 		}
 
-		m_socket.write((unsigned char*)replyStr.c_str(), replyStr.length(), address, addrlen);
+		m_socket.write((unsigned char*)replyStr.c_str(), (unsigned int)replyStr.length(), address, addrlen);
 	}
 	
 	return m_command;

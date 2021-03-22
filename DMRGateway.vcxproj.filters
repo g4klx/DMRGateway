@@ -146,6 +146,9 @@
     <ClInclude Include="APRSWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RemoteControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp">
@@ -272,6 +275,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="APRSWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

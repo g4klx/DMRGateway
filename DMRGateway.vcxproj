@@ -177,6 +177,7 @@
     <ClInclude Include="PassAllTG.h" />
     <ClInclude Include="QR1676.h" />
     <ClInclude Include="Reflectors.h" />
+    <ClInclude Include="RemoteControl.h" />
     <ClInclude Include="Rewrite.h" />
     <ClInclude Include="RewriteDstId.h" />
     <ClInclude Include="RewriteDynTGNet.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="PassAllTG.cpp" />
     <ClCompile Include="QR1676.cpp" />
     <ClCompile Include="Reflectors.cpp" />
+    <ClCompile Include="RemoteControl.cpp" />
     <ClCompile Include="Rewrite.cpp" />
     <ClCompile Include="RewriteDstId.cpp" />
     <ClCompile Include="RewriteDynTGNet.cpp" />
