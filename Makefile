@@ -21,9 +21,6 @@ all:	DMRGateway
 DMRGateway:	GitVersion.h $(OBJECTS) 
 		$(CXX) $(OBJECTS) $(CFLAGS) $(LIBS) -o DMRGateway
 
-RemoteCommandDMRG:	Log.o RemoteCommandDMRG.o UDPSocket.o
-		$(CXX) Log.o RemoteCommandDMRG.o UDPSocket.o $(CFLAGS) $(LIBS) -o RemoteCommandDMRG
-
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
 
