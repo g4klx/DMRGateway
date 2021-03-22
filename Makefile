@@ -13,9 +13,9 @@ LDFLAGS = -g
 
 OBJECTS = APRSWriter.o BPTC19696.o Conf.o CRC.o DMRCSBK.o DMRData.o DMRDataHeader.o DMREmbeddedData.o DMREMB.o DMRFullLC.o DMRGateway.o \
 	  DMRLC.o DMRNetwork.o DMRSlotType.o DynVoice.o Golay2087.o GPSD.o Hamming.o Log.o MMDVMNetwork.o MMDVMNetworkNew.o MMDVMNetworkOld.o \
-	  PassAllPC.o PassAllTG.o QR1676.o Reflectors.o Rewrite.o RewriteDstId.o RewriteDynTGNet.o RewriteDynTGRF.o RewritePC.o RewriteSrc.o \
-	  RewriteSrcId.o RewriteTG.o RewriteType.o RS129.o SHA256.o SplitNetwork.o StopWatch.o Sync.o Thread.o Timer.o UDPSocket.o Utils.o \
-	  XLXVoice.o
+	  PassAllPC.o PassAllTG.o QR1676.o Reflectors.o RemoteControl.o Rewrite.o RewriteDstId.o RewriteDynTGNet.o RewriteDynTGRF.o RewritePC.o \
+	  RewriteSrc.o RewriteSrcId.o RewriteTG.o RewriteType.o RS129.o SHA256.o SplitNetwork.o StopWatch.o Sync.o Thread.o Timer.o UDPSocket.o \
+	  Utils.o XLXVoice.o
 
 all:	DMRGateway
 

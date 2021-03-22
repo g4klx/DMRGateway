@@ -195,7 +195,7 @@ void CXLXVoice::createVoice(const std::vector<std::string>& words)
 	for (unsigned int i = 0U; i < ambeLength; i += AMBE_LENGTH)
 		::memcpy(ambeData + i, SILENCE, AMBE_LENGTH);
 
-    // Put offset in for silence at the beginning
+	// Put offset in for silence at the beginning
 	unsigned int pos = SILENCE_LENGTH * AMBE_LENGTH;
 	for (std::vector<std::string>::const_iterator it = words.begin(); it != words.end(); ++it) {
 		if (m_positions.count(*it) > 0U) {
@@ -271,6 +271,19 @@ void CXLXVoice::createVoice(const std::vector<std::string>& words)
 
 	m_status = XLXVS_WAITING;
 	m_timer.start();
+}
+
+void CXLXVoice::reset()
+{
+	for (std::vector<CDMRData*>::iterator it = m_data.begin(); it != m_data.end(); ++it)
+		delete *it;
+
+	m_timer.stop();
+	m_status = XLXVS_NONE;
+	m_data.clear();
+	m_seqNo = 0U;
+	m_streamId = 0U;
+	m_sent = 0U;
 }
 
 bool CXLXVoice::read(CDMRData& data)

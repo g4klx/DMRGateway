@@ -19,12 +19,14 @@
 #if !defined(DMRGateway_H)
 #define	DMRGateway_H
 
+#include "RemoteControl.h"
 #include "RewriteDynTGNet.h"
 #include "RewriteDynTGRF.h"
 #include "MMDVMNetwork.h"
 #include "DMRNetwork.h"
 #include "APRSWriter.h"
 #include "Reflectors.h"
+#include "XLXVoice.h"
 #include "UDPSocket.h"
 #include "RewriteTG.h"
 #include "DynVoice.h"
@@ -53,6 +55,8 @@ public:
 
 	int run();
 
+	void buildNetworkStatusString(std::string &str);
+
 private:
 	CConf              m_conf;
 	DMRGW_STATUS*      m_status;
@@ -78,17 +82,18 @@ private:
 	unsigned int       m_xlxTG;
 	unsigned int       m_xlxBase;
 	unsigned int       m_xlxLocal;
-    unsigned int       m_xlxPort;
-    std::string        m_xlxPassword;
+	unsigned int       m_xlxPort;
+	std::string        m_xlxPassword;
 	unsigned int       m_xlxStartup;
 	unsigned int       m_xlxRoom;
 	CTimer 	           m_xlxRelink;
 	bool               m_xlxConnected;
 	bool               m_xlxDebug;
-    bool               m_xlxUserControl;
-    char               m_xlxModule;
+	bool               m_xlxUserControl;
+	char               m_xlxModule;
 	CRewriteTG*        m_rptRewrite;
 	CRewriteTG*        m_xlxRewrite;
+	CXLXVoice*         m_xlxVoice;
 	std::vector<CRewrite*> m_dmr1NetRewrites;
 	std::vector<CRewrite*> m_dmr1RFRewrites;
 	std::vector<CRewrite*> m_dmr1SrcRewrites;
@@ -119,7 +124,14 @@ private:
 #if defined(USE_GPSD)
 	CGPSD*                 m_gpsd;
 #endif
-
+	bool                   m_network1Enabled;
+	bool                   m_network2Enabled;
+	bool                   m_network3Enabled;
+	bool                   m_network4Enabled;
+	bool                   m_network5Enabled;
+	bool                   m_networkXlxEnabled;
+	CRemoteControl*        m_remoteControl;
+	
 	bool createMMDVM();
 	bool createDMRNetwork1();
 	bool createDMRNetwork2();
@@ -141,6 +153,9 @@ private:
 	void processTalkerAlias();
 	void createAPRS();
 	void processDynamicTGControl();
+	void remoteControl();
+	void processEnableCommand(CDMRNetwork* network, const std::string& name, bool& mode, bool enabled);
+	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
 };
 
 #endif

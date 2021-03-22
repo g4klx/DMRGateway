@@ -50,6 +50,8 @@ public:
 	void linkedTo(unsigned int number, unsigned int room);
 	void unlinked();
 
+	void reset();
+
 	bool read(CDMRData& data);
 
 	void clock(unsigned int ms);

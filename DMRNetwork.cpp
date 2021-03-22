@@ -41,6 +41,7 @@ m_name(name),
 m_location(location),
 m_debug(debug),
 m_socket(local),
+m_enabled(false),
 m_status(WAITING_CONNECT),
 m_retryTimer(1000U, 10U),
 m_timeoutTimer(1000U, 60U),
@@ -101,6 +102,14 @@ bool CDMRNetwork::open()
 	m_retryTimer.start();
 
 	return true;
+}
+
+void CDMRNetwork::enable(bool enabled)
+{
+        if (!enabled && m_enabled)
+                m_rxData.clear();
+
+        m_enabled = enabled;
 }
 
 bool CDMRNetwork::read(CDMRData& data)
@@ -358,10 +367,12 @@ void CDMRNetwork::clock(unsigned int ms)
 		}
 
 		if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-			unsigned char len = length;
-			m_rxData.addData(&len, 1U);
-			m_rxData.addData(m_buffer, len);
-		} else if (::memcmp(m_buffer, "MSTNAK", 6U) == 0) {
+			if (m_enabled) {
+				unsigned char len = length;
+				m_rxData.addData(&len, 1U);
+				m_rxData.addData(m_buffer, len);
+			}
+		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
 			if (m_status == RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
 				m_status = WAITING_LOGIN;

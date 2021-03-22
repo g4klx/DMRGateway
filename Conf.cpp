@@ -40,7 +40,8 @@ enum SECTION {
 	SECTION_XLX_NETWORK,
 	SECTION_GPSD,
 	SECTION_APRS,
-	SECTION_DYNAMIC_TG_CONTROL
+	SECTION_DYNAMIC_TG_CONTROL,
+	SECTION_REMOTE_CONTROL
 };
 
 CConf::CConf(const std::string& file) :
@@ -190,7 +191,10 @@ m_aprsPort(0U),
 m_aprsSuffix(),
 m_aprsDescription(),
 m_dynamicTGControlEnabled(false),
-m_dynamicTGControlPort(3769U)
+m_dynamicTGControlPort(3769U),
+m_remoteControlEnabled(false),
+m_remoteControlAddress("127.0.0.1"),
+m_remoteControlPort(0U)
 {
 }
 
@@ -240,6 +244,8 @@ bool CConf::read()
 			section = SECTION_APRS;
 		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
 			section = SECTION_DYNAMIC_TG_CONTROL;
+		else if (::strncmp(buffer, "[Remote Control]", 16U) == 0)
+			section = SECTION_REMOTE_CONTROL;
 		else
 			section = SECTION_NONE;
 
@@ -1001,6 +1007,13 @@ bool CConf::read()
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Port") == 0)
 				m_dynamicTGControlPort = (unsigned int)::atoi(value);
+		} else if (section == SECTION_REMOTE_CONTROL) {
+			if (::strcmp(key, "Enable") == 0)
+				m_remoteControlEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Address") == 0)
+				m_remoteControlAddress = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_remoteControlPort = (unsigned int)::atoi(value);
 		}
 	}
 
@@ -1750,4 +1763,19 @@ bool CConf::getDynamicTGControlEnabled() const
 unsigned int CConf::getDynamicTGControlPort() const
 {
 	return m_dynamicTGControlPort;
+}
+
+bool CConf::getRemoteControlEnabled() const
+{
+	return m_remoteControlEnabled;
+}
+
+std::string CConf::getRemoteControlAddress() const
+{
+	return m_remoteControlAddress;
+}
+
+unsigned int CConf::getRemoteControlPort() const
+{
+	return m_remoteControlPort;
 }
