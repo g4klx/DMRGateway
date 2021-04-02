@@ -57,7 +57,7 @@ public:
 
 	bool isConnected() const;
 
-	void close();
+	void close(bool sayGoodbye = true);
 
 private:
 	sockaddr_storage m_addr;

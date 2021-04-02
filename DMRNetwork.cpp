@@ -298,11 +298,11 @@ bool CDMRNetwork::isConnected() const
 	return m_status == RUNNING;
 }
 
-void CDMRNetwork::close()
+void CDMRNetwork::close(bool sayGoodbye)
 {
 	LogMessage("%s, Closing DMR Network", m_name.c_str());
 
-	if (m_status == RUNNING) {
+	if (sayGoodbye && (m_status == RUNNING)) {
 		unsigned char buffer[9U];
 		::memcpy(buffer + 0U, "RPTCL", 5U);
 		::memcpy(buffer + 5U, m_id, 4U);
@@ -341,7 +341,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length < 0) {
 		LogError("%s, Socket has failed, retrying connection to the master", m_name.c_str());
-		close();
+		close(false);
 		open();
 		return;
 	}
@@ -414,7 +414,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			}
 		} else if (::memcmp(m_buffer, "MSTCL",   5U) == 0) {
 			LogError("%s, Master is closing down", m_name.c_str());
-			close();
+			close(false);
 			open();
 		} else if (::memcmp(m_buffer, "MSTPONG", 7U) == 0) {
 			m_timeoutTimer.start();
@@ -455,7 +455,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	m_timeoutTimer.clock(ms);
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
 		LogError("%s, Connection to the master has timed out, retrying connection", m_name.c_str());
-		close();
+		close(false);
 		open();
 	}
 }
@@ -546,7 +546,7 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 	bool ret = m_socket.write(data, length, m_addr, m_addrLen);
 	if (!ret) {
 		LogError("%s, Socket has failed when writing data to the master, retrying connection", m_name.c_str());
-		m_socket.close();
+		close(false);
 		open();
 		return false;
 	}
