@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -1300,32 +1300,32 @@ int CDMRGateway::run()
 	}
 
 	if (m_dmrNetwork1 != NULL) {
-		m_dmrNetwork1->close();
+		m_dmrNetwork1->close(true);
 		delete m_dmrNetwork1;
 	}
 
 	if (m_dmrNetwork2 != NULL) {
-		m_dmrNetwork2->close();
+		m_dmrNetwork2->close(true);
 		delete m_dmrNetwork2;
 	}
 
 	if (m_dmrNetwork3 != NULL) {
-		m_dmrNetwork3->close();
+		m_dmrNetwork3->close(true);
 		delete m_dmrNetwork3;
 	}
 
 	if (m_dmrNetwork4 != NULL) {
-		m_dmrNetwork4->close();
+		m_dmrNetwork4->close(true);
 		delete m_dmrNetwork4;
 	}
 
 	if (m_dmrNetwork5 != NULL) {
-		m_dmrNetwork5->close();
+		m_dmrNetwork5->close(true);
 		delete m_dmrNetwork5;
 	}
 
 	if (m_xlxNetwork != NULL) {
-		m_xlxNetwork->close();
+		m_xlxNetwork->close(true);
 		delete m_xlxNetwork;
 	}
 
@@ -2308,7 +2308,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 
 	if (m_xlxNetwork != NULL) {
 		LogMessage("XLX, Disconnecting from XLX%03u", m_xlxNumber);
-		m_xlxNetwork->close();
+		m_xlxNetwork->close(true);
 		delete m_xlxNetwork;
 	}
 
@@ -2345,7 +2345,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 void CDMRGateway::unlinkXLX()
 {
 	if (m_xlxNetwork != NULL) {
-		m_xlxNetwork->close();
+		m_xlxNetwork->close(true);
 		delete m_xlxNetwork;
 		m_xlxNetwork = NULL;
 	}

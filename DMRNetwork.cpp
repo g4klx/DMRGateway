@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -370,7 +370,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				   the Network sometimes times out and reaches here.
 				   We want it to reconnect so... */
 				LogError("%s, Login to the master has failed, retrying network ...", m_name.c_str());
-				close();
+				close(false);
 				open();
 				return;
 			}
