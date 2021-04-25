@@ -39,7 +39,7 @@
 
 class CAPRSWriter {
 public:
-	CAPRSWriter(const std::string& callsign, const std::string& suffix, const std::string& address, unsigned int port, bool debug);
+	CAPRSWriter(const std::string& callsign, const std::string& suffix, const std::string& address, unsigned short port, bool debug);
 	~CAPRSWriter();
 
 	bool open();

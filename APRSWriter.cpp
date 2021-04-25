@@ -25,7 +25,7 @@
 #include <cstring>
 #include <cmath>
 
-CAPRSWriter::CAPRSWriter(const std::string& callsign, const std::string& suffix, const std::string& address, unsigned int port, bool debug) :
+CAPRSWriter::CAPRSWriter(const std::string& callsign, const std::string& suffix, const std::string& address, unsigned short port, bool debug) :
 m_idTimer(1000U),
 m_callsign(callsign),
 m_debug(debug),

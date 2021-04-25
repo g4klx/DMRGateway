@@ -82,15 +82,15 @@ public:
 	unsigned int getRFTimeout() const;
 	unsigned int getNetTimeout() const;
 	std::string  getRptAddress() const;
-	unsigned int getRptPort() const;
+	unsigned short getRptPort() const;
 	std::string  getRpt1Address() const;
-	unsigned int getRpt1Port() const;
+	unsigned short getRpt1Port() const;
 	std::string  getRpt2Address() const;
-	unsigned int getRpt2Port() const;
+	unsigned short getRpt2Port() const;
 	std::string  getLocalAddress() const;
-	unsigned int getLocalPort() const;
-	unsigned int getLocalPort1() const;
-	unsigned int getLocalPort2() const;
+	unsigned short getLocalPort() const;
+	unsigned short getLocalPort1() const;
+	unsigned short getLocalPort2() const;
 	std::string  getRptProtocol() const;
 	unsigned int getSplit() const;
 	bool         getRuleTrace() const;
@@ -121,8 +121,8 @@ public:
 	std::string  getDMRNetwork1Name() const;
 	unsigned int getDMRNetwork1Id() const;
 	std::string  getDMRNetwork1Address() const;
-	unsigned int getDMRNetwork1Port() const;
-	unsigned int getDMRNetwork1Local() const;
+	unsigned short getDMRNetwork1Port() const;
+	unsigned short getDMRNetwork1Local() const;
 	std::string  getDMRNetwork1Password() const;
 	std::string  getDMRNetwork1Options() const;
 	bool         getDMRNetwork1Location() const;
@@ -141,8 +141,8 @@ public:
 	std::string  getDMRNetwork2Name() const;
 	unsigned int getDMRNetwork2Id() const;
 	std::string  getDMRNetwork2Address() const;
-	unsigned int getDMRNetwork2Port() const;
-	unsigned int getDMRNetwork2Local() const;
+	unsigned short getDMRNetwork2Port() const;
+	unsigned short getDMRNetwork2Local() const;
 	std::string  getDMRNetwork2Password() const;
 	std::string  getDMRNetwork2Options() const;
 	bool         getDMRNetwork2Location() const;
@@ -161,8 +161,8 @@ public:
 	std::string  getDMRNetwork3Name() const;
 	unsigned int getDMRNetwork3Id() const;
 	std::string  getDMRNetwork3Address() const;
-	unsigned int getDMRNetwork3Port() const;
-	unsigned int getDMRNetwork3Local() const;
+	unsigned short getDMRNetwork3Port() const;
+	unsigned short getDMRNetwork3Local() const;
 	std::string  getDMRNetwork3Password() const;
 	std::string  getDMRNetwork3Options() const;
 	bool         getDMRNetwork3Location() const;
@@ -181,8 +181,8 @@ public:
 	std::string  getDMRNetwork4Name() const;
 	unsigned int getDMRNetwork4Id() const;
 	std::string  getDMRNetwork4Address() const;
-	unsigned int getDMRNetwork4Port() const;
-	unsigned int getDMRNetwork4Local() const;
+	unsigned short getDMRNetwork4Port() const;
+	unsigned short getDMRNetwork4Local() const;
 	std::string  getDMRNetwork4Password() const;
 	std::string  getDMRNetwork4Options() const;
 	bool         getDMRNetwork4Location() const;
@@ -201,8 +201,8 @@ public:
 	std::string  getDMRNetwork5Name() const;
 	unsigned int getDMRNetwork5Id() const;
 	std::string  getDMRNetwork5Address() const;
-	unsigned int getDMRNetwork5Port() const;
-	unsigned int getDMRNetwork5Local() const;
+	unsigned short getDMRNetwork5Port() const;
+	unsigned short getDMRNetwork5Local() const;
 	std::string  getDMRNetwork5Password() const;
 	std::string  getDMRNetwork5Options() const;
 	bool         getDMRNetwork5Location() const;
@@ -220,18 +220,18 @@ public:
 	bool         getXLXNetworkEnabled() const;
 	unsigned int getXLXNetworkId() const;
 	std::string  getXLXNetworkFile() const;
-    unsigned int getXLXNetworkReloadTime() const;
-    unsigned int getXLXNetworkPort() const;
-    std::string  getXLXNetworkPassword() const;
-	unsigned int getXLXNetworkLocal() const;
+	unsigned int getXLXNetworkReloadTime() const;
+	unsigned short getXLXNetworkPort() const;
+	std::string  getXLXNetworkPassword() const;
+	unsigned short getXLXNetworkLocal() const;
 	unsigned int getXLXNetworkSlot() const;
 	unsigned int getXLXNetworkTG() const;
 	unsigned int getXLXNetworkBase() const;
 	unsigned int getXLXNetworkStartup() const;
 	unsigned int getXLXNetworkRelink() const;
 	bool         getXLXNetworkDebug() const;
-    bool         getXLXNetworkUserControl() const;
-    char         getXLXNetworkModule() const;
+	bool         getXLXNetworkUserControl() const;
+	char         getXLXNetworkModule() const;
 
 	// The GPSD section
 	bool         getGPSDEnabled() const;
@@ -241,18 +241,18 @@ public:
 	// The APRS section
 	bool         getAPRSEnabled() const;
 	std::string  getAPRSAddress() const;
-	unsigned int getAPRSPort() const;
+	unsigned short getAPRSPort() const;
 	std::string  getAPRSSuffix() const;
 	std::string  getAPRSDescription() const;
 
 	// The Dynamic TG Control section
 	bool         getDynamicTGControlEnabled() const;
-	unsigned int getDynamicTGControlPort() const;
+	unsigned short getDynamicTGControlPort() const;
 
 	// The Remote Control section
 	bool         getRemoteControlEnabled() const;
 	std::string  getRemoteControlAddress() const;
-	unsigned int getRemoteControlPort() const;
+	unsigned short getRemoteControlPort() const;
 
 private:
 	std::string  m_file;
@@ -260,15 +260,15 @@ private:
 	unsigned int m_rfTimeout;
 	unsigned int m_netTimeout;
 	std::string  m_rptAddress;
-	unsigned int m_rptPort;
+	unsigned short m_rptPort;
 	std::string  m_rpt1Address;
-	unsigned int m_rpt1Port;
+	unsigned short m_rpt1Port;
 	std::string  m_rpt2Address;
-	unsigned int m_rpt2Port;
+	unsigned short m_rpt2Port;
 	std::string  m_localAddress;
-	unsigned int m_localPort;
-	unsigned int m_localPort1;
-	unsigned int m_localPort2;
+	unsigned short m_localPort;
+	unsigned short m_localPort1;
+	unsigned short m_localPort2;
 	std::string  m_rptProtocol;
 	unsigned int m_split;
 	bool         m_ruleTrace;
@@ -295,8 +295,8 @@ private:
 	std::string  m_dmrNetwork1Name;
 	unsigned int m_dmrNetwork1Id;
 	std::string  m_dmrNetwork1Address;
-	unsigned int m_dmrNetwork1Port;
-	unsigned int m_dmrNetwork1Local;
+	unsigned short m_dmrNetwork1Port;
+	unsigned short m_dmrNetwork1Local;
 	std::string  m_dmrNetwork1Password;
 	std::string  m_dmrNetwork1Options;
 	bool         m_dmrNetwork1Location;
@@ -314,8 +314,8 @@ private:
 	std::string  m_dmrNetwork2Name;
 	unsigned int m_dmrNetwork2Id;
 	std::string  m_dmrNetwork2Address;
-	unsigned int m_dmrNetwork2Port;
-	unsigned int m_dmrNetwork2Local;
+	unsigned short m_dmrNetwork2Port;
+	unsigned short m_dmrNetwork2Local;
 	std::string  m_dmrNetwork2Password;
 	std::string  m_dmrNetwork2Options;
 	bool         m_dmrNetwork2Location;
@@ -333,8 +333,8 @@ private:
 	std::string  m_dmrNetwork3Name;
 	unsigned int m_dmrNetwork3Id;
 	std::string  m_dmrNetwork3Address;
-	unsigned int m_dmrNetwork3Port;
-	unsigned int m_dmrNetwork3Local;
+	unsigned short m_dmrNetwork3Port;
+	unsigned short m_dmrNetwork3Local;
 	std::string  m_dmrNetwork3Password;
 	std::string  m_dmrNetwork3Options;
 	bool         m_dmrNetwork3Location;
@@ -352,8 +352,8 @@ private:
 	std::string  m_dmrNetwork4Name;
 	unsigned int m_dmrNetwork4Id;
 	std::string  m_dmrNetwork4Address;
-	unsigned int m_dmrNetwork4Port;
-	unsigned int m_dmrNetwork4Local;
+	unsigned short m_dmrNetwork4Port;
+	unsigned short m_dmrNetwork4Local;
 	std::string  m_dmrNetwork4Password;
 	std::string  m_dmrNetwork4Options;
 	bool         m_dmrNetwork4Location;
@@ -371,8 +371,8 @@ private:
 	std::string  m_dmrNetwork5Name;
 	unsigned int m_dmrNetwork5Id;
 	std::string  m_dmrNetwork5Address;
-	unsigned int m_dmrNetwork5Port;
-	unsigned int m_dmrNetwork5Local;
+	unsigned short m_dmrNetwork5Port;
+	unsigned short m_dmrNetwork5Local;
 	std::string  m_dmrNetwork5Password;
 	std::string  m_dmrNetwork5Options;
 	bool         m_dmrNetwork5Location;
@@ -389,18 +389,18 @@ private:
 	bool         m_xlxNetworkEnabled;
 	unsigned int m_xlxNetworkId;
 	std::string  m_xlxNetworkFile;
-    unsigned int m_xlxNetworkReloadTime;
-    unsigned int m_xlxNetworkPort;
-    std::string  m_xlxNetworkPassword;
-	unsigned int m_xlxNetworkLocal;
+	unsigned int m_xlxNetworkReloadTime;
+	unsigned short m_xlxNetworkPort;
+	std::string  m_xlxNetworkPassword;
+	unsigned short m_xlxNetworkLocal;
 	unsigned int m_xlxNetworkSlot;
 	unsigned int m_xlxNetworkTG;
 	unsigned int m_xlxNetworkBase;
 	unsigned int m_xlxNetworkStartup;
 	unsigned int m_xlxNetworkRelink;
 	bool         m_xlxNetworkDebug;
-    bool         m_xlxNetworkUserControl;
-    char         m_xlxNetworkModule;
+	bool         m_xlxNetworkUserControl;
+	char         m_xlxNetworkModule;
 
 	bool         m_gpsdEnabled;
 	std::string  m_gpsdAddress;
@@ -408,16 +408,16 @@ private:
 
 	bool         m_aprsEnabled;
 	std::string  m_aprsAddress;
-	unsigned int m_aprsPort;
+	unsigned short m_aprsPort;
 	std::string  m_aprsSuffix;
 	std::string  m_aprsDescription;
 
 	bool         m_dynamicTGControlEnabled;
-	unsigned int m_dynamicTGControlPort;
+	unsigned short m_dynamicTGControlPort;
 
 	bool         m_remoteControlEnabled;
 	std::string  m_remoteControlAddress;
-	unsigned int m_remoteControlPort;
+	unsigned short m_remoteControlPort;
 };
 
 #endif

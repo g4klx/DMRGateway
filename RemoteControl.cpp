@@ -30,7 +30,7 @@ const unsigned int DISABLE_ARGS = 2U;
 
 const unsigned int BUFFER_LENGTH = 100U;
 
-CRemoteControl::CRemoteControl(CDMRGateway* host, const std::string address, unsigned int port) :
+CRemoteControl::CRemoteControl(CDMRGateway* host, const std::string address, unsigned short port) :
 m_host(host),
 m_socket(address, port),
 m_command(RCD_NONE),

@@ -81,8 +81,8 @@ private:
 	unsigned int       m_xlxSlot;
 	unsigned int       m_xlxTG;
 	unsigned int       m_xlxBase;
-	unsigned int       m_xlxLocal;
-	unsigned int       m_xlxPort;
+	unsigned short     m_xlxLocal;
+	unsigned short     m_xlxPort;
 	std::string        m_xlxPassword;
 	unsigned int       m_xlxStartup;
 	unsigned int       m_xlxRoom;
