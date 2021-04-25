@@ -30,7 +30,7 @@
 class CMMDVMNetwork
 {
 public:
-	CMMDVMNetwork(const std::string& rptAddress, unsigned int rptPort, const std::string& localAddress, unsigned int localPort, bool debug);
+	CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, bool debug);
 	~CMMDVMNetwork();
 
 	unsigned int getShortConfig(unsigned char* config) const;
