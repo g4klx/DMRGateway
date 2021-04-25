@@ -46,7 +46,7 @@ class CDMRNetwork;
 
 class CRemoteControl {
 public:
-	CRemoteControl(CDMRGateway* host, const std::string address, unsigned int port);
+	CRemoteControl(CDMRGateway* host, const std::string address, unsigned short port);
 	~CRemoteControl();
 
 	bool open();

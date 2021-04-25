@@ -451,11 +451,11 @@ int CDMRGateway::run()
 	bool remoteControlEnabled = m_conf.getRemoteControlEnabled();
 	if (remoteControlEnabled) {
 		std::string address = m_conf.getRemoteControlAddress();
-		unsigned int port = m_conf.getRemoteControlPort();
+		unsigned short port = m_conf.getRemoteControlPort();
 
 		LogInfo("Remote Control Parameters");
 		LogInfo("    Address: %s", address.c_str());
-		LogInfo("    Port: %u", port);
+		LogInfo("    Port: %hu", port);
 
 		m_remoteControl = new CRemoteControl(this, address, port);
 
@@ -1345,16 +1345,16 @@ int CDMRGateway::run()
 bool CDMRGateway::createMMDVM()
 {
 	std::string rptAddress   = m_conf.getRptAddress();
-	unsigned int rptPort     = m_conf.getRptPort();
+	unsigned short rptPort   = m_conf.getRptPort();
 	std::string localAddress = m_conf.getLocalAddress();
-	unsigned int localPort   = m_conf.getLocalPort();
+	unsigned short localPort = m_conf.getLocalPort();
 	bool debug               = m_conf.getDebug();
 
 	LogInfo("MMDVM Network Parameters");
 	LogInfo("    Rpt Address: %s", rptAddress.c_str());
-	LogInfo("    Rpt Port: %u", rptPort);
+	LogInfo("    Rpt Port: %hu", rptPort);
 	LogInfo("    Local Address: %s", localAddress.c_str());
-	LogInfo("    Local Port: %u", localPort);
+	LogInfo("    Local Port: %hu", localPort);
 
 	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
 
@@ -1371,8 +1371,8 @@ bool CDMRGateway::createMMDVM()
 bool CDMRGateway::createDMRNetwork1()
 {
 	std::string address  = m_conf.getDMRNetwork1Address();
-	unsigned int port    = m_conf.getDMRNetwork1Port();
-	unsigned int local   = m_conf.getDMRNetwork1Local();
+	unsigned short port  = m_conf.getDMRNetwork1Port();
+	unsigned short local = m_conf.getDMRNetwork1Local();
 	unsigned int id      = m_conf.getDMRNetwork1Id();
 	std::string password = m_conf.getDMRNetwork1Password();
 	bool location        = m_conf.getDMRNetwork1Location();
@@ -1386,9 +1386,9 @@ bool CDMRGateway::createDMRNetwork1()
 	LogInfo("    Name: %s", m_dmr1Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
+	LogInfo("    Port: %hu", port);
 	if (local > 0U)
-		LogInfo("    Local: %u", local);
+		LogInfo("    Local: %hu", local);
 	else
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
@@ -1540,8 +1540,8 @@ bool CDMRGateway::createDMRNetwork1()
 bool CDMRGateway::createDMRNetwork2()
 {
 	std::string address  = m_conf.getDMRNetwork2Address();
-	unsigned int port    = m_conf.getDMRNetwork2Port();
-	unsigned int local   = m_conf.getDMRNetwork2Local();
+	unsigned short port  = m_conf.getDMRNetwork2Port();
+	unsigned short local = m_conf.getDMRNetwork2Local();
 	unsigned int id      = m_conf.getDMRNetwork2Id();
 	std::string password = m_conf.getDMRNetwork2Password();
 	bool location        = m_conf.getDMRNetwork2Location();
@@ -1555,9 +1555,9 @@ bool CDMRGateway::createDMRNetwork2()
 	LogInfo("    Name: %s", m_dmr2Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
+	LogInfo("    Port: %hu", port);
 	if (local > 0U)
-		LogInfo("    Local: %u", local);
+		LogInfo("    Local: %hu", local);
 	else
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
@@ -1709,8 +1709,8 @@ bool CDMRGateway::createDMRNetwork2()
 bool CDMRGateway::createDMRNetwork3()
 {
 	std::string address  = m_conf.getDMRNetwork3Address();
-	unsigned int port    = m_conf.getDMRNetwork3Port();
-	unsigned int local   = m_conf.getDMRNetwork3Local();
+	unsigned short port  = m_conf.getDMRNetwork3Port();
+	unsigned short local = m_conf.getDMRNetwork3Local();
 	unsigned int id      = m_conf.getDMRNetwork3Id();
 	std::string password = m_conf.getDMRNetwork3Password();
 	bool location        = m_conf.getDMRNetwork3Location();
@@ -1724,9 +1724,9 @@ bool CDMRGateway::createDMRNetwork3()
 	LogInfo("    Name: %s", m_dmr3Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
+	LogInfo("    Port: %hu", port);
 	if (local > 0U)
-		LogInfo("    Local: %u", local);
+		LogInfo("    Local: %hu", local);
 	else
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
@@ -1878,8 +1878,8 @@ bool CDMRGateway::createDMRNetwork3()
 bool CDMRGateway::createDMRNetwork4()
 {
 	std::string address  = m_conf.getDMRNetwork4Address();
-	unsigned int port    = m_conf.getDMRNetwork4Port();
-	unsigned int local   = m_conf.getDMRNetwork4Local();
+	unsigned short port  = m_conf.getDMRNetwork4Port();
+	unsigned short local = m_conf.getDMRNetwork4Local();
 	unsigned int id      = m_conf.getDMRNetwork4Id();
 	std::string password = m_conf.getDMRNetwork4Password();
 	bool location        = m_conf.getDMRNetwork4Location();
@@ -1893,9 +1893,9 @@ bool CDMRGateway::createDMRNetwork4()
 	LogInfo("    Name: %s", m_dmr4Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
+	LogInfo("    Port: %hu", port);
 	if (local > 0U)
-		LogInfo("    Local: %u", local);
+		LogInfo("    Local: %hu", local);
 	else
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
@@ -2047,8 +2047,8 @@ bool CDMRGateway::createDMRNetwork4()
 bool CDMRGateway::createDMRNetwork5()
 {
 	std::string address  = m_conf.getDMRNetwork5Address();
-	unsigned int port    = m_conf.getDMRNetwork5Port();
-	unsigned int local   = m_conf.getDMRNetwork5Local();
+	unsigned short port  = m_conf.getDMRNetwork5Port();
+	unsigned short local = m_conf.getDMRNetwork5Local();
 	unsigned int id      = m_conf.getDMRNetwork5Id();
 	std::string password = m_conf.getDMRNetwork5Password();
 	bool location        = m_conf.getDMRNetwork5Location();
@@ -2062,9 +2062,9 @@ bool CDMRGateway::createDMRNetwork5()
 	LogInfo("    Name: %s", m_dmr5Name.c_str());
 	LogInfo("    Id: %u", id);
 	LogInfo("    Address: %s", address.c_str());
-	LogInfo("    Port: %u", port);
+	LogInfo("    Port: %hu", port);
 	if (local > 0U)
-		LogInfo("    Local: %u", local);
+		LogInfo("    Local: %hu", local);
 	else
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
@@ -2249,10 +2249,10 @@ bool CDMRGateway::createXLXNetwork()
 	LogInfo("    Hosts file: %s", fileName.c_str());
 	LogInfo("    Reload time: %u minutes", reloadTime);
 	if (m_xlxLocal > 0U)
-		LogInfo("    Local: %u", m_xlxLocal);
+		LogInfo("    Local: %hu", m_xlxLocal);
 	else
 		LogInfo("    Local: random");
-	LogInfo("    Port: %u", m_xlxPort);
+	LogInfo("    Port: %hu", m_xlxPort);
 	LogInfo("    Slot: %u", m_xlxSlot);
 	LogInfo("    TG: %u", m_xlxTG);
 	LogInfo("    Base: %u", m_xlxBase);
@@ -2286,7 +2286,7 @@ bool CDMRGateway::createXLXNetwork()
 
 bool CDMRGateway::createDynamicTGControl()
 {
-	unsigned int port = m_conf.getDynamicTGControlPort();
+	unsigned short port = m_conf.getDynamicTGControlPort();
 
 	m_socket = new CUDPSocket(port);
 
@@ -2511,7 +2511,7 @@ void CDMRGateway::createAPRS()
 		return;
 
 	std::string address = m_conf.getAPRSAddress();
-	unsigned int port   = m_conf.getAPRSPort();
+	unsigned short port = m_conf.getAPRSPort();
 	std::string suffix  = m_conf.getAPRSSuffix();
 	bool debug          = m_conf.getDebug();
 
