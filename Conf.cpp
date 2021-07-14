@@ -978,6 +978,8 @@ bool CConf::read()
 				m_aprsPort = (unsigned short)::atoi(value);
 			else if (::strcmp(key, "Suffix") == 0)
 				m_aprsSuffix = value;
+			else if (::strcmp(key, "Description") == 0)
+				m_aprsDescription = value;
 		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
