@@ -2422,12 +2422,18 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	assert(buffer != NULL);
 
 	float lat = m_conf.getInfoLatitude();
+	if ((lat > 90) || (lat < -90))
+		lat = 0;
 
 	float lon = m_conf.getInfoLongitude();
+	if ((lon > 180) || (lon < -180))
+		lon = 0;
 
 	int height = m_conf.getInfoHeight();
 	if (height > 999)
 		height = 999;
+	else if (height < 0)
+		height = 0;
 
 	std::string location    = m_conf.getInfoLocation();
 	std::string description = m_conf.getInfoDescription();
