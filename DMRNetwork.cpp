@@ -298,6 +298,11 @@ bool CDMRNetwork::isConnected() const
 	return m_status == RUNNING;
 }
 
+std::string const CDMRNetwork::getName() const
+{
+	return m_name;
+}
+
 void CDMRNetwork::close(bool sayGoodbye)
 {
 	LogMessage("%s, Closing DMR Network", m_name.c_str());

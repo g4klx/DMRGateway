@@ -56,6 +56,7 @@ public:
 	void clock(unsigned int ms);
 
 	bool isConnected() const;
+	std::string const getName() const;
 
 	void close(bool sayGoodbye);
 
