@@ -129,7 +129,9 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 			m_args.clear();
 			LogWarning(buffer);
 		} else {
+#if !defined(REMOTE_COMMAND_NO_LOG)
 			LogMessage(buffer);
+#endif
 		}
 
 		m_socket.write((unsigned char*)replyStr.c_str(), (unsigned int)replyStr.length(), address, addrlen);
