@@ -56,6 +56,7 @@ public:
 	int run();
 
 	void buildNetworkStatusString(std::string &str);
+	void buildNetworkHostsString(std::string &str);
 
 private:
 	CConf              m_conf;
@@ -156,6 +157,7 @@ private:
 	void remoteControl();
 	void processEnableCommand(CDMRNetwork* network, const std::string& name, bool& mode, bool enabled);
 	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
+	void buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network);
 };
 
 #endif

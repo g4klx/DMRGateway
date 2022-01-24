@@ -2658,3 +2658,29 @@ void CDMRGateway::buildNetworkStatusNetworkString(std::string &str, const std::s
 	str += name + ":"+ (((network == NULL) || (enabled == false)) ? "n/a" : (network->isConnected() ? "conn" : "disc"));
 }
 
+void CDMRGateway::buildNetworkHostsString(std::string &str)
+{
+	str = "";
+	buildNetworkHostNetworkString(str, "xlx", m_xlxNetwork);
+	str += " ";
+	buildNetworkHostNetworkString(str, "net1", m_dmrNetwork1);
+	str += " ";
+	buildNetworkHostNetworkString(str, "net2", m_dmrNetwork2);
+	str += " ";
+	buildNetworkHostNetworkString(str, "net3", m_dmrNetwork3);
+	str += " ";
+	buildNetworkHostNetworkString(str, "net4", m_dmrNetwork4);
+	str += " ";
+	buildNetworkHostNetworkString(str, "net5", m_dmrNetwork5);
+}
+
+void CDMRGateway::buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network)
+{
+	if (network && (network == m_xlxNetwork)) {
+		std::string module = ((m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) ? ("_" + std::string(1, (('A' + (m_xlxReflector % 100U)) - 1U))) : "");
+		str += name + ":\"XLX" + std::to_string(m_xlxNumber) + module + "\"";
+	} else {
+		std::string host = ((network == NULL) ? "NONE" : network->getName());
+		str += name + ":\""+ ((network == NULL) ? "NONE" : ((host.length() > 0) ? host : "NONE")) + "\"";
+	}
+}
