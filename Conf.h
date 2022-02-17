@@ -219,7 +219,7 @@ public:
 	unsigned int getXLXNetworkSlot() const;
 	unsigned int getXLXNetworkTG() const;
 	unsigned int getXLXNetworkBase() const;
-	unsigned int getXLXNetworkStartup() const;
+	std::string getXLXNetworkStartup() const;
 	unsigned int getXLXNetworkRelink() const;
 	bool         getXLXNetworkDebug() const;
 	bool         getXLXNetworkUserControl() const;
@@ -380,7 +380,7 @@ private:
 	unsigned int m_xlxNetworkSlot;
 	unsigned int m_xlxNetworkTG;
 	unsigned int m_xlxNetworkBase;
-	unsigned int m_xlxNetworkStartup;
+	std::string m_xlxNetworkStartup;
 	unsigned int m_xlxNetworkRelink;
 	bool         m_xlxNetworkDebug;
 	bool         m_xlxNetworkUserControl;

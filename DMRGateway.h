@@ -77,7 +77,7 @@ private:
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
-	unsigned int       m_xlxNumber;
+	std::string        m_xlxNumber;
 	unsigned int       m_xlxReflector;
 	unsigned int       m_xlxSlot;
 	unsigned int       m_xlxTG;
@@ -85,7 +85,7 @@ private:
 	unsigned short     m_xlxLocal;
 	unsigned short     m_xlxPort;
 	std::string        m_xlxPassword;
-	unsigned int       m_xlxStartup;
+	std::string        m_xlxStartup;
 	unsigned int       m_xlxRoom;
 	CTimer 	           m_xlxRelink;
 	bool               m_xlxConnected;
@@ -142,7 +142,7 @@ private:
 	bool createXLXNetwork();
 	bool createDynamicTGControl();
 
-	bool linkXLX(unsigned int number);
+	bool linkXLX(const std::string &number);
 	void unlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 

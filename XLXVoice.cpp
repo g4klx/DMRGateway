@@ -130,11 +130,8 @@ bool CXLXVoice::open()
 	return true;
 }
 
-void CXLXVoice::linkedTo(unsigned int number, unsigned int room)
+void CXLXVoice::linkedTo(const std::string &number, unsigned int room)
 {
-	char letters[10U];
-	::sprintf(letters, "%03u", number);
-
 	std::vector<std::string> words;
 	if (m_positions.count("linkedto") == 0U) {
 		words.push_back("linked");
@@ -145,9 +142,9 @@ void CXLXVoice::linkedTo(unsigned int number, unsigned int room)
 	words.push_back("X");
 	words.push_back("L");
 	words.push_back("X");
-	words.push_back(std::string(1U, letters[0U]));
-	words.push_back(std::string(1U, letters[1U]));
-	words.push_back(std::string(1U, letters[2U]));
+	words.push_back(number.substr(0U, 1U));
+	words.push_back(number.substr(1U, 1U));
+	words.push_back(number.substr(2U, 1U));
 
 	// 4001 => 1 => A, 4002 => 2 => B, etc.
 	room %= 100U;

@@ -63,7 +63,7 @@ bool CReflectors::load()
 
 			if (p1 != NULL && p2 != NULL && p3 != NULL) {
 				CReflector* refl = new CReflector;
-				refl->m_id       = (unsigned int)::atoi(p1);
+				refl->m_id       = std::string(p1);
 				refl->m_address  = std::string(p2);
 				refl->m_startup  = (unsigned int)::atoi(p3);
 				m_reflectors.push_back(refl);
@@ -83,14 +83,14 @@ bool CReflectors::load()
 	return true;
 }
 
-CReflector* CReflectors::find(unsigned int id)
+CReflector* CReflectors::find(const std::string &id)
 {
 	for (std::vector<CReflector*>::iterator it = m_reflectors.begin(); it != m_reflectors.end(); ++it) {
 		if (id == (*it)->m_id)
 			return *it;
 	}
 
-	LogMessage("Trying to find non existent XLX reflector with an id of %u", id);
+	LogMessage("Trying to find non existent XLX reflector with an id of %s", id.c_str());
 
 	return NULL;
 }

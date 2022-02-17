@@ -70,7 +70,7 @@ static void sigHandler(int signum)
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017-2020 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2022 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -141,7 +141,7 @@ m_dmr5Name(),
 m_xlxReflectors(NULL),
 m_xlxNetwork(NULL),
 m_xlxId(0U),
-m_xlxNumber(0U),
+m_xlxNumber("000"),
 m_xlxReflector(4000U),
 m_xlxSlot(0U),
 m_xlxTG(0U),
@@ -149,7 +149,7 @@ m_xlxBase(0U),
 m_xlxLocal(0U),
 m_xlxPort(62030U),
 m_xlxPassword("passw0rd"),
-m_xlxStartup(950U),
+m_xlxStartup("950"),
 m_xlxRoom(4000U),
 m_xlxRelink(1000U),
 m_xlxConnected(false),
@@ -548,13 +548,13 @@ int CDMRGateway::run()
 				if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxReflector, m_xlxNetwork);
 					char c = ('A' + (m_xlxReflector % 100U)) - 1U;
-					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, c);
+					LogMessage("XLX, Linking to reflector XLX%s %c", m_xlxNumber.c_str(), c);
 					if (m_xlxVoice != NULL)
 						m_xlxVoice->linkedTo(m_xlxNumber, m_xlxReflector);
 				} else if (m_xlxRoom >= 4001U && m_xlxRoom <= 4026U) {
 					writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
 					char c = ('A' + (m_xlxRoom % 100U)) - 1U;
-					LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, c);
+					LogMessage("XLX, Linking to reflector XLX%s %c", m_xlxNumber.c_str(), c);
 					if (m_xlxVoice != NULL)
 						m_xlxVoice->linkedTo(m_xlxNumber, m_xlxRoom);
 					m_xlxReflector = m_xlxRoom;
@@ -570,7 +570,7 @@ int CDMRGateway::run()
 				else
 					m_xlxRelink.start();
 			} else if (!connected && m_xlxConnected) {
-				LogMessage("XLX, Unlinking from XLX%03u due to loss of connection", m_xlxNumber);
+				LogMessage("XLX, Unlinking from XLX%s due to loss of connection", m_xlxNumber.c_str());
 
 				if (m_xlxVoice != NULL)
 					m_xlxVoice->unlinked();
@@ -581,13 +581,13 @@ int CDMRGateway::run()
 				m_xlxRelink.stop();
 
 				if (m_xlxNumber != m_xlxStartup) {
-					if (m_xlxStartup > 0U) {
+					if (m_xlxStartup != "4000") {
 						m_xlxReflector = 4000U;
 						char c = ('A' + (m_xlxRoom % 100U)) - 1U;
-						LogMessage("XLX, Re-linking to startup reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, c);
+						LogMessage("XLX, Re-linking to startup reflector XLX%s %c due to RF inactivity timeout", m_xlxNumber.c_str(), c);
 						linkXLX(m_xlxStartup);
 					} else {
-						LogMessage("XLX, Unlinking from XLX%03u due to RF inactivity timeout", m_xlxNumber);
+						LogMessage("XLX, Unlinking from XLX%s due to RF inactivity timeout", m_xlxNumber.c_str());
 						unlinkXLX();
 					}
 				} else {
@@ -597,10 +597,10 @@ int CDMRGateway::run()
 					if (m_xlxRoom >= 4001U && m_xlxRoom <= 4026U) {
 						writeXLXLink(m_xlxId, m_xlxRoom, m_xlxNetwork);
 						char c = ('A' + (m_xlxRoom % 100U)) - 1U;
-						LogMessage("XLX, Re-linking to startup reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, c);
+						LogMessage("XLX, Re-linking to startup reflector XLX%s %c due to RF inactivity timeout", m_xlxNumber.c_str(), c);
 					} else if (m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) {
 						char c = ('A' + (m_xlxReflector % 100U)) - 1U;
-						LogMessage("XLX, Unlinking from reflector XLX%03u %c due to RF inactivity timeout", m_xlxNumber, c);
+						LogMessage("XLX, Unlinking from reflector XLX%s %c due to RF inactivity timeout", m_xlxNumber.c_str(), c);
 					}
 
 					m_xlxReflector = m_xlxRoom;
@@ -643,14 +643,14 @@ int CDMRGateway::run()
 						writeXLXLink(srcId, 4000U, m_xlxNetwork);
 						m_xlxReflector = 4000U;
 						char c = ('A' + (m_xlxRoom % 100U)) - 1U;
-						LogMessage("XLX, Unlinking from reflector XLX%03u %c", m_xlxNumber, c);
+						LogMessage("XLX, Unlinking from reflector XLX%s %c", m_xlxNumber.c_str(), c);
 					} else if (dstId != 5000U) {
 						if (m_xlxReflector != 4000U)
 							writeXLXLink(srcId, 4000U, m_xlxNetwork);
 						writeXLXLink(srcId, dstId, m_xlxNetwork);
 						m_xlxReflector = dstId;
 						char c = ('A' + (dstId % 100U)) - 1U;
-						LogMessage("XLX, Linking to reflector XLX%03u %c", m_xlxNumber, c);
+						LogMessage("XLX, Linking to reflector XLX%s %c", m_xlxNumber.c_str(), c);
 					}
 
 					if (m_xlxReflector != m_xlxRoom)
@@ -677,11 +677,15 @@ int CDMRGateway::run()
 					}
 				}
 			} else if (dstId >= (m_xlxBase + 4000U) && dstId < (m_xlxBase + 5000U) && flco == FLCO_USER_USER && slotNo == m_xlxSlot && m_xlxUserControl) {
+				char dstIdBuf[16];
+
 				dstId -= 4000U;
 				dstId -= m_xlxBase;
 
-				if (dstId != m_xlxNumber)
-					linkXLX(dstId);
+				// it's all 3 characters IDS, and not digits.
+				snprintf(dstIdBuf, sizeof(dstIdBuf), "%03u", dstId);
+				if (std::string(dstIdBuf) != m_xlxNumber)
+					linkXLX(dstIdBuf);
 			} else {
 				unsigned int slotNo = data.getSlotNo();
 				unsigned int srcId  = data.getSrcId();
@@ -942,7 +946,7 @@ int CDMRGateway::run()
 						unsigned int slotNo = data.getSlotNo();
 						unsigned int dstId  = data.getDstId();
 						FLCO flco           = data.getFLCO();
-						LogWarning("XLX%03u, Unexpected data from slot %u %s%u", m_xlxNumber, slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
+						LogWarning("XLX%s, Unexpected data from slot %u %s%u", m_xlxNumber.c_str(), slotNo, flco == FLCO_GROUP ? "TG" : "", dstId);
 					}
 				}
 			}
@@ -2257,8 +2261,8 @@ bool CDMRGateway::createXLXNetwork()
 	LogInfo("    TG: %u", m_xlxTG);
 	LogInfo("    Base: %u", m_xlxBase);
 
-	if (m_xlxStartup > 0U)
-		LogInfo("    Startup: XLX%03u", m_xlxStartup);
+	if (m_xlxStartup != "4000")
+		LogInfo("    Startup: XLX%s", m_xlxStartup.c_str());
 
 	if (xlxRelink > 0U) {
 		m_xlxRelink.setTimeout(xlxRelink * 60U);
@@ -2273,9 +2277,9 @@ bool CDMRGateway::createXLXNetwork()
 		LogInfo("    User Control: disabled");
 
 	if (m_xlxModule != 0U)
-		LogInfo("     Module: %c", m_xlxModule);
+		LogInfo("    Module: %c", m_xlxModule);
 
-	if (m_xlxStartup > 0U)
+	if (m_xlxStartup != "4000")
 		linkXLX(m_xlxStartup);
 
 	m_rptRewrite = new CRewriteTG("XLX", XLX_SLOT, XLX_TG, m_xlxSlot, m_xlxTG, 1U);
@@ -2300,14 +2304,14 @@ bool CDMRGateway::createDynamicTGControl()
 	return true;
 }
 
-bool CDMRGateway::linkXLX(unsigned int number)
+bool CDMRGateway::linkXLX(const std::string &number)
 {
 	CReflector* reflector = m_xlxReflectors->find(number);
 	if (reflector == NULL)
 		return false;
 
 	if (m_xlxNetwork != NULL) {
-		LogMessage("XLX, Disconnecting from XLX%03u", m_xlxNumber);
+		LogMessage("XLX, Disconnecting from XLX%s", m_xlxNumber.c_str());
 		m_xlxNetwork->close(true);
 		delete m_xlxNetwork;
 	}
@@ -2335,7 +2339,7 @@ bool CDMRGateway::linkXLX(unsigned int number)
 		m_xlxRoom  = reflector->m_startup;
 	m_xlxReflector = 4000U;
 
-	LogMessage("XLX, Connecting to XLX%03u", m_xlxNumber);
+	LogMessage("XLX, Connecting to XLX%s", m_xlxNumber.c_str());
 
 	m_xlxNetwork->enable(m_networkXlxEnabled);
 
@@ -2678,7 +2682,7 @@ void CDMRGateway::buildNetworkHostNetworkString(std::string &str, const std::str
 {
 	if (network && (network == m_xlxNetwork)) {
 		std::string module = ((m_xlxReflector >= 4001U && m_xlxReflector <= 4026U) ? ("_" + std::string(1, (('A' + (m_xlxReflector % 100U)) - 1U))) : "");
-		str += name + ":\"XLX" + std::to_string(m_xlxNumber) + module + "\"";
+		str += name + ":\"XLX" + m_xlxNumber + module + "\"";
 	} else {
 		std::string host = ((network == NULL) ? "NONE" : network->getName());
 		str += name + ":\""+ ((network == NULL) ? "NONE" : ((host.length() > 0) ? host : "NONE")) + "\"";
