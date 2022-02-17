@@ -47,7 +47,7 @@ public:
 
 	bool open();
 
-	void linkedTo(unsigned int number, unsigned int room);
+	void linkedTo(const std::string &number, unsigned int room);
 	void unlinked();
 
 	void reset();

@@ -27,13 +27,13 @@
 class CReflector {
 public:
 	CReflector() :
-	m_id(0U),
+	m_id("0"),
 	m_address(),
 	m_startup(0U)
 	{
 	}
 
-	unsigned int m_id;
+	std::string m_id;
 	std::string  m_address;
 	unsigned int m_startup;
 };
@@ -45,14 +45,14 @@ public:
 
 	bool load();
 
-	CReflector* find(unsigned int id);
+	CReflector* find(const std::string &id);
 
-    void clock(unsigned int ms);
+	void clock(unsigned int ms);
 
 private:
 	std::string              m_hostsFile;
 	std::vector<CReflector*> m_reflectors;
-    CTimer                   m_timer;
+	CTimer                   m_timer;
 };
 
 #endif

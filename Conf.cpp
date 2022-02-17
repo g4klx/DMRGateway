@@ -169,7 +169,7 @@ m_xlxNetworkLocal(0U),
 m_xlxNetworkSlot(1U),
 m_xlxNetworkTG(8U),
 m_xlxNetworkBase(84000U),
-m_xlxNetworkStartup(4000U),
+m_xlxNetworkStartup("4000"),
 m_xlxNetworkRelink(0U),
 m_xlxNetworkDebug(false),
 m_xlxNetworkUserControl(true),
@@ -342,8 +342,17 @@ bool CConf::read()
 				m_xlxNetworkTG = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Base") == 0)
 				m_xlxNetworkBase = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "Startup") == 0)
-				m_xlxNetworkStartup = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Startup") == 0) {
+				char buffer[16];
+				char *p = buffer;
+
+				// Right align, then pads with zeros, as XLX IDs are 3 characters length
+				snprintf(buffer, sizeof(buffer), "%3s", value);
+				while ((*p != '\0') && (*p == ' '))
+				     *p++ = '0';
+
+				m_xlxNetworkStartup = std::string(buffer);
+			}
 			else if (::strcmp(key, "Relink") == 0)
 				m_xlxNetworkRelink = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Debug") == 0)
@@ -1165,7 +1174,7 @@ unsigned int CConf::getXLXNetworkBase() const
 	return m_xlxNetworkBase;
 }
 
-unsigned int CConf::getXLXNetworkStartup() const
+std::string CConf::getXLXNetworkStartup() const
 {
 	return m_xlxNetworkStartup;
 }
