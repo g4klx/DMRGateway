@@ -2528,8 +2528,9 @@ void CDMRGateway::createAPRS()
 	m_writer = new CAPRSWriter(m_callsign, suffix, address, port, debug);
 
 	std::string desc    = m_conf.getAPRSDescription();
+	std::string symbol  = m_conf.getAPRSSymbol();
 
-	m_writer->setInfo(m_txFrequency, m_rxFrequency, desc);
+	m_writer->setInfo(m_txFrequency, m_rxFrequency, desc, symbol);
 
 	float latitude  = m_conf.getInfoLatitude();
 	float longitude = m_conf.getInfoLongitude();
