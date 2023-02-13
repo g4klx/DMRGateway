@@ -236,6 +236,7 @@ public:
 	unsigned short getAPRSPort() const;
 	std::string  getAPRSSuffix() const;
 	std::string  getAPRSDescription() const;
+	std::string  getAPRSSymbol() const;
 
 	// The Dynamic TG Control section
 	bool         getDynamicTGControlEnabled() const;
@@ -395,6 +396,7 @@ private:
 	unsigned short m_aprsPort;
 	std::string  m_aprsSuffix;
 	std::string  m_aprsDescription;
+	std::string  m_aprsSymbol;
 
 	bool         m_dynamicTGControlEnabled;
 	unsigned short m_dynamicTGControlPort;

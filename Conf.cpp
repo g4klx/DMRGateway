@@ -182,6 +182,7 @@ m_aprsAddress(),
 m_aprsPort(0U),
 m_aprsSuffix(),
 m_aprsDescription(),
+m_aprsSymbol(),
 m_dynamicTGControlEnabled(false),
 m_dynamicTGControlPort(3769U),
 m_remoteControlEnabled(false),
@@ -989,6 +990,8 @@ bool CConf::read()
 				m_aprsSuffix = value;
 			else if (::strcmp(key, "Description") == 0)
 				m_aprsDescription = value;
+                        else if (::strcmp(key, "Symbol") == 0)
+                                m_aprsSymbol = value;
 		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
@@ -1700,6 +1703,11 @@ std::string CConf::getAPRSSuffix() const
 std::string CConf::getAPRSDescription() const
 {
 	return m_aprsDescription;
+}
+
+std::string CConf::getAPRSSymbol() const
+{
+       return m_aprsSymbol;
 }
 
 bool CConf::getDynamicTGControlEnabled() const
