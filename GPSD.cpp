@@ -101,7 +101,7 @@ void CGPSD::sendReport()
 		return;
 #endif
 
-	if (m_gpsdData.status != STATUS_FIX)
+	if (m_gpsdData.fix.status != STATUS_FIX)
 		return;
 
 	bool latlonSet = (m_gpsdData.set & LATLON_SET) == LATLON_SET;
