@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2014,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2014,2016,2017,2018,2020,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "MQTTConnection.h"
 #include "APRSWriter.h"
 #include "DMRDefines.h"
 #include "Log.h"
@@ -25,7 +26,10 @@
 #include <cstring>
 #include <cmath>
 
-CAPRSWriter::CAPRSWriter(const std::string& callsign, const std::string& suffix, const std::string& address, unsigned short port, bool debug) :
+// In Log.cpp
+extern CMQTTConnection* m_mqtt;
+
+CAPRSWriter::CAPRSWriter(const std::string& callsign, const std::string& suffix, bool debug) :
 m_idTimer(1000U),
 m_callsign(callsign),
 m_debug(debug),
@@ -35,22 +39,14 @@ m_latitude(0.0F),
 m_longitude(0.0F),
 m_height(0),
 m_desc(),
-m_symbol(),
-m_aprsAddr(),
-m_aprsLen(0U),
-m_aprsSocket()
+m_symbol()
 {
 	assert(!callsign.empty());
-	assert(!address.empty());
-	assert(port > 0U);
 
 	if (!suffix.empty()) {
 		m_callsign.append("-");
 		m_callsign.append(suffix.substr(0U, 1U));
 	}
-
-	if (CUDPSocket::lookup(address, port, m_aprsAddr, m_aprsLen) != 0)
-		m_aprsLen = 0U;
 }
 
 CAPRSWriter::~CAPRSWriter()
@@ -75,17 +71,6 @@ void CAPRSWriter::setLocation(float latitude, float longitude, int height)
 
 bool CAPRSWriter::open()
 {
-	if (m_aprsLen == 0U) {
-		LogError("Could not lookup the address of the APRS-IS server");
-		return false;
-	}
-
-	bool ret = m_aprsSocket.open(m_aprsAddr);
-	if (!ret)
-		return false;
-
-	LogMessage("Opened connection to the APRS Gateway");
-
 	m_idTimer.setTimeout(60U);
 	m_idTimer.start();
 
@@ -104,7 +89,6 @@ void CAPRSWriter::clock(unsigned int ms)
 
 void CAPRSWriter::close()
 {
-	m_aprsSocket.close();
 }
 
 void CAPRSWriter::sendIdFrame()
@@ -172,5 +156,6 @@ void CAPRSWriter::sendIdFrame()
 	if (m_debug)
 		LogDebug("APRS ==> %s", output);
 
-	m_aprsSocket.write((unsigned char*)output, (unsigned int)::strlen(output), m_aprsAddr, m_aprsLen);
+	m_mqtt->publish("aprs-gateway/aprs", output);
 }
+

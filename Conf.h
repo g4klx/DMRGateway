@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -90,10 +90,7 @@ public:
 
 	// The Log section
 	unsigned int getLogDisplayLevel() const;
-	unsigned int getLogFileLevel() const;
-	std::string  getLogFilePath() const;
-	std::string  getLogFileRoot() const;
-	bool         getLogFileRotate() const;
+	unsigned int getLogMQTTLevel() const;
 
 	// The Voice section
 	bool         getVoiceEnabled() const;
@@ -232,20 +229,21 @@ public:
 
 	// The APRS section
 	bool         getAPRSEnabled() const;
-	std::string  getAPRSAddress() const;
-	unsigned short getAPRSPort() const;
 	std::string  getAPRSSuffix() const;
 	std::string  getAPRSDescription() const;
 	std::string  getAPRSSymbol() const;
 
+	// The MQTT section
+	std::string  getMQTTAddress() const;
+	unsigned short getMQTTPort() const;
+	unsigned int getMQTTKeepalive() const;
+	std::string  getMQTTName() const;
+
 	// The Dynamic TG Control section
 	bool         getDynamicTGControlEnabled() const;
-	unsigned short getDynamicTGControlPort() const;
 
-	// The Remote Control section
-	bool         getRemoteControlEnabled() const;
-	std::string  getRemoteControlAddress() const;
-	unsigned short getRemoteControlPort() const;
+	// The Remote Commands section
+	bool         getRemoteCommandsEnabled() const;
 
 private:
 	std::string  m_file;
@@ -264,10 +262,7 @@ private:
 	std::string  m_voiceDirectory;
 
 	unsigned int m_logDisplayLevel;
-	unsigned int m_logFileLevel;
-	std::string  m_logFilePath;
-	std::string  m_logFileRoot;
-	bool         m_logFileRotate;
+	unsigned int m_logMQTTLevel;
 
 	float        m_infoLatitude;
 	float        m_infoLongitude;
@@ -392,18 +387,18 @@ private:
 	std::string  m_gpsdPort;
 
 	bool         m_aprsEnabled;
-	std::string  m_aprsAddress;
-	unsigned short m_aprsPort;
 	std::string  m_aprsSuffix;
 	std::string  m_aprsDescription;
 	std::string  m_aprsSymbol;
 
-	bool         m_dynamicTGControlEnabled;
-	unsigned short m_dynamicTGControlPort;
+	std::string  m_mqttAddress;
+	unsigned short m_mqttPort;
+	unsigned int m_mqttKeepalive;
+	std::string  m_mqttName;
 
-	bool         m_remoteControlEnabled;
-	std::string  m_remoteControlAddress;
-	unsigned short m_remoteControlPort;
+	bool         m_dynamicTGControlEnabled;
+
+	bool         m_remoteCommandsEnabled;
 };
 
 #endif

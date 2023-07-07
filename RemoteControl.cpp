@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "MQTTConnection.h"
 #include "RemoteControl.h"
 #include "Log.h"
 #include "DMRGateway.h"
@@ -30,112 +31,95 @@ const unsigned int DISABLE_ARGS = 2U;
 
 const unsigned int BUFFER_LENGTH = 100U;
 
-CRemoteControl::CRemoteControl(CDMRGateway* host, const std::string address, unsigned short port) :
+// In Log.cpp
+extern CMQTTConnection* m_mqtt;
+
+CRemoteControl::CRemoteControl(CDMRGateway* host) :
 m_host(host),
-m_socket(address, port),
 m_command(RCD_NONE),
 m_args()
 {
-	assert(port > 0U);
 }
 
 CRemoteControl::~CRemoteControl()
 {
 }
 
-bool CRemoteControl::open()
-{
-	return m_socket.open();
-}
-
-REMOTE_COMMAND CRemoteControl::getCommand()
+REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 {
 	m_command = RCD_NONE;
 	m_args.clear();
 
-	char command[BUFFER_LENGTH];
-	char buffer[BUFFER_LENGTH * 2];
 	std::string replyStr = "OK";
-	sockaddr_storage address;
-	unsigned int addrlen;
-	int ret = m_socket.read((unsigned char*)buffer, BUFFER_LENGTH, address, addrlen);
-	if (ret > 0) {
-		buffer[ret] = '\0';
 
-		// Make a copy of the original command for logging.
-		::strcpy(command, buffer);
+	std::stringstream tokeniser(command);
 
-		// Parse the original command into a vector of strings.
-		char* b = buffer;
-		char* p = NULL;
-		while ((p = ::strtok(b, " ")) != NULL) {
-			b = NULL;
-			m_args.push_back(std::string(p));
-		}
-		if (m_args.at(0U) == "enable" && m_args.size() >= ENABLE_ARGS) {
-			if (m_args.at(1U) == "net1")
-				m_command = RCD_ENABLE_NETWORK1;
-			else if (m_args.at(1U) == "net2")
-				m_command = RCD_ENABLE_NETWORK2;
-			else if (m_args.at(1U) == "net3")
-				m_command = RCD_ENABLE_NETWORK3;
-			else if (m_args.at(1U) == "net4")
-				m_command = RCD_ENABLE_NETWORK4;
-			else if (m_args.at(1U) == "net5")
-				m_command = RCD_ENABLE_NETWORK5;
-			else if (m_args.at(1U) == "xlx")
-				m_command = RCD_ENABLE_XLX;
-			else
-				replyStr = "KO";
-		} else if (m_args.at(0U) == "disable" && m_args.size() >= DISABLE_ARGS) {
-			if (m_args.at(1U) == "net1")
-				m_command = RCD_DISABLE_NETWORK1;
-			else if (m_args.at(1U) == "net2")
-				m_command = RCD_DISABLE_NETWORK2;
-			else if (m_args.at(1U) == "net3")
-				m_command = RCD_DISABLE_NETWORK3;
-			else if (m_args.at(1U) == "net4")
-				m_command = RCD_DISABLE_NETWORK4;
-			else if (m_args.at(1U) == "net5")
-				m_command = RCD_DISABLE_NETWORK5;
-			else if (m_args.at(1U) == "xlx")
-				m_command = RCD_DISABLE_XLX;
-			else
-				replyStr = "KO";
-		} else if (m_args.at(0U) == "status") {
-			if (m_host != NULL) {
-				m_host->buildNetworkStatusString(replyStr);
-			}
-			else {
-				replyStr = "KO";
-			}
+	// Parse the original command into a vector of strings.
+	std::string token;
+	while (std::getline(tokeniser, token, ' '))
+		m_args.push_back(token);
 
-			m_command = RCD_CONNECTION_STATUS;
-		} else if (m_args.at(0U) == "hosts") {
-			if (m_host != NULL) {
-				m_host->buildNetworkHostsString(replyStr);
-			}
-			else {
-				replyStr = "KO";
-			}
-
-			m_command = RCD_CONFIG_HOSTS;
-		} else {
+	if (m_args.at(0U) == "enable" && m_args.size() >= ENABLE_ARGS) {
+		if (m_args.at(1U) == "net1")
+			m_command = RCD_ENABLE_NETWORK1;
+		else if (m_args.at(1U) == "net2")
+			m_command = RCD_ENABLE_NETWORK2;
+		else if (m_args.at(1U) == "net3")
+			m_command = RCD_ENABLE_NETWORK3;
+		else if (m_args.at(1U) == "net4")
+			m_command = RCD_ENABLE_NETWORK4;
+		else if (m_args.at(1U) == "net5")
+			m_command = RCD_ENABLE_NETWORK5;
+		else if (m_args.at(1U) == "xlx")
+			m_command = RCD_ENABLE_XLX;
+		else
 			replyStr = "KO";
-		}
+	} else if (m_args.at(0U) == "disable" && m_args.size() >= DISABLE_ARGS) {
+		if (m_args.at(1U) == "net1")
+			m_command = RCD_DISABLE_NETWORK1;
+		else if (m_args.at(1U) == "net2")
+			m_command = RCD_DISABLE_NETWORK2;
+		else if (m_args.at(1U) == "net3")
+			m_command = RCD_DISABLE_NETWORK3;
+		else if (m_args.at(1U) == "net4")
+			m_command = RCD_DISABLE_NETWORK4;
+		else if (m_args.at(1U) == "net5")
+			m_command = RCD_DISABLE_NETWORK5;
+		else if (m_args.at(1U) == "xlx")
+			m_command = RCD_DISABLE_XLX;
+		else
+			replyStr = "KO";
+	} else if (m_args.at(0U) == "status") {
+		if (m_host != NULL)
+			m_host->buildNetworkStatusString(replyStr);
+		else
+			replyStr = "KO";
 
-		::snprintf(buffer, BUFFER_LENGTH * 2, "%s remote command of \"%s\" received", ((m_command == RCD_NONE) ? "Invalid" : "Valid"), command);
-		if (m_command == RCD_NONE) {
-			m_args.clear();
-			LogWarning(buffer);
-		} else {
-#if !defined(REMOTE_COMMAND_NO_LOG)
-			LogMessage(buffer);
-#endif
-		}
+		m_command = RCD_CONNECTION_STATUS;
+	} else if (m_args.at(0U) == "hosts") {
+		if (m_host != NULL)
+			m_host->buildNetworkHostsString(replyStr);
+		else
+			replyStr = "KO";
 
-		m_socket.write((unsigned char*)replyStr.c_str(), (unsigned int)replyStr.length(), address, addrlen);
+		m_command = RCD_CONFIG_HOSTS;
+	} else {
+		replyStr = "KO";
 	}
+
+	char buffer[200U];
+	::snprintf(buffer, 200, "%s remote command of \"%s\" received", ((m_command == RCD_NONE) ? "Invalid" : "Valid"), command.c_str());
+
+	if (m_command == RCD_NONE) {
+		m_args.clear();
+		LogWarning(buffer);
+	} else {
+#if !defined(REMOTE_COMMAND_NO_LOG)
+		LogMessage(buffer);
+#endif
+	}
+
+	m_mqtt->publish("response", replyStr);
 	
 	return m_command;
 }
@@ -171,7 +155,3 @@ int CRemoteControl::getArgInt(unsigned int n) const
 	return ::atoi(getArgString(n).c_str());
 }
 
-void CRemoteControl::close()
-{
-	m_socket.close();
-}

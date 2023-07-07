@@ -2,19 +2,19 @@ CC      = cc
 CXX     = c++
 
 # Use the following CFLAGS and LIBS if you don't want to use gpsd.
-CFLAGS  = -g -O3 -Wall -DHAVE_LOG_H -std=c++0x -pthread
-LIBS    = -lpthread
+CFLAGS  = -g -O3 -Wall -std=c++0x -pthread
+LIBS    = -lpthread -lmosquitto
 
 # Use the following CFLAGS and LIBS if you do want to use gpsd.
-#CFLAGS  = -g -O3 -Wall -DHAVE_LOG_H -DUSE_GPSD -std=c++0x -pthread
-#LIBS    = -lpthread -lgps
+#CFLAGS  = -g -O3 -Wall -DUSE_GPSD -std=c++0x -pthread
+#LIBS    = -lpthread -lgps -lmosquitto
 
 LDFLAGS = -g
 
 OBJECTS = APRSWriter.o BPTC19696.o Conf.o CRC.o DMRCSBK.o DMRData.o DMRDataHeader.o DMREmbeddedData.o DMREMB.o DMRFullLC.o DMRGateway.o \
-	  DMRLC.o DMRNetwork.o DMRSlotType.o DynVoice.o Golay2087.o GPSD.o Hamming.o Log.o MMDVMNetwork.o PassAllPC.o PassAllTG.o \
-	  QR1676.o Reflectors.o RemoteControl.o Rewrite.o RewriteDstId.o RewriteDynTGNet.o RewriteDynTGRF.o RewritePC.o RewriteSrc.o RewriteSrcId.o \
-	  RewriteTG.o RewriteType.o RS129.o SHA256.o StopWatch.o Sync.o Thread.o Timer.o UDPSocket.o Utils.o XLXVoice.o
+	  DMRLC.o DMRNetwork.o DMRSlotType.o DynVoice.o Golay2087.o GPSD.o Hamming.o Log.o MMDVMNetwork.o MQTTConnection.o PassAllPC.o \
+	  PassAllTG.o QR1676.o Reflectors.o RemoteControl.o Rewrite.o RewriteDstId.o RewriteDynTGNet.o RewriteDynTGRF.o RewritePC.o \
+	  RewriteSrc.o RewriteSrcId.o RewriteTG.o RewriteType.o RS129.o SHA256.o StopWatch.o Sync.o Thread.o Timer.o UDPSocket.o Utils.o XLXVoice.o
 
 all:	DMRGateway
 

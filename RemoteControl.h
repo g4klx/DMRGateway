@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 
 #ifndef	RemoteControl_H
 #define	RemoteControl_H
-
-#include "UDPSocket.h"
 
 #include <vector>
 #include <string>
@@ -47,12 +45,10 @@ class CDMRNetwork;
 
 class CRemoteControl {
 public:
-	CRemoteControl(CDMRGateway* host, const std::string address, unsigned short port);
+	CRemoteControl(CDMRGateway* host);
 	~CRemoteControl();
 
-	bool open();
-
-	REMOTE_COMMAND getCommand();
+	REMOTE_COMMAND processCommand(const std::string& command);
 
 	unsigned int getArgCount() const;
 
@@ -60,11 +56,8 @@ public:
 	unsigned int getArgUInt(unsigned int n) const;
 	signed int   getArgInt(unsigned int n) const;
 
-	void close();
-
 private:
 	CDMRGateway*             m_host;
-	CUDPSocket               m_socket;
 	REMOTE_COMMAND           m_command;
 	std::vector<std::string> m_args;
 };

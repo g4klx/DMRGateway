@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -117,7 +117,6 @@ private:
 	std::vector<CRewrite*> m_dmr5Passalls;
 	std::vector<CDynVoice*> m_dynVoices;
 	std::vector<CRewriteDynTGRF*> m_dynRF;
-	CUDPSocket*            m_socket;
 	CAPRSWriter*           m_writer;
 	std::string            m_callsign;
 	unsigned int           m_txFrequency;
@@ -140,7 +139,6 @@ private:
 	bool createDMRNetwork4();
 	bool createDMRNetwork5();
 	bool createXLXNetwork();
-	bool createDynamicTGControl();
 
 	bool linkXLX(const std::string &number);
 	void unlinkXLX();
@@ -153,11 +151,14 @@ private:
 	void processRadioPosition();
 	void processTalkerAlias();
 	void createAPRS();
-	void processDynamicTGControl();
-	void remoteControl();
+	void processDynamicTGControl(const std::string& command);
+	void remoteControl(const std::string& command);
 	void processEnableCommand(CDMRNetwork* network, const std::string& name, bool& mode, bool enabled);
 	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
 	void buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network);
+
+	static void onCommand(const unsigned char* message, unsigned int length);
+	static void onDynamic(const unsigned char* message, unsigned int length);
 };
 
 #endif

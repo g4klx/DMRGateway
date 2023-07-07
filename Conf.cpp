@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2020,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,8 +40,9 @@ enum SECTION {
 	SECTION_XLX_NETWORK,
 	SECTION_GPSD,
 	SECTION_APRS,
+	SECTION_MQTT,
 	SECTION_DYNAMIC_TG_CONTROL,
-	SECTION_REMOTE_CONTROL
+	SECTION_REMOTE_COMMANDS
 };
 
 CConf::CConf(const std::string& file) :
@@ -59,10 +60,7 @@ m_voiceEnabled(true),
 m_voiceLanguage("en_GB"),
 m_voiceDirectory(),
 m_logDisplayLevel(0U),
-m_logFileLevel(0U),
-m_logFilePath(),
-m_logFileRoot(),
-m_logFileRotate(true),
+m_logMQTTLevel(0U),
 m_infoLatitude(0.0F),
 m_infoLongitude(0.0F),
 m_infoHeight(0),
@@ -178,16 +176,15 @@ m_gpsdEnabled(false),
 m_gpsdAddress(),
 m_gpsdPort(),
 m_aprsEnabled(false),
-m_aprsAddress(),
-m_aprsPort(0U),
 m_aprsSuffix(),
 m_aprsDescription(),
 m_aprsSymbol(),
+m_mqttAddress("127.0.0.1"),
+m_mqttPort(1883U),
+m_mqttKeepalive(60U),
+m_mqttName("dmr-gateway"),
 m_dynamicTGControlEnabled(false),
-m_dynamicTGControlPort(3769U),
-m_remoteControlEnabled(false),
-m_remoteControlAddress("127.0.0.1"),
-m_remoteControlPort(0U)
+m_remoteCommandsEnabled(false)
 {
 }
 
@@ -197,80 +194,82 @@ CConf::~CConf()
 
 bool CConf::read()
 {
-  FILE* fp = ::fopen(m_file.c_str(), "rt");
-  if (fp == NULL) {
-    ::fprintf(stderr, "Couldn't open the .ini file - %s\n", m_file.c_str());
-    return false;
-  }
-
-  SECTION section = SECTION_NONE;
-
-  char buffer[BUFFER_SIZE];
-  while (::fgets(buffer, BUFFER_SIZE, fp) != NULL) {
-    if (buffer[0U] == '#')
-      continue;
-
-	if (buffer[0U] == '[') {
-		if (::strncmp(buffer, "[General]", 9U) == 0)
-			section = SECTION_GENERAL;
-		else if (::strncmp(buffer, "[Log]", 5U) == 0)
-			section = SECTION_LOG;
-		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
-			section = SECTION_VOICE;
-		else if (::strncmp(buffer, "[Info]", 6U) == 0)
-			section = SECTION_INFO;
-		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
-			section = SECTION_XLX_NETWORK;
-		else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_1;
-		else if (::strncmp(buffer, "[DMR Network 2]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_2;
-		else if (::strncmp(buffer, "[DMR Network 3]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_3;
-		else if (::strncmp(buffer, "[DMR Network 4]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_4;
-		else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_5;
-		else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
-			section = SECTION_GPSD;
-		else if (::strncmp(buffer, "[APRS]", 6U) == 0)
-			section = SECTION_APRS;
-		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
-			section = SECTION_DYNAMIC_TG_CONTROL;
-		else if (::strncmp(buffer, "[Remote Control]", 16U) == 0)
-			section = SECTION_REMOTE_CONTROL;
-		else
-			section = SECTION_NONE;
-
-		continue;
+	FILE* fp = ::fopen(m_file.c_str(), "rt");
+	if (fp == NULL) {
+		::fprintf(stderr, "Couldn't open the .ini file - %s\n", m_file.c_str());
+		return false;
 	}
 
-	char* key = ::strtok(buffer, " \t=\r\n");
-	if (key == NULL)
-		continue;
+	SECTION section = SECTION_NONE;
 
-	char* value = ::strtok(NULL, "\r\n");
-	if (value == NULL)
-		continue;
+	char buffer[BUFFER_SIZE];
+	while (::fgets(buffer, BUFFER_SIZE, fp) != NULL) {
+		if (buffer[0U] == '#')
+			continue;
 
-	// Remove quotes from the value
-	size_t len = ::strlen(value);
-	if (len > 1U && *value == '"' && value[len - 1U] == '"') {
-		value[len - 1U] = '\0';
-		value++;
-	} else {
-		char *p;
+		if (buffer[0U] == '[') {
+			if (::strncmp(buffer, "[General]", 9U) == 0)
+				section = SECTION_GENERAL;
+			else if (::strncmp(buffer, "[Log]", 5U) == 0)
+				section = SECTION_LOG;
+			else if (::strncmp(buffer, "[Voice]", 7U) == 0)
+				section = SECTION_VOICE;
+			else if (::strncmp(buffer, "[Info]", 6U) == 0)
+				section = SECTION_INFO;
+			else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
+				section = SECTION_XLX_NETWORK;
+			else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
+				section = SECTION_DMR_NETWORK_1;
+			else if (::strncmp(buffer, "[DMR Network 2]", 15U) == 0)
+				section = SECTION_DMR_NETWORK_2;
+			else if (::strncmp(buffer, "[DMR Network 3]", 15U) == 0)
+				section = SECTION_DMR_NETWORK_3;
+			else if (::strncmp(buffer, "[DMR Network 4]", 15U) == 0)
+				section = SECTION_DMR_NETWORK_4;
+			else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
+				section = SECTION_DMR_NETWORK_5;
+			else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
+				section = SECTION_GPSD;
+			else if (::strncmp(buffer, "[APRS]", 6U) == 0)
+				section = SECTION_APRS;
+			else if (::strncmp(buffer, "[MQTT]", 6U) == 0)
+				section = SECTION_MQTT;
+			else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
+				section = SECTION_DYNAMIC_TG_CONTROL;
+			else if (::strncmp(buffer, "[Remote Commands]", 17U) == 0)
+				section = SECTION_REMOTE_COMMANDS;
+			else
+				section = SECTION_NONE;
 
-		// if value is not quoted, remove after # (to make comment)
-		if ((p = strchr(value, '#')) != NULL)
-			*p = '\0';
+			continue;
+		}
 
-		// remove trailing tab/space
-		for (p = value + strlen(value) - 1U; p >= value && (*p == '\t' || *p == ' '); p--)
-			*p = '\0';
-	}
+		char* key = ::strtok(buffer, " \t=\r\n");
+		if (key == NULL)
+			continue;
 
-	if (section == SECTION_GENERAL) {
+		char* value = ::strtok(NULL, "\r\n");
+		if (value == NULL)
+			continue;
+
+		// Remove quotes from the value
+		size_t len = ::strlen(value);
+		if (len > 1U && *value == '"' && value[len - 1U] == '"') {
+			value[len - 1U] = '\0';
+			value++;
+		} else {
+			char *p;
+
+			// if value is not quoted, remove after # (to make comment)
+			if ((p = strchr(value, '#')) != NULL)
+				*p = '\0';
+
+			// remove trailing tab/space
+			for (p = value + strlen(value) - 1U; p >= value && (*p == '\t' || *p == ' '); p--)
+				*p = '\0';
+		}
+
+		if (section == SECTION_GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
@@ -292,16 +291,10 @@ bool CConf::read()
 			else if (::strcmp(key, "Debug") == 0)
 				m_debug = ::atoi(value) == 1;
 		} else if (section == SECTION_LOG) {
-			if (::strcmp(key, "FilePath") == 0)
-				m_logFilePath = value;
-			else if (::strcmp(key, "FileRoot") == 0)
-				m_logFileRoot = value;
-			else if (::strcmp(key, "FileLevel") == 0)
-				m_logFileLevel = (unsigned int)::atoi(value);
+			if (::strcmp(key, "MQTTLevel") == 0)
+				m_logMQTTLevel = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "DisplayLevel") == 0)
 				m_logDisplayLevel = (unsigned int)::atoi(value);
-			else if (::strcmp(key, "FileRotate") == 0)
-				m_logFileRotate = ::atoi(value) == 1;
 		} else if (section == SECTION_VOICE) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_voiceEnabled = ::atoi(value) == 1;
@@ -353,15 +346,14 @@ bool CConf::read()
 				     *p++ = '0';
 
 				m_xlxNetworkStartup = std::string(buffer);
-			}
-			else if (::strcmp(key, "Relink") == 0)
+			} else if (::strcmp(key, "Relink") == 0)
 				m_xlxNetworkRelink = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Debug") == 0)
 				m_xlxNetworkDebug = ::atoi(value) == 1;
-            else if (::strcmp(key, "UserControl") == 0)
-                m_xlxNetworkUserControl = ::atoi(value) ==1;
-            else if (::strcmp(key, "Module") == 0)
-                m_xlxNetworkModule = ::toupper(value[0]);
+			else if (::strcmp(key, "UserControl") == 0)
+				m_xlxNetworkUserControl = ::atoi(value) ==1;
+			else if (::strcmp(key, "Module") == 0)
+				m_xlxNetworkModule = ::toupper(value[0]);
 		} else if (section == SECTION_DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
@@ -982,28 +974,27 @@ bool CConf::read()
 		} else if (section == SECTION_APRS) {
 			if (::strcmp(key, "Enable") == 0)
 				m_aprsEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Address") == 0)
-				m_aprsAddress = value;
-			else if (::strcmp(key, "Port") == 0)
-				m_aprsPort = (unsigned short)::atoi(value);
 			else if (::strcmp(key, "Suffix") == 0)
 				m_aprsSuffix = value;
 			else if (::strcmp(key, "Description") == 0)
 				m_aprsDescription = value;
-                        else if (::strcmp(key, "Symbol") == 0)
-                                m_aprsSymbol = value;
+                      	else if (::strcmp(key, "Symbol") == 0)
+                              	m_aprsSymbol = value;
+		} else if (section == SECTION_MQTT) {
+			if (::strcmp(key, "Address") == 0)
+				m_mqttAddress = value;
+			else if (::strcmp(key, "Port") == 0)
+				m_mqttPort = (unsigned short)::atoi(value);
+			else if (::strcmp(key, "Keepalive") == 0)
+				m_mqttKeepalive = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Name") == 0)
+				m_mqttName = value;
 		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
-			if (::strcmp(key, "Enabled") == 0)
-				m_dynamicTGControlEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Port") == 0)
-				m_dynamicTGControlPort = (unsigned short)::atoi(value);
-		} else if (section == SECTION_REMOTE_CONTROL) {
 			if (::strcmp(key, "Enable") == 0)
-				m_remoteControlEnabled = ::atoi(value) == 1;
-			else if (::strcmp(key, "Address") == 0)
-				m_remoteControlAddress = value;
-			else if (::strcmp(key, "Port") == 0)
-				m_remoteControlPort = (unsigned short)::atoi(value);
+				m_dynamicTGControlEnabled = ::atoi(value) == 1;
+		} else if (section == SECTION_REMOTE_COMMANDS) {
+			if (::strcmp(key, "Enable") == 0)
+				m_remoteCommandsEnabled = ::atoi(value) == 1;
 		}
 	}
 
@@ -1062,24 +1053,9 @@ unsigned int CConf::getLogDisplayLevel() const
 	return m_logDisplayLevel;
 }
 
-unsigned int CConf::getLogFileLevel() const
+unsigned int CConf::getLogMQTTLevel() const
 {
-	return m_logFileLevel;
-}
-
-std::string CConf::getLogFilePath() const
-{
-	return m_logFilePath;
-}
-
-std::string CConf::getLogFileRoot() const
-{
-	return m_logFileRoot;
-}
-
-bool CConf::getLogFileRotate() const
-{
-	return m_logFileRotate;
+	return m_logMQTTLevel;
 }
 
 bool CConf::getVoiceEnabled() const
@@ -1144,17 +1120,17 @@ std::string CConf::getXLXNetworkFile() const
 
 unsigned int CConf::getXLXNetworkReloadTime() const
 {
-    return m_xlxNetworkReloadTime;
+	return m_xlxNetworkReloadTime;
 }
 
 unsigned short CConf::getXLXNetworkPort() const
 {
-    return m_xlxNetworkPort;
+	return m_xlxNetworkPort;
 }
 
 std::string CConf::getXLXNetworkPassword() const
 {
-    return m_xlxNetworkPassword;
+	return m_xlxNetworkPassword;
 }
 
 unsigned short CConf::getXLXNetworkLocal() const
@@ -1685,16 +1661,6 @@ bool CConf::getAPRSEnabled() const
 	return m_aprsEnabled;
 }
 
-std::string CConf::getAPRSAddress() const
-{
-	return m_aprsAddress;
-}
-
-unsigned short CConf::getAPRSPort() const
-{
-	return m_aprsPort;
-}
-
 std::string CConf::getAPRSSuffix() const
 {
 	return m_aprsSuffix;
@@ -1710,27 +1676,33 @@ std::string CConf::getAPRSSymbol() const
        return m_aprsSymbol;
 }
 
+std::string CConf::getMQTTAddress() const
+{
+	return m_mqttAddress;
+}
+
+unsigned short CConf::getMQTTPort() const
+{
+	return m_mqttPort;
+}
+
+unsigned int CConf::getMQTTKeepalive() const
+{
+	return m_mqttKeepalive;
+}
+
+std::string CConf::getMQTTName() const
+{
+	return m_mqttName;
+}
+
 bool CConf::getDynamicTGControlEnabled() const
 {
 	return m_dynamicTGControlEnabled;
 }
 
-unsigned short CConf::getDynamicTGControlPort() const
+bool CConf::getRemoteCommandsEnabled() const
 {
-	return m_dynamicTGControlPort;
+	return m_remoteCommandsEnabled;
 }
 
-bool CConf::getRemoteControlEnabled() const
-{
-	return m_remoteControlEnabled;
-}
-
-std::string CConf::getRemoteControlAddress() const
-{
-	return m_remoteControlAddress;
-}
-
-unsigned short CConf::getRemoteControlPort() const
-{
-	return m_remoteControlPort;
-}

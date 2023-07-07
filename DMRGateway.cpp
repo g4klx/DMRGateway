@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "MQTTConnection.h"
 #include "RewriteType.h"
 #include "DMRSlotType.h"
 #include "RewriteSrc.h"
@@ -67,10 +68,15 @@ static void sigHandler(int signum)
 }
 #endif
 
+// In Log.cpp
+extern CMQTTConnection* m_mqtt;
+
+static CDMRGateway* gateway = NULL;
+
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017-2022 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2023 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -102,10 +108,9 @@ int main(int argc, char** argv)
 	do {
 		m_signal = 0;
 
-		CDMRGateway* host = new CDMRGateway(std::string(iniFile));
-		ret = host->run();
-
-		delete host;
+		gateway = new CDMRGateway(std::string(iniFile));
+		ret = gateway->run();
+		delete gateway;
 
 		if (m_signal == 2)
 			::LogInfo("DMRGateway-%s exited on receipt of SIGINT", VERSION);
@@ -181,7 +186,6 @@ m_dmr4Passalls(),
 m_dmr5Passalls(),
 m_dynVoices(),
 m_dynRF(),
-m_socket(NULL),
 m_writer(NULL),
 m_callsign(),
 m_txFrequency(0U),
@@ -344,22 +348,26 @@ int CDMRGateway::run()
 #endif
 
 #if !defined(_WIN32) && !defined(_WIN64)
-        ret = ::LogInitialise(m_daemon, m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel(), m_conf.getLogFileRotate());
-#else
-        ret = ::LogInitialise(false, m_conf.getLogFilePath(), m_conf.getLogFileRoot(), m_conf.getLogFileLevel(), m_conf.getLogDisplayLevel(), m_conf.getLogFileRotate());
-#endif
-	if (!ret) {
-		::fprintf(stderr, "DMRGateway: unable to open the log file\n");
-		return 1;
-	}
-
-#if !defined(_WIN32) && !defined(_WIN64)
 	if (m_daemon) {
 		::close(STDIN_FILENO);
 		::close(STDOUT_FILENO);
 		::close(STDERR_FILENO);
 	}
 #endif
+	::LogInitialise(m_conf.getLogDisplayLevel(), m_conf.getLogMQTTLevel());
+
+	std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>> subscriptions;
+	if (m_conf.getDynamicTGControlEnabled())
+		subscriptions.push_back(std::make_pair("dynamic", CDMRGateway::onDynamic));
+	if (m_conf.getRemoteCommandsEnabled())
+		subscriptions.push_back(std::make_pair("command", CDMRGateway::onCommand));
+
+	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), subscriptions, m_conf.getMQTTKeepalive());
+	ret = m_mqtt->open();
+	if (!ret) {
+		delete m_mqtt;
+		return 1;
+	}
 
 	m_network1Enabled = m_conf.getDMRNetwork1Enabled();
 	m_network2Enabled = m_conf.getDMRNetwork2Enabled();
@@ -448,24 +456,9 @@ int CDMRGateway::run()
 		}
 	}
 
-	bool remoteControlEnabled = m_conf.getRemoteControlEnabled();
-	if (remoteControlEnabled) {
-		std::string address = m_conf.getRemoteControlAddress();
-		unsigned short port = m_conf.getRemoteControlPort();
-
-		LogInfo("Remote Control Parameters");
-		LogInfo("    Address: %s", address.c_str());
-		LogInfo("    Port: %hu", port);
-
-		m_remoteControl = new CRemoteControl(this, address, port);
-
-		ret = m_remoteControl->open();
-		if (!ret) {
-			LogInfo("Failed to open Remove Control Socket");
-			delete m_remoteControl;
-			m_remoteControl = NULL;
-		}
-	}
+	bool remoteCommandsEnabled = m_conf.getRemoteCommandsEnabled();
+	if (remoteCommandsEnabled)
+		m_remoteControl = new CRemoteControl(this);
 
 	if (m_network1Enabled && m_conf.getDMRNetwork1Enabled()) {
 		ret = createDMRNetwork1();
@@ -493,12 +486,6 @@ int CDMRGateway::run()
 
 	if (m_network5Enabled && m_conf.getDMRNetwork5Enabled()) {
 		ret = createDMRNetwork5();
-		if (!ret)
-			return 1;
-	}
-
-	if (m_conf.getDynamicTGControlEnabled()) {
-		bool ret = createDynamicTGControl();
 		if (!ret)
 			return 1;
 	}
@@ -1222,11 +1209,6 @@ int CDMRGateway::run()
 				m_repeater->write(data);
 		}
 
-		if (m_socket != NULL)
-			processDynamicTGControl();
-
-		remoteControl();
-
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
@@ -1286,10 +1268,7 @@ int CDMRGateway::run()
 	m_repeater->close();
 	delete m_repeater;
 
-	if (m_remoteControl != NULL) {
-		m_remoteControl->close();
-		delete m_remoteControl;
-	}
+	delete m_remoteControl;
 
 #if defined(USE_GPSD)
 	if (m_gpsd != NULL) {
@@ -1331,11 +1310,6 @@ int CDMRGateway::run()
 	if (m_xlxNetwork != NULL) {
 		m_xlxNetwork->close(true);
 		delete m_xlxNetwork;
-	}
-
-	if (m_socket != NULL) {
-		m_socket->close();
-		delete m_socket;
 	}
 
 	delete timer[1U];
@@ -2288,22 +2262,6 @@ bool CDMRGateway::createXLXNetwork()
 	return true;
 }
 
-bool CDMRGateway::createDynamicTGControl()
-{
-	unsigned short port = m_conf.getDynamicTGControlPort();
-
-	m_socket = new CUDPSocket(port);
-
-	bool ret = m_socket->open();
-	if (!ret) {
-		delete m_socket;
-		m_socket = NULL;
-		return false;
-	}
-
-	return true;
-}
-
 bool CDMRGateway::linkXLX(const std::string &number)
 {
 	CReflector* reflector = m_xlxReflectors->find(number);
@@ -2520,15 +2478,13 @@ void CDMRGateway::createAPRS()
 	if (!m_conf.getAPRSEnabled())
 		return;
 
-	std::string address = m_conf.getAPRSAddress();
-	unsigned short port = m_conf.getAPRSPort();
-	std::string suffix  = m_conf.getAPRSSuffix();
-	bool debug          = m_conf.getDebug();
+	std::string suffix = m_conf.getAPRSSuffix();
+	bool debug         = m_conf.getDebug();
 
-	m_writer = new CAPRSWriter(m_callsign, suffix, address, port, debug);
+	m_writer = new CAPRSWriter(m_callsign, suffix, debug);
 
-	std::string desc    = m_conf.getAPRSDescription();
-	std::string symbol  = m_conf.getAPRSSymbol();
+	std::string desc   = m_conf.getAPRSDescription();
+	std::string symbol = m_conf.getAPRSSymbol();
 
 	m_writer->setInfo(m_txFrequency, m_rxFrequency, desc, symbol);
 
@@ -2551,42 +2507,38 @@ void CDMRGateway::createAPRS()
 #endif
 }
 
-void CDMRGateway::processDynamicTGControl()
+void CDMRGateway::processDynamicTGControl(const std::string& command)
 {
-	unsigned char buffer[100U];
-	sockaddr_storage address;
-	unsigned int addrlen;
-	int len = m_socket->read(buffer, 100U, address, addrlen);
-	if (len <= 0)
-		return;
+	std::vector<std::string> args;
 
-	buffer[len] = '\0';
+	std::stringstream tokeniser(command);
 
-	if (::memcmp(buffer + 0U, "DynTG", 5U) == 0) {
-		char* pSlot = ::strtok((char*)(buffer + 5U), ", \r\n");
-		char* pTG   = ::strtok(NULL, ", \r\n");
+	// Parse the original command into a vector of strings.
+	std::string token;
+	while (std::getline(tokeniser, token, ' '))
+		args.push_back(token);
 
-		if (pSlot == NULL || pTG == NULL) {
+	if (args.at(0U) == "DynTG") {
+		if (args.size() < 3) {
 			LogWarning("Malformed dynamic TG control message");
 			return;
 		}
 
-		unsigned int slot = (unsigned int)::atoi(pSlot);
-		unsigned int tg   = (unsigned int)::atoi(pTG);
+		unsigned int slot = (unsigned int)std::stoi(args.at(1U));
+		unsigned int tg   = (unsigned int)std::stoi(args.at(2U));
 
 		for (std::vector<CRewriteDynTGRF*>::iterator it = m_dynRF.begin(); it != m_dynRF.end(); ++it)
 			(*it)->tgChange(slot, tg);
 	} else {
-		LogWarning("Unknown dynamic TG control message: %s", buffer);
+		LogWarning("Unknown dynamic TG control message: %s", command.c_str());
 	}
 }
 
-void CDMRGateway::remoteControl()
+void CDMRGateway::remoteControl(const std::string& commandStr)
 {
-	if (m_remoteControl == NULL)
-		return;
+	assert(m_remoteControl != NULL);
 
-	REMOTE_COMMAND command = m_remoteControl->getCommand();
+	REMOTE_COMMAND command = m_remoteControl->processCommand(commandStr);
 	switch (command) {
 		case RCD_ENABLE_NETWORK1:
 			processEnableCommand(m_dmrNetwork1, "DMR Network 1", m_network1Enabled, true);
@@ -2689,3 +2641,18 @@ void CDMRGateway::buildNetworkHostNetworkString(std::string &str, const std::str
 		str += name + ":\""+ ((network == NULL) ? "NONE" : ((host.length() > 0) ? host : "NONE")) + "\"";
 	}
 }
+
+void CDMRGateway::onDynamic(const unsigned char* message, unsigned int length)
+{
+	assert(gateway != NULL);
+
+	gateway->processDynamicTGControl(std::string((char*)message, length));
+}
+
+void CDMRGateway::onCommand(const unsigned char* message, unsigned int length)
+{
+	assert(gateway != NULL);
+
+	gateway->remoteControl(std::string((char*)message, length));
+}
+
