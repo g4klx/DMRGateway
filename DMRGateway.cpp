@@ -364,10 +364,8 @@ int CDMRGateway::run()
 
 	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), subscriptions, m_conf.getMQTTKeepalive());
 	ret = m_mqtt->open();
-	if (!ret) {
-		delete m_mqtt;
+	if (!ret)
 		return 1;
-	}
 
 	m_network1Enabled = m_conf.getDMRNetwork1Enabled();
 	m_network2Enabled = m_conf.getDMRNetwork2Enabled();
