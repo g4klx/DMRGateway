@@ -1,0 +1,13 @@
+{
+	"$defs": {
+		"timestamp": {"type": "string"}
+	},
+
+	"status": {
+		"type": "object",
+		"timestamp": {"$ref": "#/$defs/timestamp"},
+		"message": {"type": "string"},
+		"required": ["timestamp", "message"]
+	}
+}
+

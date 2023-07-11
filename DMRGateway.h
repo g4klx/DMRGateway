@@ -157,6 +157,8 @@ private:
 	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
 	void buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network);
 
+	void writeJSONStatus(const std::string& status);
+
 	static void onCommand(const unsigned char* message, unsigned int length);
 	static void onDynamic(const unsigned char* message, unsigned int length);
 };

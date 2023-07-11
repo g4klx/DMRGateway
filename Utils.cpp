@@ -17,6 +17,13 @@
 #include <cstdio>
 #include <cassert>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#include <unistd.h>
+#endif
+
 void CUtils::dump(const std::string& title, const unsigned char* data, unsigned int length)
 {
 	assert(data != NULL);
@@ -144,3 +151,25 @@ void CUtils::bitsToByteLE(const bool* bits, unsigned char& byte)
 	byte |= bits[6U] ? 0x40U : 0x00U;
 	byte |= bits[7U] ? 0x80U : 0x00U;
 }
+
+std::string CUtils::createTimestamp()
+{
+	char buffer[100U];
+
+#if defined(_WIN32) || defined(_WIN64)
+	SYSTEMTIME st;
+	::GetSystemTime(&st);
+
+	::sprintf(buffer, "%04u-%02u-%02u %02u:%02u:%02u.%03u", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+#else
+	struct timeval now;
+	::gettimeofday(&now, NULL);
+
+	struct tm* tm = ::gmtime(&now.tv_sec);
+
+	::sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d.%03lld", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000LL);
+#endif
+
+	return buffer;
+}
+

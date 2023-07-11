@@ -31,6 +31,7 @@
 #include "Version.h"
 #include "Thread.h"
 #include "DMRLC.h"
+#include "Utils.h"
 #include "Sync.h"
 #include "Log.h"
 #include "GitVersion.h"
@@ -106,6 +107,7 @@ int main(int argc, char** argv)
 	int ret = 0;
 
 	do {
+		m_killed = false;
 		m_signal = 0;
 
 		gateway = new CDMRGateway(std::string(iniFile));
@@ -379,8 +381,10 @@ int CDMRGateway::run()
 	LogInfo(HEADER3);
 	LogInfo(HEADER4);
 
-	LogMessage("DMRGateway-%s is starting", VERSION);
-	LogMessage("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
+	LogInfo("DMRGateway-%s is starting", VERSION);
+	LogInfo("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
+
+	writeJSONStatus("DMRGateway is starting");
 
 	ret = createMMDVM();
 	if (!ret)
@@ -524,7 +528,8 @@ int CDMRGateway::run()
 	CStopWatch stopWatch;
 	stopWatch.start();
 
-	LogMessage("DMRGateway-%s is running", VERSION);
+	LogInfo("DMRGateway-%s is starting", VERSION);
+	LogInfo("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
 
 	while (!m_killed) {
 		if (m_networkXlxEnabled && (m_xlxNetwork != NULL)) {
@@ -1260,6 +1265,9 @@ int CDMRGateway::run()
 		if (ms < 10U)
 			CThread::sleep(10U);
 	}
+
+	LogInfo("DMRGateway is stopping");
+	writeJSONStatus("DMRGateway is stopping");
 
 	delete m_xlxVoice;
 
@@ -2638,6 +2646,16 @@ void CDMRGateway::buildNetworkHostNetworkString(std::string &str, const std::str
 		std::string host = ((network == NULL) ? "NONE" : network->getName());
 		str += name + ":\""+ ((network == NULL) ? "NONE" : ((host.length() > 0) ? host : "NONE")) + "\"";
 	}
+}
+
+void CDMRGateway::writeJSONStatus(const std::string& status)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["message"]   = status;
+
+	WriteJSON("status", json);
 }
 
 void CDMRGateway::onDynamic(const unsigned char* message, unsigned int length)
