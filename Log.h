@@ -35,6 +35,7 @@ extern void Log(unsigned int level, const char* fmt, ...);
 extern void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel);
 extern void LogFinalise();
 
+extern void WriteJSONStatus(const std::string& status);
 extern void WriteJSON(const std::string& topLevel, nlohmann::json& json);
 
 #endif

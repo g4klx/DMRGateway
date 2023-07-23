@@ -18,6 +18,7 @@
 
 #include "Log.h"
 #include "MQTTConnection.h"
+#include "Utils.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
@@ -92,6 +93,16 @@ void Log(unsigned int level, const char* fmt, ...)
 
 	if (level == 6U)		// Fatal
 		exit(1);
+}
+
+void WriteJSONStatus(const std::string& status)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["message"]   = status;
+
+	WriteJSON("status", json);
 }
 
 void WriteJSON(const std::string& topLevel, nlohmann::json& json)

@@ -384,7 +384,7 @@ int CDMRGateway::run()
 	LogInfo("DMRGateway-%s is starting", VERSION);
 	LogInfo("Built %s %s (GitID #%.7s)", __TIME__, __DATE__, gitversion);
 
-	writeJSONStatus("DMRGateway is starting");
+	WriteJSONStatus("DMRGateway is starting");
 
 	ret = createMMDVM();
 	if (!ret)
@@ -1267,7 +1267,7 @@ int CDMRGateway::run()
 	}
 
 	LogInfo("DMRGateway is stopping");
-	writeJSONStatus("DMRGateway is stopping");
+	WriteJSONStatus("DMRGateway is stopping");
 
 	delete m_xlxVoice;
 
@@ -2646,16 +2646,6 @@ void CDMRGateway::buildNetworkHostNetworkString(std::string &str, const std::str
 		std::string host = ((network == NULL) ? "NONE" : network->getName());
 		str += name + ":\""+ ((network == NULL) ? "NONE" : ((host.length() > 0) ? host : "NONE")) + "\"";
 	}
-}
-
-void CDMRGateway::writeJSONStatus(const std::string& status)
-{
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["message"]   = status;
-
-	WriteJSON("status", json);
 }
 
 void CDMRGateway::onDynamic(const unsigned char* message, unsigned int length)

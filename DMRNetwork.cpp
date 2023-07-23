@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2021,2023 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -101,6 +101,7 @@ bool CDMRNetwork::open()
 	}
 
 	LogMessage("%s, Opening DMR Network", m_name.c_str());
+	WriteJSONStatus("Opening DMR Network: " + m_name);
 
 	m_status = WAITING_CONNECT;
 	m_timeoutTimer.stop();
@@ -367,6 +368,7 @@ void CDMRNetwork::clock(unsigned int ms)
 		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
 			if (m_status == RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
+				WriteJSONStatus("Failed login into DMR Network: " + m_name);
 				m_status = WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
@@ -375,6 +377,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				   the Network sometimes times out and reaches here.
 				   We want it to reconnect so... */
 				LogError("%s, Login to the master has failed, retrying network ...", m_name.c_str());
+				WriteJSONStatus("Failed login into DMR Network: " + m_name);
 				close(false);
 				open();
 				return;
@@ -399,6 +402,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				case WAITING_CONFIG:
 					if (m_options.empty()) {
 						LogMessage("%s, Logged into the master successfully", m_name.c_str());
+						WriteJSONStatus("Logged into DMR Network: " + m_name);
 						m_status = RUNNING;
 					} else {
 						LogDebug("%s, Sending options", m_name.c_str());
@@ -410,6 +414,7 @@ void CDMRNetwork::clock(unsigned int ms)
 					break;
 				case WAITING_OPTIONS:
 					LogMessage("%s, Logged into the master successfully", m_name.c_str());
+					WriteJSONStatus("Logged into DMR Network: " + m_name);
 					m_status = RUNNING;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
@@ -419,6 +424,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			}
 		} else if (::memcmp(m_buffer, "MSTCL",   5U) == 0) {
 			LogError("%s, Master is closing down", m_name.c_str());
+			WriteJSONStatus("Connection closing into DMR Network: " + m_name);
 			close(false);
 			open();
 		} else if (::memcmp(m_buffer, "MSTPONG", 7U) == 0) {
@@ -460,6 +466,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	m_timeoutTimer.clock(ms);
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
 		LogError("%s, Connection to the master has timed out, retrying connection", m_name.c_str());
+		WriteJSONStatus("Failed connection into DMR Network: " + m_name);
 		close(false);
 		open();
 	}
