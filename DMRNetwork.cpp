@@ -103,6 +103,10 @@ bool CDMRNetwork::open()
 	LogMessage("%s, Opening DMR Network", m_name.c_str());
 	WriteJSONStatus("Opening DMR Network: " + m_name);
 
+	bool ret = m_socket.open(m_addr);
+	if (!ret)
+		return false;
+
 	m_status = WAITING_CONNECT;
 	m_timeoutTimer.stop();
 	m_retryTimer.start();
@@ -326,16 +330,12 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_status == WAITING_CONNECT) {
 		m_retryTimer.clock(ms);
 		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
-			bool ret = m_socket.open(m_addr);
-			if (ret) {
-				ret = writeLogin();
-				if (!ret)
-					return;
+			bool ret = writeLogin();
+			if (!ret)
+				return;
 
-				m_status = WAITING_LOGIN;
-				m_timeoutTimer.start();
-			}
-
+			m_status = WAITING_LOGIN;
+			m_timeoutTimer.start();
 			m_retryTimer.start();
 		}
 
