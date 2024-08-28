@@ -77,7 +77,7 @@ static CDMRGateway* gateway = NULL;
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017-2023 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2024 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -109,6 +109,7 @@ int main(int argc, char** argv)
 	do {
 		m_killed = false;
 		m_signal = 0;
+		m_killed = false;	// restart, don't exit, if looping from SIGHUP (1)
 
 		gateway = new CDMRGateway(std::string(iniFile));
 		ret = gateway->run();
