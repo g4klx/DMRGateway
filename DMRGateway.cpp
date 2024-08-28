@@ -101,6 +101,7 @@ int main(int argc, char** argv)
 
 	do {
 		m_signal = 0;
+		m_killed = false;	// restart, don't exit, if looping from SIGHUP (1)
 
 		CDMRGateway* host = new CDMRGateway(std::string(iniFile));
 		ret = host->run();
