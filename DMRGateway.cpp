@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021,2023,2024 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -116,11 +116,13 @@ int main(int argc, char** argv)
 		delete gateway;
 
 		switch (m_signal) {
+			case 0:
+				break;
 			case 2:
 				::LogInfo("DMRGateway-%s exited on receipt of SIGINT", VERSION);
 				break;
 			case 15:
-				::LogInfo("MDMRGateway-%s exited on receipt of SIGTERM", VERSION);
+				::LogInfo("DMRGateway-%s exited on receipt of SIGTERM", VERSION);
 				break;
 			case 1:
 				::LogInfo("DMRGateway-%s is restarting on receipt of SIGHUP", VERSION);
