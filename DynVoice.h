@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -29,10 +29,10 @@
 #include <vector>
 #include <unordered_map>
 
-enum DYNVOICE_STATUS {
-	DYNVS_NONE,
-	DYNVS_WAITING,
-	DYNVS_SENDING
+enum class DYNVOICE_STATUS {
+	NONE,
+	WAITING,
+	SENDING
 };
 
 struct CDynPositions {

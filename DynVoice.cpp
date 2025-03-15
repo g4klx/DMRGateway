@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -42,13 +42,13 @@ m_id(id),
 m_slot(slot),
 m_lc(),
 m_embeddedLC(),
-m_status(DYNVS_NONE),
+m_status(DYNVOICE_STATUS::NONE),
 m_timer(1000U, 1U),
 m_stopWatch(),
 m_seqNo(0U),
 m_streamId(0U),
 m_sent(0U),
-m_ambe(NULL),
+m_ambe(nullptr),
 m_positions(),
 m_data(),
 m_it()
@@ -61,7 +61,7 @@ m_it()
 	m_ambeFile = directory + "/" + language + ".ambe";
 #endif
 
-	m_lc.setFLCO(FLCO_GROUP);
+	m_lc.setFLCO(FLCO::GROUP);
 	m_lc.setSrcId(id);
 	m_lc.setDstId(tg);
 
@@ -85,7 +85,7 @@ CDynVoice::~CDynVoice()
 bool CDynVoice::open()
 {
 	FILE* fpindx = ::fopen(m_indxFile.c_str(), "rt");
-	if (fpindx == NULL) {
+	if (fpindx == nullptr) {
 		LogError("Unable to open the index file - %s", m_indxFile.c_str());
 		return false;
 	}
@@ -99,7 +99,7 @@ bool CDynVoice::open()
 	}
 
 	FILE* fpambe = ::fopen(m_ambeFile.c_str(), "rb");
-	if (fpambe == NULL) {
+	if (fpambe == nullptr) {
 		LogError("Unable to open the AMBE file - %s", m_ambeFile.c_str());
 		::fclose(fpindx);
 		return false;
@@ -110,12 +110,12 @@ bool CDynVoice::open()
 	size_t sizeRead = ::fread(m_ambe, 1U, statStruct.st_size, fpambe);
 	if (sizeRead != 0U) {
 		char buffer[80U];
-		while (::fgets(buffer, 80, fpindx) != NULL) {
+		while (::fgets(buffer, 80, fpindx) != nullptr) {
 			char* p1 = ::strtok(buffer, "\t\r\n");
-			char* p2 = ::strtok(NULL, "\t\r\n");
-			char* p3 = ::strtok(NULL, "\t\r\n");
+			char* p2 = ::strtok(nullptr, "\t\r\n");
+			char* p3 = ::strtok(nullptr, "\t\r\n");
 
-			if (p1 != NULL && p2 != NULL && p3 != NULL) {
+			if (p1 != nullptr && p2 != nullptr && p3 != nullptr) {
 				std::string symbol  = std::string(p1);
 				unsigned int start  = ::atoi(p2) * AMBE_LENGTH;
 				unsigned int length = ::atoi(p3) * AMBE_LENGTH;
@@ -170,7 +170,7 @@ void CDynVoice::abort()
 	m_data.clear();
 	m_timer.stop();
 
-	m_status = DYNVS_NONE;
+	m_status = DYNVOICE_STATUS::NONE;
 }
 
 void CDynVoice::createVoice(const std::vector<std::string>& words)
@@ -235,7 +235,7 @@ void CDynVoice::createVoice(const std::vector<std::string>& words)
 		CDMRData* data = new CDMRData;
 
 		data->setSlotNo(m_slot);
-		data->setFLCO(FLCO_GROUP);
+		data->setFLCO(FLCO::GROUP);
 		data->setSrcId(m_lc.getSrcId());
 		data->setDstId(m_lc.getDstId());
 		data->setN(n);
@@ -276,13 +276,13 @@ void CDynVoice::createVoice(const std::vector<std::string>& words)
 
 	delete[] ambeData;
 
-	m_status = DYNVS_WAITING;
+	m_status = DYNVOICE_STATUS::WAITING;
 	m_timer.start();
 }
 
 bool CDynVoice::read(CDMRData& data)
 {
-	if (m_status != DYNVS_SENDING)
+	if (m_status != DYNVOICE_STATUS::SENDING)
 		return false;
 
 	unsigned int count = m_stopWatch.elapsed() / DMR_SLOT_TIME;
@@ -298,7 +298,7 @@ bool CDynVoice::read(CDMRData& data)
 				delete *it;
 			m_data.clear();
 			m_timer.stop();
-			m_status = DYNVS_NONE;
+			m_status = DYNVOICE_STATUS::NONE;
 		}
 
 		return true;
@@ -311,9 +311,9 @@ void CDynVoice::clock(unsigned int ms)
 {
 	m_timer.clock(ms);
 	if (m_timer.isRunning() && m_timer.hasExpired()) {
-		if (m_status == DYNVS_WAITING) {
+		if (m_status == DYNVOICE_STATUS::WAITING) {
 			m_stopWatch.start();
-			m_status = DYNVS_SENDING;
+			m_status = DYNVOICE_STATUS::SENDING;
 			m_it = m_data.begin();
 			m_sent = 0U;
 		}
@@ -325,7 +325,7 @@ void CDynVoice::createHeaderTerminator(unsigned char type)
 	CDMRData* data = new CDMRData;
 
 	data->setSlotNo(m_slot);
-	data->setFLCO(FLCO_GROUP);
+	data->setFLCO(FLCO::GROUP);
 	data->setSrcId(m_lc.getSrcId());
 	data->setDstId(m_lc.getDstId());
 	data->setDataType(type);

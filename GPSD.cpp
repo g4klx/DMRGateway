@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2018,2020,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ m_gpsdPort(port),
 m_gpsdData(),
 m_idTimer(1000U, 60U),
 m_networks(),
-m_aprs(NULL)
+m_aprs(nullptr)
 {
 	assert(!address.empty());
 	assert(!port.empty());
@@ -43,14 +43,14 @@ CGPSD::~CGPSD()
 
 void CGPSD::addNetwork(CDMRNetwork* network)
 {
-	assert(network != NULL);
+	assert(network != nullptr);
 
 	m_networks.push_back(network);
 }
 
 void CGPSD::setAPRS(CAPRSWriter* aprs)
 {
-	assert(aprs != NULL);
+	assert(aprs != nullptr);
 
 	m_aprs = aprs;
 }
@@ -63,7 +63,7 @@ bool CGPSD::open()
 		return false;
 	}
 
-	::gps_stream(&m_gpsdData, WATCH_ENABLE | WATCH_JSON, NULL);
+	::gps_stream(&m_gpsdData, WATCH_ENABLE | WATCH_JSON, nullptr);
 
 	LogMessage("Connected to GPSD");
 
@@ -84,7 +84,7 @@ void CGPSD::clock(unsigned int ms)
 
 void CGPSD::close()
 {
-	::gps_stream(&m_gpsdData, WATCH_DISABLE, NULL);
+	::gps_stream(&m_gpsdData, WATCH_DISABLE, nullptr);
 	::gps_close(&m_gpsdData);
 }
 
@@ -94,7 +94,7 @@ void CGPSD::sendReport()
 		return;
 
 #if GPSD_API_MAJOR_VERSION >= 7
-	if (::gps_read(&m_gpsdData, NULL, 0) <= 0)
+	if (::gps_read(&m_gpsdData, nullptr, 0) <= 0)
 		return;
 #else
 	if (::gps_read(&m_gpsdData) <= 0)
@@ -122,7 +122,7 @@ void CGPSD::sendReport()
 	float altitude  = float(m_gpsdData.fix.altitude);
 #endif
 
-	if (m_aprs != NULL)
+	if (m_aprs != nullptr)
 		m_aprs->setLocation(latitude, longitude, altitudeSet ? altitude : 0.0F);
 
 	for (std::vector<CDMRNetwork*>::const_iterator it = m_networks.begin(); it != m_networks.end(); ++it)

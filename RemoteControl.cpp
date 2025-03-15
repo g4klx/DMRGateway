@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -90,14 +90,14 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 		else
 			replyStr = "KO";
 	} else if (m_args.at(0U) == "status") {
-		if (m_host != NULL)
+		if (m_host != nullptr)
 			m_host->buildNetworkStatusString(replyStr);
 		else
 			replyStr = "KO";
 
 		m_command = RCD_CONNECTION_STATUS;
 	} else if (m_args.at(0U) == "hosts") {
-		if (m_host != NULL)
+		if (m_host != nullptr)
 			m_host->buildNetworkHostsString(replyStr);
 		else
 			replyStr = "KO";

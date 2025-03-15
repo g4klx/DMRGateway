@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -48,14 +48,14 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
+	if (flco != FLCO::GROUP || slotNo != m_fromSlot || dstId < m_fromTGStart || dstId > m_fromTGEnd) {
 		if (trace) {
 			if (m_fromTGStart == m_fromTGEnd)
 				LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart);
 			else
 				LogDebug("Rule Trace,\tRewriteType from \"%s\" Slot=%u Dst=TG%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromTGStart, m_fromTGEnd);
 		}
-		return RESULT_UNMATCHED;
+		return PROCESS_RESULT::UNMATCHED;
 	}
 
 	if (m_fromSlot != m_toSlot)
@@ -65,7 +65,7 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 		unsigned int newDstId = dstId + m_toIdStart - m_fromTGStart;
 		data.setDstId(newDstId);
 	}
-	data.setFLCO(FLCO_USER_USER);
+	data.setFLCO(FLCO::USER_USER);
 
 	processMessage(data);
 
@@ -80,5 +80,5 @@ PROCESS_RESULT CRewriteType::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteType  to  \"%s\" Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdEnd);
 	}
 
-	return RESULT_MATCHED;
+	return PROCESS_RESULT::MATCHED;
 }

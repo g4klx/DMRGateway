@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2016,2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2016,2017,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -51,17 +51,17 @@ bool CReflectors::load()
 	m_reflectors.clear();
 
 	FILE* fp = ::fopen(m_hostsFile.c_str(), "rt");
-	if (fp != NULL) {
+	if (fp != nullptr) {
 		char buffer[100U];
-		while (::fgets(buffer, 100U, fp) != NULL) {
+		while (::fgets(buffer, 100U, fp) != nullptr) {
 			if (buffer[0U] == '#')
 				continue;
 
 			char* p1 = ::strtok(buffer, ";\r\n");
-			char* p2 = ::strtok(NULL, ";\r\n");
-			char* p3 = ::strtok(NULL, "\r\n");
+			char* p2 = ::strtok(nullptr, ";\r\n");
+			char* p3 = ::strtok(nullptr, "\r\n");
 
-			if (p1 != NULL && p2 != NULL && p3 != NULL) {
+			if (p1 != nullptr && p2 != nullptr && p3 != nullptr) {
 				CReflector* refl = new CReflector;
 				refl->m_id       = std::string(p1);
 				refl->m_address  = std::string(p2);
@@ -92,7 +92,7 @@ CReflector* CReflectors::find(const std::string &id)
 
 	LogMessage("Trying to find non existent XLX reflector with an id of %s", id.c_str());
 
-	return NULL;
+	return nullptr;
 }
 
 void CReflectors::clock(unsigned int ms)

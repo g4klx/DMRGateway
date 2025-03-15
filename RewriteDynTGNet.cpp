@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -44,11 +44,11 @@ PROCESS_RESULT CRewriteDynTGNet::process(CDMRData& data, bool trace)
 	unsigned int dstId  = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_GROUP || slotNo != m_slot || dstId != m_currentTG) {
+	if (flco != FLCO::GROUP || slotNo != m_slot || dstId != m_currentTG) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: not matched", m_name.c_str(), m_slot, m_currentTG);
 
-		return RESULT_UNMATCHED;
+		return PROCESS_RESULT::UNMATCHED;
 	}
 
 	data.setDstId(m_toTG);
@@ -58,7 +58,7 @@ PROCESS_RESULT CRewriteDynTGNet::process(CDMRData& data, bool trace)
 	if (trace)
 		LogDebug("Rule Trace,\tRewriteDynTGNet from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_currentTG);
 
-	return RESULT_MATCHED;
+	return PROCESS_RESULT::MATCHED;
 }
 
 void CRewriteDynTGNet::setCurrentTG(unsigned int currentTG)

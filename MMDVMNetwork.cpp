@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,16 +34,16 @@ CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPo
 m_rptAddr(),
 m_rptAddrLen(0U),
 m_id(0U),
-m_netId(NULL),
+m_netId(nullptr),
 m_debug(debug),
 m_socket(localAddress, localPort),
-m_buffer(NULL),
+m_buffer(nullptr),
 m_rxData(1000U, "MMDVM Network"),
-m_configData(NULL),
+m_configData(nullptr),
 m_configLen(0U),
-m_radioPositionData(NULL),
+m_radioPositionData(nullptr),
 m_radioPositionLen(0U),
-m_talkerAliasData(NULL),
+m_talkerAliasData(nullptr),
 m_talkerAliasLen(0U)
 {
 	assert(!rptAddress.empty());
@@ -120,7 +120,7 @@ bool CMMDVMNetwork::read(CDMRData& data)
 
 	unsigned int slotNo = (m_buffer[15U] & 0x80U) == 0x80U ? 2U : 1U;
 
-	FLCO flco = (m_buffer[15U] & 0x40U) == 0x40U ? FLCO_USER_USER : FLCO_GROUP;
+	FLCO flco = (m_buffer[15U] & 0x40U) == 0x40U ? FLCO::USER_USER : FLCO::GROUP;
 
 	unsigned int streamId;
 	::memcpy(&streamId, m_buffer + 16U, 4U);
@@ -187,7 +187,7 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	buffer[15U] = slotNo == 1U ? 0x00U : 0x80U;
 
 	FLCO flco = data.getFLCO();
-	buffer[15U] |= flco == FLCO_GROUP ? 0x00U : 0x40U;
+	buffer[15U] |= flco == FLCO::GROUP ? 0x00U : 0x40U;
 
 	unsigned char dataType = data.getDataType();
 	if (dataType == DT_VOICE_SYNC) {
@@ -284,7 +284,7 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	} else if (::memcmp(m_buffer, "DMRC", 4U) == 0) {
 		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 
-		if (m_configData == NULL) {
+		if (m_configData == nullptr) {
 			m_configLen = length - 8U;
 			m_configData = new unsigned char[m_configLen];
 			::memcpy(m_configData, m_buffer + 8U, m_configLen);

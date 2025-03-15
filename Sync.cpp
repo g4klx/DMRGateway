@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 void CSync::addDMRDataSync(unsigned char* data, bool duplex)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 
 	if (duplex) {
 		for (unsigned int i = 0U; i < 7U; i++)
@@ -40,7 +40,7 @@ void CSync::addDMRDataSync(unsigned char* data, bool duplex)
 
 void CSync::addDMRAudioSync(unsigned char* data, bool duplex)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 
 	if (duplex) {
 		for (unsigned int i = 0U; i < 7U; i++)
