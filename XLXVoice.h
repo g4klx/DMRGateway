@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -29,10 +29,10 @@
 #include <vector>
 #include <unordered_map>
 
-enum XLXVOICE_STATUS {
-	XLXVS_NONE,
-	XLXVS_WAITING,
-	XLXVS_SENDING
+enum class XLXVOICE_STATUS {
+	NONE,
+	WAITING,
+	SENDING
 };
 
 struct CXLXPositions {

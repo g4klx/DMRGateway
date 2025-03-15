@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2016,2020,2024 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2006-2016,2020,2024,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ int CUDPSocket::lookup(const std::string& hostname, unsigned short port, sockadd
 	/* Port is always digits, no needs to lookup service */
 	hints.ai_flags |= AI_NUMERICSERV;
 
-	int err = ::getaddrinfo(hostname.empty() ? NULL : hostname.c_str(), portstr.c_str(), &hints, &res);
+	int err = ::getaddrinfo(hostname.empty() ? nullptr : hostname.c_str(), portstr.c_str(), &hints, &res);
 	if (err != 0) {
 		sockaddr_in* paddr = (sockaddr_in*)&addr;
 		::memset(paddr, 0x00U, address_length = sizeof(sockaddr_in));
@@ -119,7 +119,7 @@ bool CUDPSocket::match(const sockaddr_storage& addr1, const sockaddr_storage& ad
 	if (addr1.ss_family != addr2.ss_family)
 		return false;
 
-	if (type == IMT_ADDRESS_AND_PORT) {
+	if (type == IPMATCHTYPE::ADDRESS_AND_PORT) {
 		switch (addr1.ss_family) {
 			case AF_INET:
 				struct sockaddr_in *in_1, *in_2;
@@ -134,7 +134,7 @@ bool CUDPSocket::match(const sockaddr_storage& addr1, const sockaddr_storage& ad
 			default:
 				return false;
 		}
-	} else if (type == IMT_ADDRESS_ONLY) {
+	} else if (type == IPMATCHTYPE::ADDRESS_ONLY) {
 		switch (addr1.ss_family) {
 			case AF_INET:
 				struct sockaddr_in *in_1, *in_2;
@@ -233,7 +233,7 @@ bool CUDPSocket::open()
 
 int CUDPSocket::read(unsigned char* buffer, unsigned int length, sockaddr_storage& address, unsigned int &addressLength)
 {
-	assert(buffer != NULL);
+	assert(buffer != nullptr);
 	assert(length > 0U);
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -301,7 +301,7 @@ int CUDPSocket::read(unsigned char* buffer, unsigned int length, sockaddr_storag
 
 bool CUDPSocket::write(const unsigned char* buffer, unsigned int length, const sockaddr_storage& address, unsigned int addressLength)
 {
-	assert(buffer != NULL);
+	assert(buffer != nullptr);
 	assert(length > 0U);
 #if defined(_WIN32) || defined(_WIN64)
 	assert(m_fd != INVALID_SOCKET);

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,14 +21,14 @@
 
 #include "DMRDefines.h"
 
-enum CSBKO {
-	CSBKO_NONE     = 0x00,
-	CSBKO_UUVREQ   = 0x04,
-	CSBKO_UUANSRSP = 0x05,
-	CSBKO_CTCSBK   = 0x07,
-	CSBKO_NACKRSP  = 0x26,
-	CSBKO_BSDWNACT = 0x38,
-	CSBKO_PRECCSBK = 0x3D
+enum class CSBKO : unsigned char {
+	NONE     = 0x00,
+	UUVREQ   = 0x04,
+	UUANSRSP = 0x05,
+	CTCSBK   = 0x07,
+	NACKRSP  = 0x26,
+	BSDWNACT = 0x38,
+	PRECCSBK = 0x3D
 };
 
 class CDMRCSBK

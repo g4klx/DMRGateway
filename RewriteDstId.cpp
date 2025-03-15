@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -40,11 +40,11 @@ PROCESS_RESULT CRewriteDstId::process(CDMRData& data, bool trace)
 	FLCO flco = data.getFLCO();
 	unsigned int dstId = data.getDstId();
 
-	if (flco != FLCO_USER_USER || dstId != m_fromId) {
+	if (flco != FLCO::USER_USER || dstId != m_fromId) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDstId from %s Src=%u: not matched", m_name.c_str(), m_fromId);
 
-		return RESULT_UNMATCHED;
+		return PROCESS_RESULT::UNMATCHED;
 	}
 
 	data.setDstId(m_toId);
@@ -56,5 +56,5 @@ PROCESS_RESULT CRewriteDstId::process(CDMRData& data, bool trace)
 		LogDebug("Rule Trace,\tRewriteDstId to %s Src=%u", m_name.c_str(), m_toId);
 	}
 
-	return RESULT_MATCHED;
+	return PROCESS_RESULT::MATCHED;
 }

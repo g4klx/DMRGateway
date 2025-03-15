@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -39,15 +39,15 @@ CXLXVoice::CXLXVoice(const std::string& directory, const std::string& language, 
 m_indxFile(),
 m_ambeFile(),
 m_slot(slot),
-m_lc(FLCO_GROUP, id, tg),
+m_lc(FLCO::GROUP, id, tg),
 m_embeddedLC(),
-m_status(XLXVS_NONE),
+m_status(XLXVOICE_STATUS::NONE),
 m_timer(1000U, 1U),
 m_stopWatch(),
 m_seqNo(0U),
 m_streamId(0U),
 m_sent(0U),
-m_ambe(NULL),
+m_ambe(nullptr),
 m_positions(),
 m_data(),
 m_it()
@@ -80,7 +80,7 @@ CXLXVoice::~CXLXVoice()
 bool CXLXVoice::open()
 {
 	FILE* fpindx = ::fopen(m_indxFile.c_str(), "rt");
-	if (fpindx == NULL) {
+	if (fpindx == nullptr) {
 		LogError("Unable to open the index file - %s", m_indxFile.c_str());
 		return false;
 	}
@@ -94,7 +94,7 @@ bool CXLXVoice::open()
 	}
 
 	FILE* fpambe = ::fopen(m_ambeFile.c_str(), "rb");
-	if (fpambe == NULL) {
+	if (fpambe == nullptr) {
 		LogError("Unable to open the AMBE file - %s", m_ambeFile.c_str());
 		::fclose(fpindx);
 		return false;
@@ -105,12 +105,12 @@ bool CXLXVoice::open()
 	size_t sizeRead = ::fread(m_ambe, 1U, statStruct.st_size, fpambe);
 	if (sizeRead != 0U) {
 		char buffer[80U];
-		while (::fgets(buffer, 80, fpindx) != NULL) {
+		while (::fgets(buffer, 80, fpindx) != nullptr) {
 			char* p1 = ::strtok(buffer, "\t\r\n");
-			char* p2 = ::strtok(NULL, "\t\r\n");
-			char* p3 = ::strtok(NULL, "\t\r\n");
+			char* p2 = ::strtok(nullptr, "\t\r\n");
+			char* p3 = ::strtok(nullptr, "\t\r\n");
 
-			if (p1 != NULL && p2 != NULL && p3 != NULL) {
+			if (p1 != nullptr && p2 != nullptr && p3 != nullptr) {
 				std::string symbol  = std::string(p1);
 				unsigned int start  = ::atoi(p2) * AMBE_LENGTH;
 				unsigned int length = ::atoi(p3) * AMBE_LENGTH;
@@ -225,7 +225,7 @@ void CXLXVoice::createVoice(const std::vector<std::string>& words)
 		CDMRData* data = new CDMRData;
 
 		data->setSlotNo(m_slot);
-		data->setFLCO(FLCO_GROUP);
+		data->setFLCO(FLCO::GROUP);
 		data->setSrcId(m_lc.getSrcId());
 		data->setDstId(m_lc.getDstId());
 		data->setN(n);
@@ -266,7 +266,7 @@ void CXLXVoice::createVoice(const std::vector<std::string>& words)
 
 	delete[] ambeData;
 
-	m_status = XLXVS_WAITING;
+	m_status = XLXVOICE_STATUS::WAITING;
 	m_timer.start();
 }
 
@@ -276,7 +276,7 @@ void CXLXVoice::reset()
 		delete *it;
 
 	m_timer.stop();
-	m_status = XLXVS_NONE;
+	m_status = XLXVOICE_STATUS::NONE;
 	m_data.clear();
 	m_seqNo = 0U;
 	m_streamId = 0U;
@@ -285,7 +285,7 @@ void CXLXVoice::reset()
 
 bool CXLXVoice::read(CDMRData& data)
 {
-	if (m_status != XLXVS_SENDING)
+	if (m_status != XLXVOICE_STATUS::SENDING)
 		return false;
 
 	unsigned int count = m_stopWatch.elapsed() / DMR_SLOT_TIME;
@@ -301,7 +301,7 @@ bool CXLXVoice::read(CDMRData& data)
 				delete *it;
 			m_data.clear();
 			m_timer.stop();
-			m_status = XLXVS_NONE;
+			m_status = XLXVOICE_STATUS::NONE;
 		}
 
 		return true;
@@ -314,9 +314,9 @@ void CXLXVoice::clock(unsigned int ms)
 {
 	m_timer.clock(ms);
 	if (m_timer.isRunning() && m_timer.hasExpired()) {
-		if (m_status == XLXVS_WAITING) {
+		if (m_status == XLXVOICE_STATUS::WAITING) {
 			m_stopWatch.start();
-			m_status = XLXVS_SENDING;
+			m_status = XLXVOICE_STATUS::SENDING;
 			m_it = m_data.begin();
 			m_sent = 0U;
 		}
@@ -328,7 +328,7 @@ void CXLXVoice::createHeaderTerminator(unsigned char type)
 	CDMRData* data = new CDMRData;
 
 	data->setSlotNo(m_slot);
-	data->setFLCO(FLCO_GROUP);
+	data->setFLCO(FLCO::GROUP);
 	data->setSrcId(m_lc.getSrcId());
 	data->setDstId(m_lc.getDstId());
 	data->setDataType(type);

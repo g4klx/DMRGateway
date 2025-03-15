@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011,2013,2015,2016,2020,2024 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2009-2011,2013,2015,2016,2020,2024,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@
 #include <ws2tcpip.h>
 #endif
 
-enum IPMATCHTYPE {
-	IMT_ADDRESS_AND_PORT,
-	IMT_ADDRESS_ONLY
+enum class IPMATCHTYPE {
+	ADDRESS_AND_PORT,
+	ADDRESS_ONLY
 };
 
 class CUDPSocket {
@@ -60,7 +60,7 @@ public:
 	static int lookup(const std::string& hostName, unsigned short port, sockaddr_storage& address, unsigned int& addressLength);
 	static int lookup(const std::string& hostName, unsigned short port, sockaddr_storage& address, unsigned int& addressLength, struct addrinfo& hints);
 
-	static bool match(const sockaddr_storage& addr1, const sockaddr_storage& addr2, IPMATCHTYPE type = IMT_ADDRESS_AND_PORT);
+	static bool match(const sockaddr_storage& addr1, const sockaddr_storage& addr2, IPMATCHTYPE type = IPMATCHTYPE::ADDRESS_AND_PORT);
 
 	static bool isNone(const sockaddr_storage& addr);
 

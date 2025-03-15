@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ m_voice(voice),
 m_currentTG(0U)
 {
 	assert(slot == 1U || slot == 2U);
-	assert(rewriteNet != NULL);
+	assert(rewriteNet != nullptr);
 }
 
 CRewriteDynTGRF::~CRewriteDynTGRF()
@@ -54,7 +54,7 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 	unsigned int slotNo = data.getSlotNo();
 	unsigned char type  = data.getDataType();
 
-	if (flco == FLCO_GROUP && slotNo == m_slot && dstId == m_toTG) {
+	if (flco == FLCO::GROUP && slotNo == m_slot && dstId == m_toTG) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=TG%u: matched", m_name.c_str(), m_slot, m_toTG);
 
@@ -63,9 +63,9 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 
 			processMessage(data);
 
-			return RESULT_MATCHED;
+			return PROCESS_RESULT::MATCHED;
 		} else {
-			return RESULT_IGNORED;
+			return PROCESS_RESULT::IGNORED;
 		}
 	}
 
@@ -74,20 +74,20 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_discPC);
 
 		if (m_currentTG != 0U) {
-			data.setFLCO(FLCO_GROUP);
+			data.setFLCO(FLCO::GROUP);
 
 			processMessage(data);
 
 			if (type == DT_TERMINATOR_WITH_LC) {
 				m_rewriteNet->setCurrentTG(0U);
 				m_currentTG = 0U;
-				if (m_voice != NULL)
+				if (m_voice != nullptr)
 					m_voice->unlinked();
 			}
 
-			return RESULT_MATCHED;
+			return PROCESS_RESULT::MATCHED;
 		} else {
-			return RESULT_IGNORED;
+			return PROCESS_RESULT::IGNORED;
 		}
 	}
 
@@ -95,21 +95,21 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: matched", m_name.c_str(), m_slot, m_statusPC);
 
-		if (type == DT_TERMINATOR_WITH_LC && m_voice != NULL) {
+		if (type == DT_TERMINATOR_WITH_LC && m_voice != nullptr) {
 			if (m_currentTG == 0U)
 				m_voice->unlinked();
 			else
 				m_voice->linkedTo(m_currentTG);
 		}
 
-		return RESULT_IGNORED;
+		return PROCESS_RESULT::IGNORED;
 	}
 
 	if (slotNo == m_slot && std::find(m_exclTGs.cbegin(), m_exclTGs.cend(), dstId) != m_exclTGs.cend()) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u: not matched", m_name.c_str(), m_slot, dstId);
 
-		return RESULT_UNMATCHED;
+		return PROCESS_RESULT::UNMATCHED;
 	}
 
 	if (slotNo == m_slot && dstId >= m_fromTGStart && dstId <= m_fromTGEnd) {
@@ -120,18 +120,18 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 				LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u-%u: matched", m_name.c_str(), m_slot, m_fromTGStart, m_fromTGEnd);
 		}
 
-		data.setFLCO(FLCO_GROUP);
+		data.setFLCO(FLCO::GROUP);
 
 		processMessage(data);
 
 		if (type == DT_TERMINATOR_WITH_LC) {
 			m_rewriteNet->setCurrentTG(dstId);
 			m_currentTG = dstId;
-			if (m_voice != NULL)
+			if (m_voice != nullptr)
 				m_voice->linkedTo(dstId);
 		}
 
-		return RESULT_MATCHED;
+		return PROCESS_RESULT::MATCHED;
 	}
 
 	if (trace) {
@@ -141,7 +141,7 @@ PROCESS_RESULT CRewriteDynTGRF::process(CDMRData& data, bool trace)
 			LogDebug("Rule Trace,\tRewriteDynTGRF from %s Slot=%u Dst=%u-%u or Dst=TG%u or Dst=%u or Dst=%u: not matched", m_name.c_str(), m_slot, m_fromTGStart, m_fromTGEnd, m_toTG, m_discPC, m_statusPC);
 	}
 
-	return RESULT_UNMATCHED;
+	return PROCESS_RESULT::UNMATCHED;
 }
 
 void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
@@ -150,7 +150,7 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 		if (m_currentTG != 0U) {
 			m_currentTG = 0U;
 			m_rewriteNet->setCurrentTG(0U);
-			if (m_voice != NULL)
+			if (m_voice != nullptr)
 				m_voice->unlinked();
 		}
 		return;
@@ -166,7 +166,7 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 		if (m_currentTG != tg) {
 			m_currentTG = tg;
 			m_rewriteNet->setCurrentTG(tg);
-			if (m_voice != NULL)
+			if (m_voice != nullptr)
 				m_voice->linkedTo(tg);
 		}
 		return;
@@ -175,6 +175,6 @@ void CRewriteDynTGRF::tgChange(unsigned int slot, unsigned int tg)
 
 void CRewriteDynTGRF::stopVoice(unsigned int slot)
 {
-	if (slot == m_slot && m_voice != NULL)
+	if (slot == m_slot && m_voice != nullptr)
 		m_voice->abort();
 }

@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -41,10 +41,10 @@ PROCESS_RESULT CPassAllPC::process(CDMRData& data, bool trace)
 	FLCO flco = data.getFLCO();
 	unsigned int slotNo = data.getSlotNo();
 
-	bool ret = (flco == FLCO_USER_USER && slotNo == m_slot);
+	bool ret = (flco == FLCO::USER_USER && slotNo == m_slot);
 
 	if (trace)
 		LogDebug("Rule Trace,\tPassAllPC %s Slot=%u: %s", m_name.c_str(), m_slot, ret ? "matched" : "not matched");
 
-	return ret ? RESULT_MATCHED : RESULT_UNMATCHED;
+	return ret ? PROCESS_RESULT::MATCHED : PROCESS_RESULT::UNMATCHED;
 }

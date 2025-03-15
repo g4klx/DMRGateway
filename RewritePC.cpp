@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ PROCESS_RESULT CRewritePC::process(CDMRData& data, bool trace)
 	unsigned int dstId = data.getDstId();
 	unsigned int slotNo = data.getSlotNo();
 
-	if (flco != FLCO_USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId > m_fromIdEnd) {
+	if (flco != FLCO::USER_USER || slotNo != m_fromSlot || dstId < m_fromIdStart || dstId > m_fromIdEnd) {
 		if (trace)
 			LogDebug("Rule Trace,\tRewritePC from %s Slot=%u Dst=%u-%u: not matched", m_name.c_str(), m_fromSlot, m_fromIdStart, m_fromIdEnd);
 
-		return RESULT_UNMATCHED;
+		return PROCESS_RESULT::UNMATCHED;
 	}
 
 	if (m_fromSlot != m_toSlot)
@@ -70,5 +70,5 @@ PROCESS_RESULT CRewritePC::process(CDMRData& data, bool trace)
 		LogDebug("Rule Trace,\tRewritePC to %s Slot=%u Dst=%u-%u", m_name.c_str(), m_toSlot, m_toIdStart, m_toIdEnd);
 	}
 
-	return RESULT_MATCHED;
+	return PROCESS_RESULT::MATCHED;
 }

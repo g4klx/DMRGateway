@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2020 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2020,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@
 #include "DMRData.h"
 #include "DMRLC.h"
 
-enum PROCESS_RESULT {
-	RESULT_UNMATCHED,
-	RESULT_MATCHED,
-	RESULT_IGNORED
+enum class PROCESS_RESULT {
+	UNMATCHED,
+	MATCHED,
+	IGNORED
 };
 
 class CRewrite {

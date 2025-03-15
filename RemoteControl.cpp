@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ const unsigned int BUFFER_LENGTH = 100U;
 CRemoteControl::CRemoteControl(CDMRGateway* host, const std::string address, unsigned short port) :
 m_host(host),
 m_socket(address, port),
-m_command(RCD_NONE),
+m_command(REMOTE_COMMAND::NONE),
 m_args()
 {
 	assert(port > 0U);
@@ -50,7 +50,7 @@ bool CRemoteControl::open()
 
 REMOTE_COMMAND CRemoteControl::getCommand()
 {
-	m_command = RCD_NONE;
+	m_command = REMOTE_COMMAND::NONE;
 	m_args.clear();
 
 	char command[BUFFER_LENGTH];
@@ -67,65 +67,63 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 
 		// Parse the original command into a vector of strings.
 		char* b = buffer;
-		char* p = NULL;
-		while ((p = ::strtok(b, " ")) != NULL) {
-			b = NULL;
+		char* p = nullptr;
+		while ((p = ::strtok(b, " ")) != nullptr) {
+			b = nullptr;
 			m_args.push_back(std::string(p));
 		}
 		if (m_args.at(0U) == "enable" && m_args.size() >= ENABLE_ARGS) {
 			if (m_args.at(1U) == "net1")
-				m_command = RCD_ENABLE_NETWORK1;
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK1;
 			else if (m_args.at(1U) == "net2")
-				m_command = RCD_ENABLE_NETWORK2;
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK2;
 			else if (m_args.at(1U) == "net3")
-				m_command = RCD_ENABLE_NETWORK3;
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK3;
 			else if (m_args.at(1U) == "net4")
-				m_command = RCD_ENABLE_NETWORK4;
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK4;
 			else if (m_args.at(1U) == "net5")
-				m_command = RCD_ENABLE_NETWORK5;
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK5;
 			else if (m_args.at(1U) == "xlx")
-				m_command = RCD_ENABLE_XLX;
+				m_command = REMOTE_COMMAND::ENABLE_XLX;
 			else
 				replyStr = "KO";
 		} else if (m_args.at(0U) == "disable" && m_args.size() >= DISABLE_ARGS) {
 			if (m_args.at(1U) == "net1")
-				m_command = RCD_DISABLE_NETWORK1;
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK1;
 			else if (m_args.at(1U) == "net2")
-				m_command = RCD_DISABLE_NETWORK2;
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK2;
 			else if (m_args.at(1U) == "net3")
-				m_command = RCD_DISABLE_NETWORK3;
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK3;
 			else if (m_args.at(1U) == "net4")
-				m_command = RCD_DISABLE_NETWORK4;
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK4;
 			else if (m_args.at(1U) == "net5")
-				m_command = RCD_DISABLE_NETWORK5;
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK5;
 			else if (m_args.at(1U) == "xlx")
-				m_command = RCD_DISABLE_XLX;
+				m_command = REMOTE_COMMAND::DISABLE_XLX;
 			else
 				replyStr = "KO";
 		} else if (m_args.at(0U) == "status") {
-			if (m_host != NULL) {
+			if (m_host != nullptr) {
 				m_host->buildNetworkStatusString(replyStr);
-			}
-			else {
+			} else {
 				replyStr = "KO";
 			}
 
-			m_command = RCD_CONNECTION_STATUS;
+			m_command = REMOTE_COMMAND::CONNECTION_STATUS;
 		} else if (m_args.at(0U) == "hosts") {
-			if (m_host != NULL) {
+			if (m_host != nullptr) {
 				m_host->buildNetworkHostsString(replyStr);
-			}
-			else {
+			} else {
 				replyStr = "KO";
 			}
 
-			m_command = RCD_CONFIG_HOSTS;
+			m_command = REMOTE_COMMAND::CONFIG_HOSTS;
 		} else {
 			replyStr = "KO";
 		}
 
-		::snprintf(buffer, BUFFER_LENGTH * 2, "%s remote command of \"%s\" received", ((m_command == RCD_NONE) ? "Invalid" : "Valid"), command);
-		if (m_command == RCD_NONE) {
+		::snprintf(buffer, BUFFER_LENGTH * 2, "%s remote command of \"%s\" received", ((m_command == REMOTE_COMMAND::NONE) ? "Invalid" : "Valid"), command);
+		if (m_command == REMOTE_COMMAND::NONE) {
 			m_args.clear();
 			LogWarning(buffer);
 		} else {

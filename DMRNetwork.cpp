@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020,2021 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2021,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,21 +34,21 @@ const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 CDMRNetwork::CDMRNetwork(const std::string& address, unsigned short port, unsigned short local, unsigned int id, const std::string& password, const std::string& name, bool location, bool debug) :
 m_addr(),
 m_addrLen(0U),
-m_id(NULL),
+m_id(nullptr),
 m_password(password),
 m_name(name),
 m_location(location),
 m_debug(debug),
 m_socket(local),
 m_enabled(false),
-m_status(WAITING_CONNECT),
+m_status(STATUS::WAITING_CONNECT),
 m_retryTimer(1000U, 10U),
 m_timeoutTimer(1000U, 60U),
-m_buffer(NULL),
-m_salt(NULL),
+m_buffer(nullptr),
+m_salt(nullptr),
 m_rxData(1000U, "DMR Network"),
 m_options(),
-m_configData(NULL),
+m_configData(nullptr),
 m_configLen(0U),
 m_beacon(false)
 {
@@ -70,7 +70,7 @@ m_beacon(false)
 	m_id[3U] = id >> 0;
 
 	CStopWatch stopWatch;
-	::srand(stopWatch.start());
+	::srand((unsigned int)stopWatch.start());
 }
 
 CDMRNetwork::~CDMRNetwork()
@@ -106,7 +106,7 @@ bool CDMRNetwork::open()
 	if (!ret)
 		return false;
 
-	m_status = WAITING_CONNECT;
+	m_status = STATUS::WAITING_CONNECT;
 	m_timeoutTimer.stop();
 	m_retryTimer.start();
 
@@ -123,7 +123,7 @@ void CDMRNetwork::enable(bool enabled)
 
 bool CDMRNetwork::read(CDMRData& data)
 {
-	if (m_status != RUNNING)
+	if (m_status != STATUS::RUNNING)
 		return false;
 
 	if (m_rxData.isEmpty())
@@ -146,7 +146,7 @@ bool CDMRNetwork::read(CDMRData& data)
 
 	unsigned int slotNo = (m_buffer[15U] & 0x80U) == 0x80U ? 2U : 1U;
 
-	FLCO flco = (m_buffer[15U] & 0x40U) == 0x40U ? FLCO_USER_USER : FLCO_GROUP;
+	FLCO flco = (m_buffer[15U] & 0x40U) == 0x40U ? FLCO::USER_USER : FLCO::GROUP;
 
 	unsigned int streamId;
 	::memcpy(&streamId, m_buffer + 16U, 4U);
@@ -188,7 +188,7 @@ bool CDMRNetwork::read(CDMRData& data)
 
 bool CDMRNetwork::write(const CDMRData& data)
 {
-	if (m_status != RUNNING)
+	if (m_status != STATUS::RUNNING)
 		return false;
 
 	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
@@ -216,7 +216,7 @@ bool CDMRNetwork::write(const CDMRData& data)
 	buffer[15U] = slotNo == 1U ? 0x00U : 0x80U;
 
 	FLCO flco = data.getFLCO();
-	buffer[15U] |= flco == FLCO_GROUP ? 0x00U : 0x40U;
+	buffer[15U] |= flco == FLCO::GROUP ? 0x00U : 0x40U;
 
 	unsigned char dataType = data.getDataType();
 	if (dataType == DT_VOICE_SYNC) {
@@ -245,7 +245,7 @@ bool CDMRNetwork::write(const CDMRData& data)
 
 bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int length)
 {
-	if (m_status != RUNNING)
+	if (m_status != STATUS::RUNNING)
 		return false;
 
 	if (!m_location)
@@ -264,7 +264,7 @@ bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int len
 
 bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int length)
 {
-	if (m_status != RUNNING)
+	if (m_status != STATUS::RUNNING)
 		return false;
 
 	unsigned char buffer[50U];
@@ -280,7 +280,7 @@ bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int lengt
 
 bool CDMRNetwork::writeHomePosition(float latitude, float longitude)
 {
-	if (m_status != RUNNING)
+	if (m_status != STATUS::RUNNING)
 		return false;
 
 	if (!m_location)
@@ -299,7 +299,7 @@ bool CDMRNetwork::writeHomePosition(float latitude, float longitude)
 
 bool CDMRNetwork::isConnected() const
 {
-	return m_status == RUNNING;
+	return m_status == STATUS::RUNNING;
 }
 
 std::string const CDMRNetwork::getName() const
@@ -311,7 +311,7 @@ void CDMRNetwork::close(bool sayGoodbye)
 {
 	LogMessage("%s, Closing DMR Network", m_name.c_str());
 
-	if (sayGoodbye && (m_status == RUNNING)) {
+	if (sayGoodbye && (m_status == STATUS::RUNNING)) {
 		unsigned char buffer[9U];
 		::memcpy(buffer + 0U, "RPTCL", 5U);
 		::memcpy(buffer + 5U, m_id, 4U);
@@ -326,14 +326,14 @@ void CDMRNetwork::close(bool sayGoodbye)
 
 void CDMRNetwork::clock(unsigned int ms)
 {
-	if (m_status == WAITING_CONNECT) {
+	if (m_status == STATUS::WAITING_CONNECT) {
 		m_retryTimer.clock(ms);
 		if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
 			bool ret = writeLogin();
 			if (!ret)
 				return;
 
-			m_status = WAITING_LOGIN;
+			m_status = STATUS::WAITING_LOGIN;
 			m_timeoutTimer.start();
 			m_retryTimer.start();
 		}
@@ -365,9 +365,9 @@ void CDMRNetwork::clock(unsigned int ms)
 				m_rxData.addData(m_buffer, len);
 			}
 		} else if (::memcmp(m_buffer, "MSTNAK",  6U) == 0) {
-			if (m_status == RUNNING) {
+			if (m_status == STATUS::RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
-				m_status = WAITING_LOGIN;
+				m_status = STATUS::WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
 			} else {
@@ -381,36 +381,36 @@ void CDMRNetwork::clock(unsigned int ms)
 			}
 		} else if (::memcmp(m_buffer, "RPTACK",  6U) == 0) {
 			switch (m_status) {
-				case WAITING_LOGIN:
+				case STATUS::WAITING_LOGIN:
 					LogDebug("%s, Sending authorisation", m_name.c_str());
 					::memcpy(m_salt, m_buffer + 6U, sizeof(uint32_t));
 					writeAuthorisation();
-					m_status = WAITING_AUTHORISATION;
+					m_status = STATUS::WAITING_AUTHORISATION;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
 					break;
-				case WAITING_AUTHORISATION:
+				case STATUS::WAITING_AUTHORISATION:
 					LogDebug("%s, Sending configuration", m_name.c_str());
 					writeConfig();
-					m_status = WAITING_CONFIG;
+					m_status = STATUS::WAITING_CONFIG;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
 					break;
-				case WAITING_CONFIG:
+				case STATUS::WAITING_CONFIG:
 					if (m_options.empty()) {
 						LogMessage("%s, Logged into the master successfully", m_name.c_str());
-						m_status = RUNNING;
+						m_status = STATUS::RUNNING;
 					} else {
 						LogDebug("%s, Sending options", m_name.c_str());
 						writeOptions();
-						m_status = WAITING_OPTIONS;
+						m_status = STATUS::WAITING_OPTIONS;
 					}
 					m_timeoutTimer.start();
 					m_retryTimer.start();
 					break;
-				case WAITING_OPTIONS:
+				case STATUS::WAITING_OPTIONS:
 					LogMessage("%s, Logged into the master successfully", m_name.c_str());
-					m_status = RUNNING;
+					m_status = STATUS::RUNNING;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
 					break;
@@ -435,19 +435,19 @@ void CDMRNetwork::clock(unsigned int ms)
 	m_retryTimer.clock(ms);
 	if (m_retryTimer.isRunning() && m_retryTimer.hasExpired()) {
 		switch (m_status) {
-			case WAITING_LOGIN:
+			case STATUS::WAITING_LOGIN:
 				writeLogin();
 				break;
-			case WAITING_AUTHORISATION:
+			case STATUS::WAITING_AUTHORISATION:
 				writeAuthorisation();
 				break;
-			case WAITING_OPTIONS:
+			case STATUS::WAITING_OPTIONS:
 				writeOptions();
 				break;
-			case WAITING_CONFIG:
+			case STATUS::WAITING_CONFIG:
 				writeConfig();
 				break;
-			case RUNNING:
+			case STATUS::RUNNING:
 				writePing();
 				break;
 			default:
@@ -542,7 +542,7 @@ bool CDMRNetwork::wantsBeacon()
 
 bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
 
 	if (m_debug)

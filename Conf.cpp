@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2020,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,22 +26,22 @@
 
 const int BUFFER_SIZE = 500;
 
-enum SECTION {
-	SECTION_NONE,
-	SECTION_GENERAL,
-	SECTION_LOG,
-	SECTION_VOICE,
-	SECTION_INFO,
-	SECTION_DMR_NETWORK_1,
-	SECTION_DMR_NETWORK_2,
-	SECTION_DMR_NETWORK_3,
-	SECTION_DMR_NETWORK_4,
-	SECTION_DMR_NETWORK_5,
-	SECTION_XLX_NETWORK,
-	SECTION_GPSD,
-	SECTION_APRS,
-	SECTION_DYNAMIC_TG_CONTROL,
-	SECTION_REMOTE_CONTROL
+enum class SECTION {
+	NONE,
+	GENERAL,
+	LOG,
+	VOICE,
+	INFO,
+	DMR_NETWORK_1,
+	DMR_NETWORK_2,
+	DMR_NETWORK_3,
+	DMR_NETWORK_4,
+	DMR_NETWORK_5,
+	XLX_NETWORK,
+	GPSD,
+	APRS,
+	DYNAMIC_TG_CONTROL,
+	REMOTE_CONTROL
 };
 
 CConf::CConf(const std::string& file) :
@@ -198,59 +198,59 @@ CConf::~CConf()
 bool CConf::read()
 {
   FILE* fp = ::fopen(m_file.c_str(), "rt");
-  if (fp == NULL) {
+  if (fp == nullptr) {
     ::fprintf(stderr, "Couldn't open the .ini file - %s\n", m_file.c_str());
     return false;
   }
 
-  SECTION section = SECTION_NONE;
+  SECTION section = SECTION::NONE;
 
   char buffer[BUFFER_SIZE];
-  while (::fgets(buffer, BUFFER_SIZE, fp) != NULL) {
+  while (::fgets(buffer, BUFFER_SIZE, fp) != nullptr) {
     if (buffer[0U] == '#')
       continue;
 
 	if (buffer[0U] == '[') {
 		if (::strncmp(buffer, "[General]", 9U) == 0)
-			section = SECTION_GENERAL;
+			section = SECTION::GENERAL;
 		else if (::strncmp(buffer, "[Log]", 5U) == 0)
-			section = SECTION_LOG;
+			section = SECTION::LOG;
 		else if (::strncmp(buffer, "[Voice]", 7U) == 0)
-			section = SECTION_VOICE;
+			section = SECTION::VOICE;
 		else if (::strncmp(buffer, "[Info]", 6U) == 0)
-			section = SECTION_INFO;
+			section = SECTION::INFO;
 		else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
-			section = SECTION_XLX_NETWORK;
+			section = SECTION::XLX_NETWORK;
 		else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_1;
+			section = SECTION::DMR_NETWORK_1;
 		else if (::strncmp(buffer, "[DMR Network 2]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_2;
+			section = SECTION::DMR_NETWORK_2;
 		else if (::strncmp(buffer, "[DMR Network 3]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_3;
+			section = SECTION::DMR_NETWORK_3;
 		else if (::strncmp(buffer, "[DMR Network 4]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_4;
+			section = SECTION::DMR_NETWORK_4;
 		else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
-			section = SECTION_DMR_NETWORK_5;
+			section = SECTION::DMR_NETWORK_5;
 		else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
-			section = SECTION_GPSD;
+			section = SECTION::GPSD;
 		else if (::strncmp(buffer, "[APRS]", 6U) == 0)
-			section = SECTION_APRS;
+			section = SECTION::APRS;
 		else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
-			section = SECTION_DYNAMIC_TG_CONTROL;
+			section = SECTION::DYNAMIC_TG_CONTROL;
 		else if (::strncmp(buffer, "[Remote Control]", 16U) == 0)
-			section = SECTION_REMOTE_CONTROL;
+			section = SECTION::REMOTE_CONTROL;
 		else
-			section = SECTION_NONE;
+			section = SECTION::NONE;
 
 		continue;
 	}
 
 	char* key = ::strtok(buffer, " \t=\r\n");
-	if (key == NULL)
+	if (key == nullptr)
 		continue;
 
-	char* value = ::strtok(NULL, "\r\n");
-	if (value == NULL)
+	char* value = ::strtok(nullptr, "\r\n");
+	if (value == nullptr)
 		continue;
 
 	// Remove quotes from the value
@@ -262,7 +262,7 @@ bool CConf::read()
 		char *p;
 
 		// if value is not quoted, remove after # (to make comment)
-		if ((p = strchr(value, '#')) != NULL)
+		if ((p = strchr(value, '#')) != nullptr)
 			*p = '\0';
 
 		// remove trailing tab/space
@@ -270,7 +270,7 @@ bool CConf::read()
 			*p = '\0';
 	}
 
-	if (section == SECTION_GENERAL) {
+	if (section == SECTION::GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
@@ -291,7 +291,7 @@ bool CConf::read()
 				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_debug = ::atoi(value) == 1;
-		} else if (section == SECTION_LOG) {
+		} else if (section == SECTION::LOG) {
 			if (::strcmp(key, "FilePath") == 0)
 				m_logFilePath = value;
 			else if (::strcmp(key, "FileRoot") == 0)
@@ -302,14 +302,14 @@ bool CConf::read()
 				m_logDisplayLevel = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "FileRotate") == 0)
 				m_logFileRotate = ::atoi(value) == 1;
-		} else if (section == SECTION_VOICE) {
+		} else if (section == SECTION::VOICE) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_voiceEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Language") == 0)
 				m_voiceLanguage = value;
 			else if (::strcmp(key, "Directory") == 0)
 				m_voiceDirectory = value;
-		} else if (section == SECTION_INFO) {
+		} else if (section == SECTION::INFO) {
 			if (::strcmp(key, "Latitude") == 0)
 				m_infoLatitude = float(::atof(value));
 			else if (::strcmp(key, "Longitude") == 0)
@@ -322,7 +322,7 @@ bool CConf::read()
 				m_infoDescription = value;
 			else if (::strcmp(key, "URL") == 0)
 				m_infoURL = value;
-		} else if (section == SECTION_XLX_NETWORK) {
+		} else if (section == SECTION::XLX_NETWORK) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_xlxNetworkEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Id") == 0)
@@ -362,7 +362,7 @@ bool CConf::read()
                 m_xlxNetworkUserControl = ::atoi(value) ==1;
             else if (::strcmp(key, "Module") == 0)
                 m_xlxNetworkModule = ::toupper(value[0]);
-		} else if (section == SECTION_DMR_NETWORK_1) {
+		} else if (section == SECTION::DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -385,11 +385,11 @@ bool CConf::read()
 				m_dmrNetwork1Debug = ::atoi(value) == 1;
 			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CTGRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -400,11 +400,11 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CPCRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -415,26 +415,26 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toId     = ::atoi(p4);
-					char* p5 = ::strtok(NULL, " \r\n");
-					rewrite.m_range    = p5 != NULL ? ::atoi(p5) : 1;
+					char* p5 = ::strtok(nullptr, " \r\n");
+					rewrite.m_range    = p5 != nullptr ? ::atoi(p5) : 1;
 					m_dmrNetwork1TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -446,15 +446,15 @@ bool CConf::read()
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
 				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, ", ");
+				char* p6 = ::strtok(nullptr, ", \r\n");
 				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
+				while ((p = ::strtok(nullptr, ", \r\n")) != nullptr)
 					p7.push_back(p);
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr && p6 != nullptr) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -470,8 +470,8 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
-				char* netId = ::strtok(NULL, " \r\n");
-				if (rfId != NULL && netId != NULL) {
+				char* netId = ::strtok(nullptr, " \r\n");
+				if (rfId != nullptr && netId != nullptr) {
 					CIdRewriteStruct rewrite;
 					rewrite.m_rfId  = ::atoi(rfId);
 					rewrite.m_netId = ::atoi(netId);
@@ -484,7 +484,7 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork1PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DMR_NETWORK_2) {
+		} else if (section == SECTION::DMR_NETWORK_2) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork2Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -507,11 +507,11 @@ bool CConf::read()
 				m_dmrNetwork2Debug = ::atoi(value) == 1;
 			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CTGRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -522,11 +522,11 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CPCRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -537,26 +537,26 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toId     = ::atoi(p4);
-					char* p5 = ::strtok(NULL, " \r\n");
-					rewrite.m_range    = p5 != NULL ? ::atoi(p5) : 1;
+					char* p5 = ::strtok(nullptr, " \r\n");
+					rewrite.m_range    = p5 != nullptr ? ::atoi(p5) : 1;
 					m_dmrNetwork2TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -568,15 +568,15 @@ bool CConf::read()
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
 				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, ", ");
+				char* p6 = ::strtok(nullptr, ", \r\n");
 				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
+				while ((p = ::strtok(nullptr, ", \r\n")) != nullptr)
 					p7.push_back(p);
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr && p6 != nullptr) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -592,8 +592,8 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
-				char* netId = ::strtok(NULL, " \r\n");
-				if (rfId != NULL && netId != NULL) {
+				char* netId = ::strtok(nullptr, " \r\n");
+				if (rfId != nullptr && netId != nullptr) {
 					CIdRewriteStruct rewrite;
 					rewrite.m_rfId  = ::atoi(rfId);
 					rewrite.m_netId = ::atoi(netId);
@@ -606,7 +606,7 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork2PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DMR_NETWORK_3) {
+		} else if (section == SECTION::DMR_NETWORK_3) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork3Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -629,11 +629,11 @@ bool CConf::read()
 				m_dmrNetwork3Debug = ::atoi(value) == 1;
 			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CTGRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -644,11 +644,11 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CPCRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -659,26 +659,26 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toId     = ::atoi(p4);
-					char* p5 = ::strtok(NULL, " \r\n");
-					rewrite.m_range    = p5 != NULL ? ::atoi(p5) : 1;
+					char* p5 = ::strtok(nullptr, " \r\n");
+					rewrite.m_range    = p5 != nullptr ? ::atoi(p5) : 1;
 					m_dmrNetwork3TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -690,15 +690,15 @@ bool CConf::read()
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
 				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, ", ");
+				char* p6 = ::strtok(nullptr, ", \r\n");
 				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
+				while ((p = ::strtok(nullptr, ", \r\n")) != nullptr)
 					p7.push_back(p);
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr && p6 != nullptr) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -714,8 +714,8 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
-				char* netId = ::strtok(NULL, " \r\n");
-				if (rfId != NULL && netId != NULL) {
+				char* netId = ::strtok(nullptr, " \r\n");
+				if (rfId != nullptr && netId != nullptr) {
 					CIdRewriteStruct rewrite;
 					rewrite.m_rfId  = ::atoi(rfId);
 					rewrite.m_netId = ::atoi(netId);
@@ -728,7 +728,7 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork3PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DMR_NETWORK_4) {
+		} else if (section == SECTION::DMR_NETWORK_4) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork4Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -751,11 +751,11 @@ bool CConf::read()
 				m_dmrNetwork4Debug = ::atoi(value) == 1;
 			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CTGRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -766,11 +766,11 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CPCRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -781,26 +781,26 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toId     = ::atoi(p4);
-					char* p5 = ::strtok(NULL, " \r\n");
-					rewrite.m_range    = p5 != NULL ? ::atoi(p5) : 1;
+					char* p5 = ::strtok(nullptr, " \r\n");
+					rewrite.m_range    = p5 != nullptr ? ::atoi(p5) : 1;
 					m_dmrNetwork4TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -812,15 +812,15 @@ bool CConf::read()
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
 				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, ", ");
+				char* p6 = ::strtok(nullptr, ", \r\n");
 				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
+				while ((p = ::strtok(nullptr, ", \r\n")) != nullptr)
 					p7.push_back(p);
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr && p6 != nullptr) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -836,8 +836,8 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
-				char* netId = ::strtok(NULL, " \r\n");
-				if (rfId != NULL && netId != NULL) {
+				char* netId = ::strtok(nullptr, " \r\n");
+				if (rfId != nullptr && netId != nullptr) {
 					CIdRewriteStruct rewrite;
 					rewrite.m_rfId  = ::atoi(rfId);
 					rewrite.m_netId = ::atoi(netId);
@@ -850,7 +850,7 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork4PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_DMR_NETWORK_5) {
+		} else if (section == SECTION::DMR_NETWORK_5) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork5Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -873,11 +873,11 @@ bool CConf::read()
 				m_dmrNetwork5Debug = ::atoi(value) == 1;
 			else if (::strncmp(key, "TGRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CTGRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -888,11 +888,11 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "PCRewrite", 9U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CPCRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -903,26 +903,26 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "TypeRewrite", 11U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr) {
 					CTypeRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
 					rewrite.m_toSlot   = ::atoi(p3);
 					rewrite.m_toId     = ::atoi(p4);
-					char* p5 = ::strtok(NULL, " \r\n");
-					rewrite.m_range    = p5 != NULL ? ::atoi(p5) : 1;
+					char* p5 = ::strtok(nullptr, " \r\n");
+					rewrite.m_range    = p5 != nullptr ? ::atoi(p5) : 1;
 					m_dmrNetwork5TypeRewrites.push_back(rewrite);
 				}
 			} else if (::strncmp(key, "SrcRewrite", 10U) == 0) {
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, " \r\n");
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL) {
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, " \r\n");
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr) {
 					CSrcRewriteStruct rewrite;
 					rewrite.m_fromSlot = ::atoi(p1);
 					rewrite.m_fromId   = ::atoi(p2);
@@ -934,15 +934,15 @@ bool CConf::read()
 			} else if (::strncmp(key, "TGDynRewrite", 12U) == 0) {
 				std::vector<char*> p7;
 				char* p1 = ::strtok(value, ", ");
-				char* p2 = ::strtok(NULL, ", ");
-				char* p3 = ::strtok(NULL, ", ");
-				char* p4 = ::strtok(NULL, ", ");
-				char* p5 = ::strtok(NULL, ", ");
-				char* p6 = ::strtok(NULL, ", \r\n");
+				char* p2 = ::strtok(nullptr, ", ");
+				char* p3 = ::strtok(nullptr, ", ");
+				char* p4 = ::strtok(nullptr, ", ");
+				char* p5 = ::strtok(nullptr, ", ");
+				char* p6 = ::strtok(nullptr, ", \r\n");
 				char* p;
-				while ((p = ::strtok(NULL, ", \r\n")) != NULL)
+				while ((p = ::strtok(nullptr, ", \r\n")) != nullptr)
 					p7.push_back(p);
-				if (p1 != NULL && p2 != NULL && p3 != NULL && p4 != NULL && p5 != NULL && p6 != NULL) {
+				if (p1 != nullptr && p2 != nullptr && p3 != nullptr && p4 != nullptr && p5 != nullptr && p6 != nullptr) {
 					CTGDynRewriteStruct rewrite;
 					rewrite.m_slot     = ::atoi(p1);
 					rewrite.m_fromTG   = ::atoi(p2);
@@ -958,8 +958,8 @@ bool CConf::read()
 				}
 			} else if (::strncmp(key, "IdRewrite", 9U) == 0) {
 				char* rfId = ::strtok(value, ", ");
-				char* netId = ::strtok(NULL, " \r\n");
-				if (rfId != NULL && netId != NULL) {
+				char* netId = ::strtok(nullptr, " \r\n");
+				if (rfId != nullptr && netId != nullptr) {
 					CIdRewriteStruct rewrite;
 					rewrite.m_rfId  = ::atoi(rfId);
 					rewrite.m_netId = ::atoi(netId);
@@ -972,14 +972,14 @@ bool CConf::read()
 				unsigned int slotNo = (unsigned int)::atoi(value);
 				m_dmrNetwork5PassAllTG.push_back(slotNo);
 			}
-		} else if (section == SECTION_GPSD) {
+		} else if (section == SECTION::GPSD) {
 			if (::strcmp(key, "Enable") == 0)
 				m_gpsdEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Address") == 0)
 				m_gpsdAddress = value;
 			else if (::strcmp(key, "Port") == 0)
 				m_gpsdPort = value;
-		} else if (section == SECTION_APRS) {
+		} else if (section == SECTION::APRS) {
 			if (::strcmp(key, "Enable") == 0)
 				m_aprsEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Address") == 0)
@@ -992,12 +992,12 @@ bool CConf::read()
 				m_aprsDescription = value;
                         else if (::strcmp(key, "Symbol") == 0)
                                 m_aprsSymbol = value;
-		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
+		} else if (section == SECTION::DYNAMIC_TG_CONTROL) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Port") == 0)
 				m_dynamicTGControlPort = (unsigned short)::atoi(value);
-		} else if (section == SECTION_REMOTE_CONTROL) {
+		} else if (section == SECTION::REMOTE_CONTROL) {
 			if (::strcmp(key, "Enable") == 0)
 				m_remoteControlEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Address") == 0)

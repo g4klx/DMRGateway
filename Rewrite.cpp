@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 CRewrite::CRewrite() :
 m_lc(),
 m_embeddedLC(),
-m_data(NULL),
+m_data(nullptr),
 m_writeNum(0U),
 m_readNum(0U),
 m_lastN(0U)
@@ -113,7 +113,7 @@ void CRewrite::processEmbeddedData(unsigned char* data, unsigned char n)
 	FLCO flco = m_data[m_readNum].getFLCO();
 
 	// Replace any identity embedded data with the new one
-	if (flco == FLCO_GROUP || flco == FLCO_USER_USER)
+	if (flco == FLCO::GROUP || flco == FLCO::USER_USER)
 		lcss = m_embeddedLC.getData(data, n);
 	else
 		lcss = m_data[m_readNum].getData(data, n);
@@ -196,7 +196,7 @@ void CRewrite::processDataHeader(CDMRData& data)
 	if (!ret)
 		return;
 
-	dataHeader.setGI(data.getFLCO() == FLCO_GROUP);
+	dataHeader.setGI(data.getFLCO() == FLCO::GROUP);
 	dataHeader.setSrcId(data.getSrcId());
 	dataHeader.setDstId(data.getDstId());
 
@@ -220,7 +220,7 @@ void CRewrite::processCSBK(CDMRData& data)
 	if (!ret)
 		return;
 
-	csbk.setGI(data.getFLCO() == FLCO_GROUP);
+	csbk.setGI(data.getFLCO() == FLCO::GROUP);
 	csbk.setSrcId(data.getSrcId());
 	csbk.setDstId(data.getDstId());
 
