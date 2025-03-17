@@ -2529,12 +2529,15 @@ void CDMRGateway::processDynamicTGControl(const std::string& command)
 {
 	std::vector<std::string> args;
 
-	std::stringstream tokeniser(command);
-
 	// Parse the original command into a vector of strings.
-	std::string token;
-	while (std::getline(tokeniser, token, ' '))
-		args.push_back(token);
+	size_t start = command.find_first_not_of(' ');
+	while (start != std::string::npos) {
+		size_t end = command.find_first_of(' ', start);
+
+		args.push_back(command.substr(start, end - start));
+
+		start = command.find_first_not_of(' ', end);
+	}
 
 	if (args.at(0U) == "DynTG") {
 		if (args.size() < 3) {

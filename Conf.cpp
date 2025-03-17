@@ -26,23 +26,23 @@
 
 const int BUFFER_SIZE = 500;
 
-enum SECTION {
-	SECTION_NONE,
-	SECTION_GENERAL,
-	SECTION_LOG,
-	SECTION_VOICE,
-	SECTION_INFO,
-	SECTION_DMR_NETWORK_1,
-	SECTION_DMR_NETWORK_2,
-	SECTION_DMR_NETWORK_3,
-	SECTION_DMR_NETWORK_4,
-	SECTION_DMR_NETWORK_5,
-	SECTION_XLX_NETWORK,
-	SECTION_GPSD,
-	SECTION_APRS,
-	SECTION_MQTT,
-	SECTION_DYNAMIC_TG_CONTROL,
-	SECTION_REMOTE_COMMANDS
+enum class SECTION {
+	NONE,
+	GENERAL,
+	LOG,
+	VOICE,
+	INFO,
+	DMR_NETWORK_1,
+	DMR_NETWORK_2,
+	DMR_NETWORK_3,
+	DMR_NETWORK_4,
+	DMR_NETWORK_5,
+	XLX_NETWORK,
+	GPSD,
+	APRS,
+	MQTT,
+	DYNAMIC_TG_CONTROL,
+	REMOTE_COMMANDS
 };
 
 CConf::CConf(const std::string& file) :
@@ -209,37 +209,37 @@ bool CConf::read()
 
 		if (buffer[0U] == '[') {
 			if (::strncmp(buffer, "[General]", 9U) == 0)
-				section = SECTION_GENERAL;
+				section = SECTION::GENERAL;
 			else if (::strncmp(buffer, "[Log]", 5U) == 0)
-				section = SECTION_LOG;
+				section = SECTION::LOG;
 			else if (::strncmp(buffer, "[Voice]", 7U) == 0)
-				section = SECTION_VOICE;
+				section = SECTION::VOICE;
 			else if (::strncmp(buffer, "[Info]", 6U) == 0)
-				section = SECTION_INFO;
+				section = SECTION::INFO;
 			else if (::strncmp(buffer, "[XLX Network]", 13U) == 0)
-				section = SECTION_XLX_NETWORK;
+				section = SECTION::XLX_NETWORK;
 			else if (::strncmp(buffer, "[DMR Network 1]", 15U) == 0)
-				section = SECTION_DMR_NETWORK_1;
+				section = SECTION::DMR_NETWORK_1;
 			else if (::strncmp(buffer, "[DMR Network 2]", 15U) == 0)
-				section = SECTION_DMR_NETWORK_2;
+				section = SECTION::DMR_NETWORK_2;
 			else if (::strncmp(buffer, "[DMR Network 3]", 15U) == 0)
-				section = SECTION_DMR_NETWORK_3;
+				section = SECTION::DMR_NETWORK_3;
 			else if (::strncmp(buffer, "[DMR Network 4]", 15U) == 0)
-				section = SECTION_DMR_NETWORK_4;
+				section = SECTION::DMR_NETWORK_4;
 			else if (::strncmp(buffer, "[DMR Network 5]", 15U) == 0)
-				section = SECTION_DMR_NETWORK_5;
+				section = SECTION::DMR_NETWORK_5;
 			else if (::strncmp(buffer, "[GPSD]", 6U) == 0)
-				section = SECTION_GPSD;
+				section = SECTION::GPSD;
 			else if (::strncmp(buffer, "[APRS]", 6U) == 0)
-				section = SECTION_APRS;
+				section = SECTION::APRS;
 			else if (::strncmp(buffer, "[MQTT]", 6U) == 0)
-				section = SECTION_MQTT;
+				section = SECTION::MQTT;
 			else if (::strncmp(buffer, "[Dynamic TG Control]", 20U) == 0)
-				section = SECTION_DYNAMIC_TG_CONTROL;
+				section = SECTION::DYNAMIC_TG_CONTROL;
 			else if (::strncmp(buffer, "[Remote Commands]", 17U) == 0)
-				section = SECTION_REMOTE_COMMANDS;
+				section = SECTION::REMOTE_COMMANDS;
 			else
-				section = SECTION_NONE;
+				section = SECTION::NONE;
 
 			continue;
 		}
@@ -290,12 +290,12 @@ bool CConf::read()
 				m_ruleTrace = ::atoi(value) == 1;
 			else if (::strcmp(key, "Debug") == 0)
 				m_debug = ::atoi(value) == 1;
-		} else if (section == SECTION_LOG) {
+		} else if (section == SECTION::LOG) {
 			if (::strcmp(key, "MQTTLevel") == 0)
 				m_logMQTTLevel = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "DisplayLevel") == 0)
 				m_logDisplayLevel = (unsigned int)::atoi(value);
-		} else if (section == SECTION_VOICE) {
+		} else if (section == SECTION::VOICE) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_voiceEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Language") == 0)
@@ -354,7 +354,7 @@ bool CConf::read()
 				m_xlxNetworkUserControl = ::atoi(value) ==1;
 			else if (::strcmp(key, "Module") == 0)
 				m_xlxNetworkModule = ::toupper(value[0]);
-		} else if (section == SECTION_DMR_NETWORK_1) {
+		} else if (section == SECTION::DMR_NETWORK_1) {
 			if (::strcmp(key, "Enabled") == 0)
 				m_dmrNetwork1Enabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Name") == 0)
@@ -980,7 +980,7 @@ bool CConf::read()
 				m_aprsDescription = value;
                       	else if (::strcmp(key, "Symbol") == 0)
                               	m_aprsSymbol = value;
-		} else if (section == SECTION_MQTT) {
+		} else if (section == SECTION::MQTT) {
 			if (::strcmp(key, "Address") == 0)
 				m_mqttAddress = value;
 			else if (::strcmp(key, "Port") == 0)
@@ -989,10 +989,10 @@ bool CConf::read()
 				m_mqttKeepalive = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Name") == 0)
 				m_mqttName = value;
-		} else if (section == SECTION_DYNAMIC_TG_CONTROL) {
+		} else if (section == SECTION::DYNAMIC_TG_CONTROL) {
 			if (::strcmp(key, "Enable") == 0)
 				m_dynamicTGControlEnabled = ::atoi(value) == 1;
-		} else if (section == SECTION_REMOTE_COMMANDS) {
+		} else if (section == SECTION::REMOTE_COMMANDS) {
 			if (::strcmp(key, "Enable") == 0)
 				m_remoteCommandsEnabled = ::atoi(value) == 1;
 		}

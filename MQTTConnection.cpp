@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2022,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-
+#include <ctime>
 
 CMQTTConnection::CMQTTConnection(const std::string& host, unsigned short port, const std::string& name, const std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>>& subs, unsigned int keepalive, MQTT_QOS qos) :
 m_host(host),
@@ -30,7 +30,7 @@ m_name(name),
 m_subs(subs),
 m_keepalive(keepalive),
 m_qos(qos),
-m_mosq(NULL),
+m_mosq(nullptr),
 m_connected(false)
 {
 	assert(!host.empty());
@@ -48,8 +48,13 @@ CMQTTConnection::~CMQTTConnection()
 
 bool CMQTTConnection::open()
 {
-	m_mosq = ::mosquitto_new(m_name.c_str(), true, this);
-	if (m_mosq == NULL){
+	char name[50U];
+	::sprintf(name, "DMRGateway.%lld", ::time(nullptr));
+
+	::fprintf(stdout, "DMRGateway (%s) connecting to MQTT as %s\n", m_name.c_str(), name);
+
+	m_mosq = ::mosquitto_new(name, true, this);
+	if (m_mosq == nullptr){
 		::fprintf(stderr, "MQTT Error newing: Out of memory.\n");
 		return false;
 	}
@@ -62,7 +67,7 @@ bool CMQTTConnection::open()
 	int rc = ::mosquitto_connect(m_mosq, m_host.c_str(), m_port, m_keepalive);
 	if (rc != MOSQ_ERR_SUCCESS) {
 		::mosquitto_destroy(m_mosq);
-		m_mosq = NULL;
+		m_mosq = nullptr;
 		::fprintf(stderr, "MQTT Error connecting: %s\n", ::mosquitto_strerror(rc));
 		return false;
 	}
@@ -71,7 +76,7 @@ bool CMQTTConnection::open()
 	if (rc != MOSQ_ERR_SUCCESS) {
 		::mosquitto_disconnect(m_mosq);
 		::mosquitto_destroy(m_mosq);
-		m_mosq = NULL;
+		m_mosq = nullptr;
 		::fprintf(stderr, "MQTT Error loop starting: %s\n", ::mosquitto_strerror(rc));
 		return false;
 	}
@@ -81,38 +86,38 @@ bool CMQTTConnection::open()
 
 bool CMQTTConnection::publish(const char* topic, const char* text)
 {
-	assert(topic != NULL);
-	assert(text != NULL);
+	assert(topic != nullptr);
+	assert(text != nullptr);
 
-	return publish(topic, (unsigned char*)text, ::strlen(text));
+	return publish(topic, (unsigned char*)text, (unsigned int)::strlen(text));
 }
 
 bool CMQTTConnection::publish(const char* topic, const std::string& text)
 {
-	assert(topic != NULL);
+	assert(topic != nullptr);
 
-	return publish(topic, (unsigned char*)text.c_str(), text.size());
+	return publish(topic, (unsigned char*)text.c_str(), (unsigned int)text.size());
 }
 
 bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsigned int len)
 {
-	assert(topic != NULL);
-	assert(data != NULL);
+	assert(topic != nullptr);
+	assert(data != nullptr);
 
 	if (!m_connected)
 		return false;
 
-	if (::strchr(topic, '/') == NULL) {
+	if (::strchr(topic, '/') == nullptr) {
 		char topicEx[100U];
 		::sprintf(topicEx, "%s/%s", m_name.c_str(), topic);
 
-		int rc = ::mosquitto_publish(m_mosq, NULL, topicEx, len, data, static_cast<int>(m_qos), false);
+		int rc = ::mosquitto_publish(m_mosq, nullptr, topicEx, len, data, static_cast<int>(m_qos), false);
 		if (rc != MOSQ_ERR_SUCCESS) {
 			::fprintf(stderr, "MQTT Error publishing: %s\n", ::mosquitto_strerror(rc));
 			return false;
 		}
 	} else {
-		int rc = ::mosquitto_publish(m_mosq, NULL, topic, len, data, static_cast<int>(m_qos), false);
+		int rc = ::mosquitto_publish(m_mosq, nullptr, topic, len, data, static_cast<int>(m_qos), false);
 		if (rc != MOSQ_ERR_SUCCESS) {
 			::fprintf(stderr, "MQTT Error publishing: %s\n", ::mosquitto_strerror(rc));
 			return false;
@@ -124,17 +129,17 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 
 void CMQTTConnection::close()
 {
-	if (m_mosq != NULL) {
+	if (m_mosq != nullptr) {
 		::mosquitto_disconnect(m_mosq);
 		::mosquitto_destroy(m_mosq);
-		m_mosq = NULL;
+		m_mosq = nullptr;
 	}
 }
 
 void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 {
-	assert(mosq != NULL);
-	assert(obj != NULL);
+	assert(mosq != nullptr);
+	assert(obj != nullptr);
 
 	::fprintf(stdout, "MQTT: on_connect: %s\n", ::mosquitto_connack_string(rc));
 	if (rc != 0) {
@@ -152,13 +157,13 @@ void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 			char topicEx[100U];
 			::sprintf(topicEx, "%s/%s", p->m_name.c_str(), topic.c_str());
 
-			rc = ::mosquitto_subscribe(mosq, NULL, topicEx, static_cast<int>(p->m_qos));
+			rc = ::mosquitto_subscribe(mosq, nullptr, topicEx, static_cast<int>(p->m_qos));
 			if (rc != MOSQ_ERR_SUCCESS) {
 				::fprintf(stderr, "MQTT: error subscribing to %s - %s\n", topicEx, ::mosquitto_strerror(rc));
 				::mosquitto_disconnect(mosq);
 			}
 		} else {
-			rc = ::mosquitto_subscribe(mosq, NULL, topic.c_str(), static_cast<int>(p->m_qos));
+			rc = ::mosquitto_subscribe(mosq, nullptr, topic.c_str(), static_cast<int>(p->m_qos));
 			if (rc != MOSQ_ERR_SUCCESS) {
 				::fprintf(stderr, "MQTT: error subscribing to %s - %s\n", topic.c_str(), ::mosquitto_strerror(rc));
 				::mosquitto_disconnect(mosq);
@@ -169,9 +174,9 @@ void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 
 void CMQTTConnection::onSubscribe(mosquitto* mosq, void* obj, int mid, int qosCount, const int* grantedQOS)
 {
-	assert(mosq != NULL);
-	assert(obj != NULL);
-	assert(grantedQOS != NULL);
+	assert(mosq != nullptr);
+	assert(obj != nullptr);
+	assert(grantedQOS != nullptr);
 
 	for (int i = 0; i < qosCount; i++)
 		::fprintf(stdout, "MQTT: on_subscribe: %d:%d\n", i, grantedQOS[i]);
@@ -179,9 +184,9 @@ void CMQTTConnection::onSubscribe(mosquitto* mosq, void* obj, int mid, int qosCo
 
 void CMQTTConnection::onMessage(mosquitto* mosq, void* obj, const mosquitto_message* message)
 {
-	assert(mosq != NULL);
-	assert(obj != NULL);
-	assert(message != NULL);
+	assert(mosq != nullptr);
+	assert(obj != nullptr);
+	assert(message != nullptr);
 
 	CMQTTConnection* p = static_cast<CMQTTConnection*>(obj);
 
@@ -200,8 +205,8 @@ void CMQTTConnection::onMessage(mosquitto* mosq, void* obj, const mosquitto_mess
 
 void CMQTTConnection::onDisconnect(mosquitto* mosq, void* obj, int rc)
 {
-	assert(mosq != NULL);
-	assert(obj != NULL);
+	assert(mosq != nullptr);
+	assert(obj != nullptr);
 
 	::fprintf(stdout, "MQTT: on_disconnect: %s\n", ::mosquitto_reason_string(rc));
 

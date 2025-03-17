@@ -59,7 +59,7 @@ m_talkerAliasLen(0U)
 	m_talkerAliasData   = new unsigned char[50U];
 
 	CStopWatch stopWatch;
-	::srand(stopWatch.start());
+	::srand((unsigned int)stopWatch.start());
 }
 
 CMMDVMNetwork::~CMMDVMNetwork()

@@ -36,7 +36,7 @@ extern CMQTTConnection* m_mqtt;
 
 CRemoteControl::CRemoteControl(CDMRGateway* host) :
 m_host(host),
-m_command(RCD_NONE),
+m_command(REMOTE_COMMAND::NONE),
 m_args()
 {
 }
@@ -47,46 +47,49 @@ CRemoteControl::~CRemoteControl()
 
 REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 {
-	m_command = RCD_NONE;
+	m_command = REMOTE_COMMAND::NONE;
 	m_args.clear();
 
 	std::string replyStr = "OK";
 
-	std::stringstream tokeniser(command);
-
 	// Parse the original command into a vector of strings.
-	std::string token;
-	while (std::getline(tokeniser, token, ' '))
-		m_args.push_back(token);
+	size_t start = command.find_first_not_of(' ');
+	while (start != std::string::npos) {
+		size_t end = command.find_first_of(' ', start);
+
+		m_args.push_back(command.substr(start, end - start));
+
+		start = command.find_first_not_of(' ', end);
+	}
 
 	if (m_args.at(0U) == "enable" && m_args.size() >= ENABLE_ARGS) {
 		if (m_args.at(1U) == "net1")
-			m_command = RCD_ENABLE_NETWORK1;
+			m_command = REMOTE_COMMAND::ENABLE_NETWORK1;
 		else if (m_args.at(1U) == "net2")
-			m_command = RCD_ENABLE_NETWORK2;
+			m_command = REMOTE_COMMAND::ENABLE_NETWORK2;
 		else if (m_args.at(1U) == "net3")
-			m_command = RCD_ENABLE_NETWORK3;
+			m_command = REMOTE_COMMAND::ENABLE_NETWORK3;
 		else if (m_args.at(1U) == "net4")
-			m_command = RCD_ENABLE_NETWORK4;
+			m_command = REMOTE_COMMAND::ENABLE_NETWORK4;
 		else if (m_args.at(1U) == "net5")
-			m_command = RCD_ENABLE_NETWORK5;
+			m_command = REMOTE_COMMAND::ENABLE_NETWORK5;
 		else if (m_args.at(1U) == "xlx")
-			m_command = RCD_ENABLE_XLX;
+			m_command = REMOTE_COMMAND::ENABLE_XLX;
 		else
 			replyStr = "KO";
 	} else if (m_args.at(0U) == "disable" && m_args.size() >= DISABLE_ARGS) {
 		if (m_args.at(1U) == "net1")
-			m_command = RCD_DISABLE_NETWORK1;
+			m_command = REMOTE_COMMAND::DISABLE_NETWORK1;
 		else if (m_args.at(1U) == "net2")
-			m_command = RCD_DISABLE_NETWORK2;
+			m_command = REMOTE_COMMAND::DISABLE_NETWORK2;
 		else if (m_args.at(1U) == "net3")
-			m_command = RCD_DISABLE_NETWORK3;
+			m_command = REMOTE_COMMAND::DISABLE_NETWORK3;
 		else if (m_args.at(1U) == "net4")
-			m_command = RCD_DISABLE_NETWORK4;
+			m_command = REMOTE_COMMAND::DISABLE_NETWORK4;
 		else if (m_args.at(1U) == "net5")
-			m_command = RCD_DISABLE_NETWORK5;
+			m_command = REMOTE_COMMAND::DISABLE_NETWORK5;
 		else if (m_args.at(1U) == "xlx")
-			m_command = RCD_DISABLE_XLX;
+			m_command = REMOTE_COMMAND::DISABLE_XLX;
 		else
 			replyStr = "KO";
 	} else if (m_args.at(0U) == "status") {
@@ -95,22 +98,22 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 		else
 			replyStr = "KO";
 
-		m_command = RCD_CONNECTION_STATUS;
+		m_command = REMOTE_COMMAND::CONNECTION_STATUS;
 	} else if (m_args.at(0U) == "hosts") {
 		if (m_host != nullptr)
 			m_host->buildNetworkHostsString(replyStr);
 		else
 			replyStr = "KO";
 
-		m_command = RCD_CONFIG_HOSTS;
+		m_command = REMOTE_COMMAND::CONFIG_HOSTS;
 	} else {
 		replyStr = "KO";
 	}
 
 	char buffer[200U];
-	::snprintf(buffer, 200, "%s remote command of \"%s\" received", ((m_command == RCD_NONE) ? "Invalid" : "Valid"), command.c_str());
+	::snprintf(buffer, 200, "%s remote command of \"%s\" received", ((m_command == REMOTE_COMMAND::NONE) ? "Invalid" : "Valid"), command.c_str());
 
-	if (m_command == RCD_NONE) {
+	if (m_command == REMOTE_COMMAND::NONE) {
 		m_args.clear();
 		LogWarning(buffer);
 	} else {

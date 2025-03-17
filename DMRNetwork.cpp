@@ -369,7 +369,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			if (m_status == STATUS::RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
 				WriteJSONStatus("Failed login into DMR Network: " + m_name);
-				m_status = WAITING_LOGIN;
+				m_status = STATUS::WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
 			} else {
@@ -403,7 +403,7 @@ void CDMRNetwork::clock(unsigned int ms)
 					if (m_options.empty()) {
 						LogMessage("%s, Logged into the master successfully", m_name.c_str());
 						WriteJSONStatus("Logged into DMR Network: " + m_name);
-						m_status = RUNNING;
+						m_status = STATUS::RUNNING;
 					} else {
 						LogDebug("%s, Sending options", m_name.c_str());
 						writeOptions();
@@ -415,7 +415,7 @@ void CDMRNetwork::clock(unsigned int ms)
 				case STATUS::WAITING_OPTIONS:
 					LogMessage("%s, Logged into the master successfully", m_name.c_str());
 					WriteJSONStatus("Logged into DMR Network: " + m_name);
-					m_status = RUNNING;
+					m_status = STATUS::RUNNING;
 					m_timeoutTimer.start();
 					m_retryTimer.start();
 					break;
