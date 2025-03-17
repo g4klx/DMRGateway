@@ -252,22 +252,22 @@ bool CConf::read()
 	if (value == nullptr)
 		continue;
 
-		// Remove quotes from the value
-		size_t len = ::strlen(value);
-		if (len > 1U && *value == '"' && value[len - 1U] == '"') {
-			value[len - 1U] = '\0';
-			value++;
-		} else {
-			char *p;
+	// Remove quotes from the value
+	size_t len = ::strlen(value);
+	if (len > 1U && *value == '"' && value[len - 1U] == '"') {
+		value[len - 1U] = '\0';
+		value++;
+	} else {
+		char *p;
 
 		// if value is not quoted, remove after # (to make comment)
 		if ((p = strchr(value, '#')) != nullptr)
 			*p = '\0';
 
-			// remove trailing tab/space
-			for (p = value + strlen(value) - 1U; p >= value && (*p == '\t' || *p == ' '); p--)
-				*p = '\0';
-		}
+		// remove trailing tab/space
+		for (p = value + strlen(value) - 1U; p >= value && (*p == '\t' || *p == ' '); p--)
+			*p = '\0';
+	}
 
 	if (section == SECTION::GENERAL) {
 			if (::strcmp(key, "Daemon") == 0)

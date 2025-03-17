@@ -49,7 +49,7 @@ CMQTTConnection::~CMQTTConnection()
 bool CMQTTConnection::open()
 {
 	char name[50U];
-	::sprintf(name, "DMRGateway.%lld", ::time(nullptr));
+	::sprintf(name, "DMRGateway.%ld", ::time(nullptr));
 
 	::fprintf(stdout, "DMRGateway (%s) connecting to MQTT as %s\n", m_name.c_str(), name);
 
