@@ -77,7 +77,7 @@ static CDMRGateway* gateway = nullptr;
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017-2024 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2025 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -373,7 +373,7 @@ int CDMRGateway::run()
 	if (m_conf.getRemoteCommandsEnabled())
 		subscriptions.push_back(std::make_pair("command", CDMRGateway::onCommand));
 
-	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), subscriptions, m_conf.getMQTTKeepalive());
+	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), m_conf.getMQTTAuthEnabled(), m_conf.getMQTTUsername(), m_conf.getMQTTPassword(), subscriptions, m_conf.getMQTTKeepalive());
 	ret = m_mqtt->open();
 	if (!ret)
 		return 1;
