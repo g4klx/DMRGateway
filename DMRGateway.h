@@ -39,12 +39,13 @@
 
 enum class DMRGW_STATUS {
 	NONE,
-	DMRNETWORK1,
-	DMRNETWORK2,
-	DMRNETWORK3,
-	DMRNETWORK4,
-	DMRNETWORK5,
+	DMRNETWORK,
 	XLXREFLECTOR
+};
+
+struct CDMRGWExtStatus {
+	DMRGW_STATUS m_status;
+	unsigned int m_dmrNetwork;
 };
 
 class CDMRGateway
@@ -60,20 +61,13 @@ public:
 
 private:
 	CConf              m_conf;
-	DMRGW_STATUS*      m_status;
+	CDMRGWExtStatus*   m_extStatus;
 	CMMDVMNetwork*     m_repeater;
 	unsigned char*     m_config;
 	unsigned int       m_configLen;
-	CDMRNetwork*       m_dmrNetwork1;
-	std::string        m_dmr1Name;
-	CDMRNetwork*       m_dmrNetwork2;
-	std::string        m_dmr2Name;
-	CDMRNetwork*       m_dmrNetwork3;
-	std::string        m_dmr3Name;
-	CDMRNetwork*       m_dmrNetwork4;
-	std::string        m_dmr4Name;
-	CDMRNetwork*       m_dmrNetwork5;
-	std::string        m_dmr5Name;
+	unsigned int       m_dmrNetworkCount;
+	std::vector<CDMRNetwork*> m_dmrNetworks;
+	std::vector<std::string> m_dmrName;
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
@@ -95,26 +89,10 @@ private:
 	CRewriteTG*        m_rptRewrite;
 	CRewriteTG*        m_xlxRewrite;
 	CXLXVoice*         m_xlxVoice;
-	std::vector<CRewrite*> m_dmr1NetRewrites;
-	std::vector<CRewrite*> m_dmr1RFRewrites;
-	std::vector<CRewrite*> m_dmr1SrcRewrites;
-	std::vector<CRewrite*> m_dmr2NetRewrites;
-	std::vector<CRewrite*> m_dmr2RFRewrites;
-	std::vector<CRewrite*> m_dmr2SrcRewrites;
-	std::vector<CRewrite*> m_dmr3NetRewrites;
-	std::vector<CRewrite*> m_dmr3RFRewrites;
-	std::vector<CRewrite*> m_dmr3SrcRewrites;
-	std::vector<CRewrite*> m_dmr4NetRewrites;
-	std::vector<CRewrite*> m_dmr4RFRewrites;
-	std::vector<CRewrite*> m_dmr4SrcRewrites;
-	std::vector<CRewrite*> m_dmr5NetRewrites;
-	std::vector<CRewrite*> m_dmr5RFRewrites;
-	std::vector<CRewrite*> m_dmr5SrcRewrites;
-	std::vector<CRewrite*> m_dmr1Passalls;
-	std::vector<CRewrite*> m_dmr2Passalls;
-	std::vector<CRewrite*> m_dmr3Passalls;
-	std::vector<CRewrite*> m_dmr4Passalls;
-	std::vector<CRewrite*> m_dmr5Passalls;
+	std::vector<std::vector<CRewrite*>> m_dmrNetRewrites;
+	std::vector<std::vector<CRewrite*>> m_dmrRFRewrites;
+	std::vector<std::vector<CRewrite*>> m_dmrSrcRewrites;
+	std::vector<std::vector<CRewrite*>> m_dmrPassalls;
 	std::vector<CDynVoice*> m_dynVoices;
 	std::vector<CRewriteDynTGRF*> m_dynRF;
 	CUDPSocket*            m_socket;
@@ -125,20 +103,12 @@ private:
 #if defined(USE_GPSD)
 	CGPSD*                 m_gpsd;
 #endif
-	bool                   m_network1Enabled;
-	bool                   m_network2Enabled;
-	bool                   m_network3Enabled;
-	bool                   m_network4Enabled;
-	bool                   m_network5Enabled;
+	bool*                  m_networkEnabled;
 	bool                   m_networkXlxEnabled;
 	CRemoteControl*        m_remoteControl;
-	
+
 	bool createMMDVM();
-	bool createDMRNetwork1();
-	bool createDMRNetwork2();
-	bool createDMRNetwork3();
-	bool createDMRNetwork4();
-	bool createDMRNetwork5();
+	bool createDMRNetwork(unsigned int index);
 	bool createXLXNetwork();
 	bool createDynamicTGControl();
 
