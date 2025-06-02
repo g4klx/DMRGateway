@@ -83,6 +83,12 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 				m_command = REMOTE_COMMAND::ENABLE_NETWORK4;
 			else if (m_args.at(1U) == "net5")
 				m_command = REMOTE_COMMAND::ENABLE_NETWORK5;
+			else if (m_args.at(1U) == "net6")
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK6;
+			else if (m_args.at(1U) == "net7")
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK7;
+			else if (m_args.at(1U) == "net8")
+				m_command = REMOTE_COMMAND::ENABLE_NETWORK8;
 			else if (m_args.at(1U) == "xlx")
 				m_command = REMOTE_COMMAND::ENABLE_XLX;
 			else
@@ -98,6 +104,12 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 				m_command = REMOTE_COMMAND::DISABLE_NETWORK4;
 			else if (m_args.at(1U) == "net5")
 				m_command = REMOTE_COMMAND::DISABLE_NETWORK5;
+			else if (m_args.at(1U) == "net6")
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK6;
+			else if (m_args.at(1U) == "net7")
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK7;
+			else if (m_args.at(1U) == "net8")
+				m_command = REMOTE_COMMAND::DISABLE_NETWORK8;
 			else if (m_args.at(1U) == "xlx")
 				m_command = REMOTE_COMMAND::DISABLE_XLX;
 			else
