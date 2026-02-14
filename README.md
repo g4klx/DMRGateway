@@ -8,6 +8,6 @@ The rewrite rules don’t apply to the XLX reflector, where only the slot and the 
 
 The MMDVM .ini file should have the IP address and port number of the client in the [DMR Network] settings.
 
-This software builds on 32-bit and 64-bit Linux systems as well as on Windows using Visual Studio 2017 on x86 and x64.
+This software builds on 32-bit and 64-bit Linux systems as well as on Windows using Visual Studio 2022 on x86 and x64.
 
 This software is licenced under the GPL v2 and is primarily intended for amateur and educational use.
