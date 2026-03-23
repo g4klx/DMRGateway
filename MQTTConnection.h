@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2022,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ public:
 
 	bool open();
 
-	bool publish(const char* topic, const char* text);
-	bool publish(const char* topic, const std::string& text);
-	bool publish(const char* topic, const unsigned char* data, unsigned int len);
+	bool publish(const char* topic, const char* text, bool retain = false);
+	bool publish(const char* topic, const std::string& text, bool retain = false);
+	bool publish(const char* topic, const unsigned char* data, unsigned int len, bool retain = false);
 
 	void close();
 
@@ -63,4 +63,3 @@ private:
 };
 
 #endif
-

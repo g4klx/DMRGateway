@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2022,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -99,22 +99,22 @@ bool CMQTTConnection::open()
 	return true;
 }
 
-bool CMQTTConnection::publish(const char* topic, const char* text)
+bool CMQTTConnection::publish(const char* topic, const char* text, bool retain)
 {
 	assert(topic != nullptr);
 	assert(text != nullptr);
 
-	return publish(topic, (unsigned char*)text, (unsigned int)::strlen(text));
+	return publish(topic, (unsigned char*)text, (unsigned int)::strlen(text), retain);
 }
 
-bool CMQTTConnection::publish(const char* topic, const std::string& text)
+bool CMQTTConnection::publish(const char* topic, const std::string& text, bool retain)
 {
 	assert(topic != nullptr);
 
-	return publish(topic, (unsigned char*)text.c_str(), (unsigned int)text.size());
+	return publish(topic, (unsigned char*)text.c_str(), (unsigned int)text.size(), retain);
 }
 
-bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsigned int len)
+bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsigned int len, bool retain)
 {
 	assert(topic != nullptr);
 	assert(data != nullptr);
@@ -126,13 +126,13 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 		char topicEx[100U];
 		::sprintf(topicEx, "%s/%s", m_name.c_str(), topic);
 
-		int rc = ::mosquitto_publish(m_mosq, nullptr, topicEx, len, data, static_cast<int>(m_qos), false);
+		int rc = ::mosquitto_publish(m_mosq, nullptr, topicEx, len, data, static_cast<int>(m_qos), retain);
 		if (rc != MOSQ_ERR_SUCCESS) {
 			::fprintf(stderr, "MQTT Error publishing: %s\n", ::mosquitto_strerror(rc));
 			return false;
 		}
 	} else {
-		int rc = ::mosquitto_publish(m_mosq, nullptr, topic, len, data, static_cast<int>(m_qos), false);
+		int rc = ::mosquitto_publish(m_mosq, nullptr, topic, len, data, static_cast<int>(m_qos), retain);
 		if (rc != MOSQ_ERR_SUCCESS) {
 			::fprintf(stderr, "MQTT Error publishing: %s\n", ::mosquitto_strerror(rc));
 			return false;

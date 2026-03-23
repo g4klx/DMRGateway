@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2020,2022,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2020,2022,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -102,17 +102,16 @@ void WriteJSONStatus(const std::string& status)
 	json["timestamp"] = CUtils::createTimestamp();
 	json["message"]   = status;
 
-	WriteJSON("status", json);
+	WriteJSON("status", json, false);
 }
 
-void WriteJSON(const std::string& topLevel, nlohmann::json& json)
+void WriteJSON(const std::string& topLevel, nlohmann::json& json, bool retain)
 {
 	if (m_mqtt != nullptr) {
 		nlohmann::json top;
 
 		top[topLevel] = json;
 
-		m_mqtt->publish("json", top.dump());
+		m_mqtt->publish("json", top.dump(), retain);
 	}
 }
-

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2020,2022,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2020,2022,2023,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -36,6 +36,6 @@ extern void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel);
 extern void LogFinalise();
 
 extern void WriteJSONStatus(const std::string& status);
-extern void WriteJSON(const std::string& topLevel, nlohmann::json& json);
+extern void WriteJSON(const std::string& topLevel, nlohmann::json& json, bool retain);
 
 #endif
