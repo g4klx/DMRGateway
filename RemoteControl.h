@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,12 +56,6 @@ public:
 	~CRemoteControl();
 
 	REMOTE_COMMAND processCommand(const std::string& command);
-
-	unsigned int getArgCount() const;
-
-	std::string  getArgString(unsigned int n) const;
-	unsigned int getArgUInt(unsigned int n) const;
-	signed int   getArgInt(unsigned int n) const;
 
 private:
 	CDMRGateway*             m_host;

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019,2021,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2019,2021,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -126,35 +126,3 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 	
 	return m_command;
 }
-
-unsigned int CRemoteControl::getArgCount() const
-{
-	switch (m_command) {
-		default:
-			return 0U;
-	}
-}
-
-std::string CRemoteControl::getArgString(unsigned int n) const
-{
-	switch (m_command) {
-		default:
-			return "";
-	}
-
-	if (n >= m_args.size())
-		return "";
-
-	return m_args.at(n);
-}
-
-unsigned int CRemoteControl::getArgUInt(unsigned int n) const
-{
-	return (unsigned int)::atoi(getArgString(n).c_str());
-}
-
-int CRemoteControl::getArgInt(unsigned int n) const
-{
-	return ::atoi(getArgString(n).c_str());
-}
-
