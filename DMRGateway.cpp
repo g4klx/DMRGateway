@@ -620,6 +620,7 @@ int CDMRGateway::run()
 						}
 
 						if (result == PROCESS_RESULT::MATCHED) {
+							slotNo = data.getSlotNo();
 							if (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
@@ -650,6 +651,7 @@ int CDMRGateway::run()
 						}
 
 						if (result == PROCESS_RESULT::MATCHED) {
+							slotNo = data.getSlotNo();
 							if (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
