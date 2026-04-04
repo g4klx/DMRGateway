@@ -62,6 +62,12 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 		start = command.find_first_not_of(' ', end);
 	}
 
+	if (m_args.empty()) {
+		if (m_mqtt != nullptr)
+			m_mqtt->publish("response", "KO");
+		return REMOTE_COMMAND::NONE;
+	}
+
 	if (m_args.at(0U) == "enable" && m_args.size() >= ENABLE_ARGS) {
 		if (m_args.at(1U) == "net1")
 			m_command = REMOTE_COMMAND::ENABLE_NETWORK1;
@@ -122,7 +128,8 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 #endif
 	}
 
-	m_mqtt->publish("response", replyStr);
+	if (m_mqtt != nullptr)
+		m_mqtt->publish("response", replyStr);
 	
 	return m_command;
 }
