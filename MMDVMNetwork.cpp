@@ -276,11 +276,15 @@ void CMMDVMNetwork::clock(unsigned int ms)
 		m_rxData.addData(&len, 1U);
 		m_rxData.addData(m_buffer, len);
 	} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
-		::memcpy(m_radioPositionData, m_buffer, length);
-		m_radioPositionLen = length;
+		if (length <= 50U) {
+			::memcpy(m_radioPositionData, m_buffer, length);
+			m_radioPositionLen = length;
+		}
 	} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
-		::memcpy(m_talkerAliasData, m_buffer, length);
-		m_talkerAliasLen = length;
+		if (length <= 50U) {
+			::memcpy(m_talkerAliasData, m_buffer, length);
+			m_talkerAliasLen = length;
+		}
 	} else if (::memcmp(m_buffer, "DMRC", 4U) == 0) {
 		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
 
