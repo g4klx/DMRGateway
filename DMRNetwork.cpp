@@ -252,7 +252,7 @@ bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int len
 	if (!m_location)
 		return false;
 
-	if (length < 4U || length > 50U)
+	if (length < 4U || length > 46U)
 		return false;
 
 	unsigned char buffer[50U];
@@ -271,7 +271,7 @@ bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int lengt
 	if (m_status != STATUS::RUNNING)
 		return false;
 
-	if (length < 4U || length > 50U)
+	if (length < 4U || length > 46U)
 		return false;
 
 	unsigned char buffer[50U];
