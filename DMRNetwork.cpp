@@ -252,6 +252,9 @@ bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int len
 	if (!m_location)
 		return false;
 
+	if (length < 4U || length > 46U)
+		return false;
+
 	unsigned char buffer[50U];
 
 	::memcpy(buffer + 0U, "DMRG", 4U);
@@ -266,6 +269,9 @@ bool CDMRNetwork::writeRadioPosition(const unsigned char* data, unsigned int len
 bool CDMRNetwork::writeTalkerAlias(const unsigned char* data, unsigned int length)
 {
 	if (m_status != STATUS::RUNNING)
+		return false;
+
+	if (length < 4U || length > 46U)
 		return false;
 
 	unsigned char buffer[50U];
