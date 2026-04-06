@@ -137,7 +137,7 @@ bool CDynVoice::open()
 
 void CDynVoice::linkedTo(unsigned int number)
 {
-	char letters[10U];
+	char letters[11U];
 	::sprintf(letters, "%u", number);
 
 	std::vector<std::string> words;
