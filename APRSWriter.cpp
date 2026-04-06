@@ -156,6 +156,7 @@ void CAPRSWriter::sendIdFrame()
 	if (m_debug)
 		LogDebug("APRS ==> %s", output);
 
-	m_mqtt->publish("aprs-gateway/aprs", output);
+	if (m_mqtt != nullptr)
+		m_mqtt->publish("aprs-gateway/aprs", output);
 }
 
