@@ -368,7 +368,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			if (m_debug)
 				CUtils::dump(1U, "Network Received", m_buffer, length);
 
-			if (m_enabled) {
+			if (m_enabled && length == HOMEBREW_DATA_PACKET_LENGTH) {
 				unsigned char len = length;
 				m_rxData.addData(&len, 1U);
 				m_rxData.addData(m_buffer, len);
