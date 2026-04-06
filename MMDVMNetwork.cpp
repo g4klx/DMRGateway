@@ -34,7 +34,6 @@ CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPo
 m_rptAddr(),
 m_rptAddrLen(0U),
 m_id(0U),
-m_netId(nullptr),
 m_debug(debug),
 m_socket(localAddress, localPort),
 m_buffer(nullptr),
@@ -53,8 +52,6 @@ m_talkerAliasLen(0U)
 		m_rptAddrLen = 0U;
 
 	m_buffer = new unsigned char[BUFFER_LENGTH];
-	m_netId  = new unsigned char[4U];
-
 	m_radioPositionData = new unsigned char[50U];
 	m_talkerAliasData   = new unsigned char[50U];
 
@@ -64,7 +61,6 @@ m_talkerAliasLen(0U)
 
 CMMDVMNetwork::~CMMDVMNetwork()
 {
-	delete[] m_netId;
 	delete[] m_buffer;
 	delete[] m_configData;
 	delete[] m_radioPositionData;
@@ -180,7 +176,10 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	buffer[9U]  = dstId >> 8;
 	buffer[10U] = dstId >> 0;
 
-	::memcpy(buffer + 11U, m_netId, 4U);
+	buffer[11U] = m_id >> 24;
+	buffer[12U] = m_id >> 16;
+	buffer[13U] = m_id >> 8;
+	buffer[14U] = m_id >> 0;
 
 	unsigned int slotNo = data.getSlotNo();
 

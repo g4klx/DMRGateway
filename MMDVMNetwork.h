@@ -57,7 +57,6 @@ private:
 	sockaddr_storage           m_rptAddr;
 	unsigned int               m_rptAddrLen;
 	unsigned int               m_id;
-	unsigned char*             m_netId;
 	bool                       m_debug;
 	CUDPSocket                 m_socket;
 	unsigned char*             m_buffer;
