@@ -78,6 +78,7 @@ CDMRNetwork::~CDMRNetwork()
 	delete[] m_buffer;
 	delete[] m_salt;
 	delete[] m_id;
+	delete[] m_configData;
 }
 
 void CDMRNetwork::setOptions(const std::string& options)
@@ -87,6 +88,7 @@ void CDMRNetwork::setOptions(const std::string& options)
 
 void CDMRNetwork::setConfig(const unsigned char* data, unsigned int len)
 {
+	delete[] m_configData;
 	m_configData = new unsigned char[len];
 	::memcpy(m_configData, data, len);
 
