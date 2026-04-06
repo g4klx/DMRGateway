@@ -272,9 +272,11 @@ void CMMDVMNetwork::clock(unsigned int ms)
 		CUtils::dump(1U, "Network Received", m_buffer, length);
 
 	if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-		unsigned char len = length;
-		m_rxData.addData(&len, 1U);
-		m_rxData.addData(m_buffer, len);
+		if (length == HOMEBREW_DATA_PACKET_LENGTH) {
+			unsigned char len = length;
+			m_rxData.addData(&len, 1U);
+			m_rxData.addData(m_buffer, len);
+		}
 	} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
 		if (length <= 50U) {
 			::memcpy(m_radioPositionData, m_buffer, length);
