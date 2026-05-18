@@ -99,6 +99,7 @@ public:
 	bool read();
 
 	// The General section
+	unsigned int getId() const;
 	bool         getDaemon() const;
 	unsigned int getRFTimeout() const;
 	unsigned int getNetTimeout() const;
@@ -119,6 +120,14 @@ public:
 	std::string  getVoiceDirectory() const;
 
 	// The Info section
+	std::string  getInfoCallsign() const;
+	unsigned int getInfoTXFrequency() const;
+	unsigned int getInfoRXFrequency() const;
+	unsigned int getInfoPower() const;
+	unsigned int getInfoColorCode() const;
+	bool         getInfoDuplex() const;
+	bool         getInfoSlot1() const;
+	bool         getInfoSlot2() const;
 	float        getInfoLatitude() const;
 	float        getInfoLongitude() const;
 	int          getInfoHeight() const;
@@ -192,6 +201,7 @@ public:
 
 private:
 	std::string  m_file;
+	unsigned int m_id;
 	bool         m_daemon;
 	std::string  m_rptAddress;
 	unsigned short m_rptPort;
@@ -209,6 +219,14 @@ private:
 	unsigned int m_logDisplayLevel;
 	unsigned int m_logMQTTLevel;
 
+	std::string  m_infoCallsign;
+	unsigned int m_infoTXFrequency;
+	unsigned int m_infoRXFrequency;
+	unsigned int m_infoPower;
+	unsigned int m_infoColorCode;
+	bool         m_infoDuplex;
+	bool         m_infoSlot1;
+	bool         m_infoSlot2;
 	float        m_infoLatitude;
 	float        m_infoLongitude;
 	int          m_infoHeight;

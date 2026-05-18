@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,12 +30,8 @@
 class CMMDVMNetwork
 {
 public:
-	CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, bool debug);
+	CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, unsigned int id, bool debug);
 	~CMMDVMNetwork();
-
-	unsigned int getShortConfig(unsigned char* config) const;
-
-	unsigned int getId() const;
 
 	bool open();
 
@@ -61,12 +57,13 @@ private:
 	CUDPSocket                 m_socket;
 	unsigned char*             m_buffer;
 	CRingBuffer<unsigned char> m_rxData;
-	unsigned char*             m_configData;
-	unsigned int               m_configLen;
 	unsigned char*             m_radioPositionData;
 	unsigned int               m_radioPositionLen;
 	unsigned char*             m_talkerAliasData;
 	unsigned int               m_talkerAliasLen;
+	CTimer                     m_pingTimer;
+
+	bool writePing();
 };
 
 #endif

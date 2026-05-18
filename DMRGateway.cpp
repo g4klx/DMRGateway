@@ -77,7 +77,7 @@ static CDMRGateway* gateway = nullptr;
 const char* HEADER1 = "This software is for use on amateur radio networks only,";
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
-const char* HEADER4 = "Copyright(C) 2017-2025 by Jonathan Naylor, G4KLX and others";
+const char* HEADER4 = "Copyright(C) 2017-2026 by Jonathan Naylor, G4KLX and others";
 
 int main(int argc, char** argv)
 {
@@ -140,10 +140,9 @@ int main(int argc, char** argv)
 
 CDMRGateway::CDMRGateway(const std::string& confFile) :
 m_conf(confFile),
+m_id(0U),
 m_extStatus(nullptr),
 m_repeater(nullptr),
-m_config(nullptr),
-m_configLen(0U),
 m_dmrNetworkCount(0U),
 m_dmrNetworks(),
 m_dmrName(),
@@ -190,8 +189,6 @@ m_remoteControl(nullptr)
 	m_extStatus = new CDMRGWExtStatus[3U];
 	m_extStatus[1U].m_status = DMRGW_STATUS::NONE;
 	m_extStatus[2U].m_status = DMRGW_STATUS::NONE;
-
-	m_config = new unsigned char[400U];
 }
 
 CDMRGateway::~CDMRGateway()
@@ -219,7 +216,6 @@ CDMRGateway::~CDMRGateway()
 	delete m_xlxRewrite;
 
 	delete[] m_extStatus;
-	delete[] m_config;
 	delete[] m_networkEnabled;
 
 	CUDPSocket::shutdown();
@@ -309,6 +305,8 @@ int CDMRGateway::run()
 	if (!ret)
 		return 1;
 
+	m_id = m_conf.getId();
+
 	m_dmrNetworkCount = m_conf.getDMRNetworksCount();
 
 	m_dmrNetworks.resize(m_dmrNetworkCount, nullptr);
@@ -338,26 +336,6 @@ int CDMRGateway::run()
 	ret = createMMDVM();
 	if (!ret)
 		return 1;
-
-	LogMessage("Waiting for MMDVM to connect.....");
-
-	while (!m_killed) {
-		m_configLen = m_repeater->getShortConfig(m_config);
-		if (m_configLen > 0U && m_repeater->getId() > 1000U)
-			break;
-
-		m_repeater->clock(10U);
-
-		CThread::sleep(10U);
-	}
-
-	if (m_killed) {
-		m_repeater->close();
-		delete m_repeater;
-		return 0;
-	}
-
-	LogMessage("MMDVM has connected");
 
 #if defined(USE_GPSD)
 	bool gpsdEnabled = m_conf.getGPSDEnabled();
@@ -398,7 +376,7 @@ int CDMRGateway::run()
 		LogInfo("    Directory: %s", directory.c_str());
 
 		if (m_xlxNetwork != nullptr) {
-			m_xlxVoice = new CXLXVoice(directory, language, m_repeater->getId(), m_xlxSlot, m_xlxTG);
+			m_xlxVoice = new CXLXVoice(directory, language, m_id, m_xlxSlot, m_xlxTG);
 			bool ret = m_xlxVoice->open();
 			if (!ret) {
 				delete m_xlxVoice;
@@ -871,7 +849,7 @@ bool CDMRGateway::createMMDVM()
 	LogInfo("    Local Address: %s", localAddress.c_str());
 	LogInfo("    Local Port: %hu", localPort);
 
-	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, debug);
+	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, m_id, debug);
 
 	bool ret = m_repeater->open();
 	if (!ret) {
@@ -895,7 +873,7 @@ bool CDMRGateway::createDMRNetwork(unsigned int index)
 	m_dmrName[index]     = m_conf.getDMRNetworkName(index);
 
 	if (id == 0U)
-		id = m_repeater->getId();
+		id = m_id;
 
 	LogInfo("DMR Network %i Parameters", index + 1);
 	LogInfo("    Name: %s", m_dmrName[index].c_str());
@@ -996,7 +974,7 @@ bool CDMRGateway::createDMRNetwork(unsigned int index)
 			std::string language  = m_conf.getVoiceLanguage();
 			std::string directory = m_conf.getVoiceDirectory();
 
-			voice = new CDynVoice(directory, language, m_repeater->getId(), (*it).m_slot, (*it).m_toTG);
+			voice = new CDynVoice(directory, language, m_id, (*it).m_slot, (*it).m_toTG);
 			bool ret = voice->open();
 			if (!ret) {
 				delete voice;
@@ -1073,7 +1051,7 @@ bool CDMRGateway::createXLXNetwork()
 	m_xlxUserControl   = m_conf.getXLXNetworkUserControl();
 
 	if (m_xlxId == 0U)
-		m_xlxId = m_repeater->getId();
+		m_xlxId = m_id;
 
 	m_xlxSlot    = m_conf.getXLXNetworkSlot();
 	m_xlxTG      = m_conf.getXLXNetworkTG();
@@ -1248,41 +1226,59 @@ unsigned int CDMRGateway::getConfig(const std::string& name, unsigned char* buff
 	assert(buffer != nullptr);
 
 	float lat = m_conf.getInfoLatitude();
-	if ((lat > 90) || (lat < -90))
-		lat = 0;
+	if ((lat > 90.0F) || (lat < -90.0F))
+		lat = 0.0F;
 
 	float lon = m_conf.getInfoLongitude();
-	if ((lon > 180) || (lon < -180))
-		lon = 0;
+	if ((lon > 180.0F) || (lon < -180.0F))
+		lon = 0.0F;
 
 	int height = m_conf.getInfoHeight();
 	if (height > 999)
 		height = 999;
 	else if (height < 0)
 		height = 0;
+	
+	unsigned int power = m_conf.getInfoPower();
+	if (power > 99U)
+		power = 99U;
 
-	std::string location    = m_conf.getInfoLocation();
-	std::string description = m_conf.getInfoDescription();
-	std::string url         = m_conf.getInfoURL();
+	unsigned int colorCode = m_conf.getInfoColorCode();
+	if (colorCode > 15U)
+		colorCode = 15U;
 
-	::sprintf((char*)buffer, "%8.8s%9.9s%9.9s%2.2s%2.2s%+08.4f%+09.4f%03d%-20.20s%-19.19s%c%-124.124s%40.40s%40.40s",
-		m_config + 0U, m_config + 8U, m_config + 17U, m_config + 26U, m_config + 28U,
-		lat, lon, height, location.c_str(),
-		description.c_str(), m_config[30U], url.c_str(), m_config + 31U, m_config + 71U);
+	bool duplex = m_conf.getInfoDuplex();
+	bool slot1  = m_conf.getInfoSlot1();
+	bool slot2  = m_conf.getInfoSlot2();
 
-	m_callsign = std::string((char*)m_config + 0U, 8U);
-	size_t n = m_callsign.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-	if (n != std::string::npos)
-		m_callsign.erase(n);
+	char slots = '0';
+	if (duplex) {
+		if (slot1 && slot2)
+			slots = '3';
+		else if (slot1 && !slot2)
+			slots = '1';
+		else if (!slot1 && slot2)
+			slots = '2';
+	} else {
+		slots = '4';
+	}
 
-	char frequency[10U];
-	::memset(frequency, 0x00U, 10U);
-	::memcpy(frequency, m_config + 8U, 9U);
-	m_rxFrequency = (unsigned int)::atoi(frequency);
+	std::string callsign     = m_conf.getInfoCallsign();
+	unsigned int rxFrequency = m_conf.getInfoRXFrequency();
+	unsigned int txFrequency = m_conf.getInfoTXFrequency();
+	std::string location     = m_conf.getInfoLocation();
+	std::string description  = m_conf.getInfoDescription();
+	std::string url          = m_conf.getInfoURL();
 
-	::memset(frequency, 0x00U, 10U);
-	::memcpy(frequency, m_config + 17U, 9U);
-	m_txFrequency = (unsigned int)::atoi(frequency);
+	char latitude[20U];
+	::sprintf(latitude, "%08f", m_conf.getInfoLatitude());
+
+	char longitude[20U];
+	::sprintf(longitude, "%09f", m_conf.getInfoLongitude());
+
+	::sprintf((char*)buffer, "%-8.8s%09u%09u%02u%02u%8.8s%9.9s%03d%-20.20s%-19.19s%c%-124.124s%-40.40s%-40.40s",
+		callsign.c_str(), rxFrequency, txFrequency, power, colorCode, latitude, longitude, height,
+		location.c_str(), description.c_str(), slots, url.c_str(), VERSION, "MMDVM");
 
 	LogInfo("%s: configuration message: %s", name.c_str(), buffer);
 
@@ -1542,4 +1538,3 @@ void CDMRGateway::onCommand(const unsigned char* message, unsigned int length)
 
 	gateway->remoteControl(std::string((char*)message, length));
 }
-

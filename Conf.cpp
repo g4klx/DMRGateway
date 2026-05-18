@@ -44,6 +44,7 @@ enum class SECTION {
 
 CConf::CConf(const std::string& file) :
 m_file(file),
+m_id(0U),
 m_daemon(false),
 m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
@@ -58,6 +59,14 @@ m_voiceLanguage("en_GB"),
 m_voiceDirectory(),
 m_logDisplayLevel(0U),
 m_logMQTTLevel(0U),
+m_infoCallsign("G9BF"),
+m_infoTXFrequency(0U),
+m_infoRXFrequency(0U),
+m_infoPower(1U),
+m_infoColorCode(1U),
+m_infoDuplex(true),
+m_infoSlot1(true),
+m_infoSlot2(true),
 m_infoLatitude(0.0F),
 m_infoLongitude(0.0F),
 m_infoHeight(0),
@@ -176,7 +185,9 @@ bool CConf::read()
 		}
 
 		if (section == SECTION::GENERAL) {
-			if (::strcmp(key, "Daemon") == 0)
+			if (::strcmp(key, "Id") == 0)
+				m_id = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
 				m_rfTimeout = m_netTimeout = (unsigned int)::atoi(value);
@@ -209,7 +220,23 @@ bool CConf::read()
 			else if (::strcmp(key, "Directory") == 0)
 				m_voiceDirectory = value;
 		} else if (section == SECTION::INFO) {
-			if (::strcmp(key, "Latitude") == 0)
+			if (::strcmp(key, "Callsign") == 0)
+				m_infoCallsign = value;
+			else if (::strcmp(key, "TXFrequency") == 0)
+				m_infoTXFrequency = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RXFrequency") == 0)
+				m_infoRXFrequency = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Power") == 0)
+				m_infoPower = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "ColorCode") == 0)
+				m_infoColorCode = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "Duplex") == 0)
+				m_infoDuplex = ::atoi(value) == 1;
+			else if (::strcmp(key, "Slot1") == 0)
+				m_infoSlot1 = ::atoi(value) == 1;
+			else if (::strcmp(key, "Slot2") == 0)
+				m_infoSlot2 = ::atoi(value) == 1;
+			else if (::strcmp(key, "Latitude") == 0)
 				m_infoLatitude = float(::atof(value));
 			else if (::strcmp(key, "Longitude") == 0)
 				m_infoLongitude = float(::atof(value));
@@ -428,6 +455,11 @@ bool CConf::read()
 	return true;
 }
 
+unsigned int CConf::getId() const
+{
+	return m_id;
+}
+
 bool CConf::getDaemon() const
 {
 	return m_daemon;
@@ -496,6 +528,46 @@ std::string CConf::getVoiceLanguage() const
 std::string CConf::getVoiceDirectory() const
 {
 	return m_voiceDirectory;
+}
+
+std::string CConf::getInfoCallsign() const
+{
+	return m_infoCallsign;
+}
+
+unsigned int CConf::getInfoTXFrequency() const
+{
+	return m_infoTXFrequency;
+}
+
+unsigned int CConf::getInfoRXFrequency() const
+{
+	return m_infoRXFrequency;
+}
+
+unsigned int CConf::getInfoPower() const
+{
+	return m_infoPower;
+}
+
+unsigned int CConf::getInfoColorCode() const
+{
+	return m_infoColorCode;
+}
+
+bool CConf::getInfoDuplex() const
+{
+	return m_infoDuplex;
+}
+
+bool CConf::getInfoSlot1() const
+{
+	return m_infoSlot1;
+}
+
+bool CConf::getInfoSlot2() const
+{
+	return m_infoSlot2;
 }
 
 float CConf::getInfoLatitude() const

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2019,2020,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2019,2020,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -61,10 +61,9 @@ public:
 
 private:
 	CConf              m_conf;
+	unsigned int       m_id;
 	CDMRGWExtStatus*   m_extStatus;
 	CMMDVMNetwork*     m_repeater;
-	unsigned char*     m_config;
-	unsigned int       m_configLen;
 	unsigned int       m_dmrNetworkCount;
 	std::vector<CDMRNetwork*> m_dmrNetworks;
 	std::vector<std::string> m_dmrName;

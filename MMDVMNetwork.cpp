@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,23 +30,23 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 
 
-CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, bool debug) :
+CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, unsigned int id, bool debug) :
 m_rptAddr(),
 m_rptAddrLen(0U),
-m_id(0U),
+m_id(id),
 m_debug(debug),
 m_socket(localAddress, localPort),
 m_buffer(nullptr),
 m_rxData(1000U, "MMDVM Network"),
-m_configData(nullptr),
-m_configLen(0U),
 m_radioPositionData(nullptr),
 m_radioPositionLen(0U),
 m_talkerAliasData(nullptr),
-m_talkerAliasLen(0U)
+m_talkerAliasLen(0U),
+m_pingTimer(1000U, 10U)
 {
 	assert(!rptAddress.empty());
 	assert(rptPort > 0U);
+	assert(id > 0U);
 
 	if (CUDPSocket::lookup(rptAddress, rptPort, m_rptAddr, m_rptAddrLen) != 0)
 		m_rptAddrLen = 0U;
@@ -62,24 +62,8 @@ m_talkerAliasLen(0U)
 CMMDVMNetwork::~CMMDVMNetwork()
 {
 	delete[] m_buffer;
-	delete[] m_configData;
 	delete[] m_radioPositionData;
 	delete[] m_talkerAliasData;
-}
-
-unsigned int CMMDVMNetwork::getShortConfig(unsigned char* config) const
-{
-	if (m_configData == 0U)
-		return 0U;
-
-	::memcpy(config, m_configData, m_configLen);
-
-	return m_configLen;
-}
-
-unsigned int CMMDVMNetwork::getId() const
-{
-	return m_id;
 }
 
 bool CMMDVMNetwork::open()
@@ -90,6 +74,8 @@ bool CMMDVMNetwork::open()
 	}
 
 	LogMessage("MMDVM Network, Opening");
+
+	m_pingTimer.start();
 
 	return m_socket.open(m_rptAddr);
 }
@@ -256,6 +242,12 @@ void CMMDVMNetwork::close()
 
 void CMMDVMNetwork::clock(unsigned int ms)
 {
+	m_pingTimer.clock(ms);
+	if (m_pingTimer.isRunning() && m_pingTimer.hasExpired()) {
+		writePing();
+		m_pingTimer.start();
+	}
+
 	sockaddr_storage address;
 	unsigned int addrlen;
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
@@ -286,17 +278,14 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			::memcpy(m_talkerAliasData, m_buffer, length);
 			m_talkerAliasLen = length;
 		}
-	} else if (::memcmp(m_buffer, "DMRC", 4U) == 0) {
-		m_id = (m_buffer[4U] << 24) | (m_buffer[5U] << 16) | (m_buffer[6U] << 8) | (m_buffer[7U] << 0);
-
-		if (m_configData == nullptr) {
-			m_configLen = length - 8U;
-			m_configData = new unsigned char[m_configLen];
-			::memcpy(m_configData, m_buffer + 8U, m_configLen);
-		}
-
-		m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddr, m_rptAddrLen);
+	} else if (::memcmp(m_buffer, "DMRP", 4U) == 0) {
+		;
 	} else {
 		CUtils::dump("Unknown packet from the MMDVM", m_buffer, length);
 	}
+}
+
+bool CMMDVMNetwork::writePing()
+{
+	return m_socket.write((unsigned char*)"DMRP", 4U, m_rptAddr, m_rptAddrLen);
 }
