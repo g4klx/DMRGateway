@@ -56,16 +56,16 @@ public:
 
 	void setStreamId(unsigned int id);
 	unsigned int getStreamId() const;
-	
+
 	void setUUID(unsigned char *uuid);
 	void getUUID(unsigned char *uuid) const;
-	
+
 	void setMessageSize(unsigned int size);
 	unsigned int getMessageSize() const;
-	
+
 	void setMessageFlag(bool is_message);
 	bool getMessageFlag() const;
-	
+
 	bool setMessage(const unsigned char* buffer, unsigned int size);
 	unsigned int getMessage(unsigned char* buffer) const;
 

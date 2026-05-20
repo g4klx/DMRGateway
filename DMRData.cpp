@@ -237,7 +237,7 @@ unsigned int CDMRData::getMessageSize() const
 {
 	return m_messageSize;
 }
-	
+
 void CDMRData::setMessageFlag(bool is_message)
 {
 	m_messageFlag = is_message;
@@ -250,7 +250,7 @@ bool CDMRData::getMessageFlag() const
 {
 	return m_messageFlag;
 }
-	
+
 bool CDMRData::setMessage(const unsigned char* buffer, unsigned int size)
 {
 	assert(buffer != nullptr);

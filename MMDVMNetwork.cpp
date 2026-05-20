@@ -106,7 +106,7 @@ bool CMMDVMNetwork::read(CDMRData& data)
 
 	m_rxData.getData(&length, 1U);
 	m_rxData.getData(m_buffer, length);
-	
+
 	if ((::memcmp(m_buffer, "DMRT", 4U) == 0) && m_trunkingEnabled) { // DMRT protocol message
 		if(data.setMessage(m_buffer, length)) {
 			return true;
@@ -162,7 +162,7 @@ bool CMMDVMNetwork::read(CDMRData& data)
 		data.setDataType(DT_VOICE);
 		data.setN(n);
 	}
-	
+
 	if((length == HOMEBREW_TRUNKING_DATA_PACKET_LENGTH) && m_trunkingEnabled) {
 		unsigned char uuid[16];
 		::memset(uuid, 0, 16U);
@@ -238,7 +238,7 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 	buffer[53U] = data.getBER();
 
 	buffer[54U] = data.getRSSI();
-	
+
 	if(m_trunkingEnabled) {
 		unsigned char uuid[16U];
 		data.getUUID(uuid);
