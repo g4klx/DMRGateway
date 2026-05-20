@@ -634,7 +634,7 @@ int CDMRGateway::run()
 
 						if (result == PROCESS_RESULT::MATCHED) {
 							slotNo = data.getSlotNo();
-							if (m_trunkingEnabled || m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+							if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
 							) {
@@ -665,7 +665,7 @@ int CDMRGateway::run()
 
 						if (result == PROCESS_RESULT::MATCHED) {
 							slotNo = data.getSlotNo();
-							if (m_trunkingEnabled || m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+							if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
 							) {
@@ -745,7 +745,7 @@ int CDMRGateway::run()
 					if (rewritten) {
 						// Check that the rewritten slot is free to use.
 						slotNo = data.getSlotNo();
-						if (m_trunkingEnabled || m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+						if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 								m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 								m_extStatus[slotNo].m_dmrNetwork == i)
 						) {
@@ -828,7 +828,8 @@ int CDMRGateway::run()
 				timer[i]->stop();
 			}
 		}
-        unsigned int sleep_time = m_trunkingEnabled ? 2U : 10U;
+
+		unsigned int sleep_time = m_trunkingEnabled ? 2U : 10U;
 		if (ms < sleep_time)
 			CThread::sleep(sleep_time);
 	}
@@ -1156,8 +1157,7 @@ bool CDMRGateway::linkXLX(const std::string &number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", false,
-																 m_xlxDebug, m_trunkingEnabled);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", false, m_xlxDebug, m_trunkingEnabled);
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);
