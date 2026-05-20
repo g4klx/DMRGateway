@@ -30,7 +30,7 @@
 class CMMDVMNetwork
 {
 public:
-	CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, bool debug);
+	CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, bool debug, bool trunkingProtocol);
 	~CMMDVMNetwork();
 
 	unsigned int getShortConfig(unsigned char* config) const;
@@ -58,6 +58,7 @@ private:
 	unsigned int               m_rptAddrLen;
 	unsigned int               m_id;
 	bool                       m_debug;
+	bool                       m_trunkingEnabled;
 	CUDPSocket                 m_socket;
 	unsigned char*             m_buffer;
 	CRingBuffer<unsigned char> m_rxData;

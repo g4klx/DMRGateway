@@ -56,6 +56,18 @@ public:
 
 	void setStreamId(unsigned int id);
 	unsigned int getStreamId() const;
+	
+	void setUUID(unsigned char *uuid);
+	void getUUID(unsigned char *uuid) const;
+	
+	void setMessageSize(unsigned int size);
+	unsigned int getMessageSize() const;
+	
+	void setMessageFlag(bool is_message);
+	bool getMessageFlag() const;
+	
+	bool setMessage(const unsigned char* buffer, unsigned int size);
+	unsigned int getMessage(unsigned char* buffer) const;
 
 private:
 	unsigned int   m_slotNo;
@@ -69,6 +81,10 @@ private:
 	unsigned char  m_ber;
 	unsigned char  m_rssi;
 	unsigned int   m_streamId;
+	unsigned char* m_uuid;
+	unsigned char* m_message;
+	unsigned int   m_messageSize;
+	bool           m_messageFlag;
 };
 
 #endif
