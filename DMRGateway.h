@@ -104,6 +104,7 @@ private:
 #endif
 	bool*                  m_networkEnabled;
 	bool                   m_networkXlxEnabled;
+	bool                   m_trunkingEnabled;
 	CRemoteControl*        m_remoteControl;
 
 	bool createMMDVM();
