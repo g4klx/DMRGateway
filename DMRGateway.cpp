@@ -308,8 +308,11 @@ int CDMRGateway::run()
 
 	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), m_conf.getMQTTAuthEnabled(), m_conf.getMQTTUsername(), m_conf.getMQTTPassword(), subscriptions, m_conf.getMQTTKeepalive());
 	ret = m_mqtt->open();
-	if (!ret)
-		return 1;
+	if (!ret) {
+		::fprintf(stderr, "DMRGateway: unable to start the MQTT Publisher\n");
+		delete m_mqtt;
+		m_mqtt = nullptr;
+	}
 
 	m_dmrNetworkCount = m_conf.getDMRNetworksCount();
 
