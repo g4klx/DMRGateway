@@ -1,5 +1,6 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018,2020,2025,2026 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2017,2018,2020,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2025,2026 by Adrian Musceac YO8RZZ
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,13 +29,15 @@
 const unsigned int BUFFER_LENGTH = 500U;
 
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
+const unsigned int HOMEBREW_TRUNKING_DATA_PACKET_LENGTH = 71U; // DMRD with 16 byte UUID extension
 
 
-CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, unsigned int id, bool debug) :
+CMMDVMNetwork::CMMDVMNetwork(const std::string& rptAddress, unsigned short rptPort, const std::string& localAddress, unsigned short localPort, unsigned int id, bool debug, bool trunkingEnabled) :
 m_rptAddr(),
 m_rptAddrLen(0U),
 m_id(id),
 m_debug(debug),
+m_trunkingEnabled(trunkingEnabled),
 m_socket(localAddress, localPort),
 m_buffer(nullptr),
 m_rxData(1000U, "MMDVM Network"),
@@ -90,6 +93,13 @@ bool CMMDVMNetwork::read(CDMRData& data)
 	m_rxData.getData(&length, 1U);
 	m_rxData.getData(m_buffer, length);
 
+	if ((::memcmp(m_buffer, "DMRT", 4U) == 0) && m_trunkingEnabled) { // DMRT protocol message
+		if(data.setMessage(m_buffer, length)) {
+			return true;
+		}
+		return false;
+	}
+
 	// Is this a data packet?
 	if (::memcmp(m_buffer, "DMRD", 4U) != 0)
 		return false;
@@ -139,13 +149,34 @@ bool CMMDVMNetwork::read(CDMRData& data)
 		data.setN(n);
 	}
 
+	if((length == HOMEBREW_TRUNKING_DATA_PACKET_LENGTH) && m_trunkingEnabled) {
+		unsigned char uuid[16];
+		::memset(uuid, 0, 16U);
+		::memcpy(uuid, m_buffer + 55U, 16U);
+		data.setUUID(uuid);
+	}
+
 	return true;
 }
 
 bool CMMDVMNetwork::write(const CDMRData& data)
 {
-	unsigned char buffer[HOMEBREW_DATA_PACKET_LENGTH];
-	::memset(buffer, 0x00U, HOMEBREW_DATA_PACKET_LENGTH);
+	if(data.getMessageFlag() && m_trunkingEnabled) {
+		const unsigned int message_size = data.getMessageSize();
+		if((message_size < 1U) || (message_size > 255U))
+			return false;
+		unsigned char buffer[255U];
+		::memset(buffer, 0x00U, 255U);
+		unsigned int length = data.getMessage(buffer);
+		if (m_debug)
+			CUtils::dump(1U, "Network Transmitted", buffer, length);
+
+		m_socket.write(buffer, length, m_rptAddr, m_rptAddrLen);
+		return true;
+	}
+	const unsigned int buffer_size = m_trunkingEnabled ? HOMEBREW_TRUNKING_DATA_PACKET_LENGTH : HOMEBREW_DATA_PACKET_LENGTH;
+	unsigned char buffer[HOMEBREW_TRUNKING_DATA_PACKET_LENGTH];
+	::memset(buffer, 0x00U, HOMEBREW_TRUNKING_DATA_PACKET_LENGTH);
 
 	buffer[0U]  = 'D';
 	buffer[1U]  = 'M';
@@ -194,10 +225,16 @@ bool CMMDVMNetwork::write(const CDMRData& data)
 
 	buffer[54U] = data.getRSSI();
 
-	if (m_debug)
-		CUtils::dump(1U, "Network Transmitted", buffer, HOMEBREW_DATA_PACKET_LENGTH);
+	if(m_trunkingEnabled) {
+		unsigned char uuid[16U];
+		data.getUUID(uuid);
+		::memcpy(buffer + 55U, uuid, 16U);
+	}
 
-	m_socket.write(buffer, HOMEBREW_DATA_PACKET_LENGTH, m_rptAddr, m_rptAddrLen);
+	if (m_debug)
+		CUtils::dump(1U, "Network Transmitted", buffer, buffer_size);
+
+	m_socket.write(buffer, buffer_size, m_rptAddr, m_rptAddrLen);
 
 	return true;
 }
@@ -262,8 +299,12 @@ void CMMDVMNetwork::clock(unsigned int ms)
 	if (m_debug)
 		CUtils::dump(1U, "Network Received", m_buffer, length);
 
-	if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
-		if (length == HOMEBREW_DATA_PACKET_LENGTH) {
+	if ((::memcmp(m_buffer, "DMRT", 4U) == 0) && (length <= 255) && m_trunkingEnabled) {
+		unsigned char len = length;
+		m_rxData.addData(&len, 1U);
+		m_rxData.addData(m_buffer, len);
+	} else if (::memcmp(m_buffer, "DMRD", 4U) == 0) {
+		if ((length == HOMEBREW_DATA_PACKET_LENGTH) || (length == HOMEBREW_TRUNKING_DATA_PACKET_LENGTH)) {
 			unsigned char len = length;
 			m_rxData.addData(&len, 1U);
 			m_rxData.addData(m_buffer, len);

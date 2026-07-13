@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2015-2021,2023,2024,2025,2026 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2025,2026 by Adrian Musceac YO8RZZ
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -182,6 +183,7 @@ m_gpsd(nullptr),
 #endif
 m_networkEnabled(nullptr),
 m_networkXlxEnabled(false),
+m_trunkingEnabled(false),
 m_remoteControl(nullptr)
 {
 	CUDPSocket::startup();
@@ -302,8 +304,11 @@ int CDMRGateway::run()
 
 	m_mqtt = new CMQTTConnection(m_conf.getMQTTAddress(), m_conf.getMQTTPort(), m_conf.getMQTTName(), m_conf.getMQTTAuthEnabled(), m_conf.getMQTTUsername(), m_conf.getMQTTPassword(), subscriptions, m_conf.getMQTTKeepalive());
 	ret = m_mqtt->open();
-	if (!ret)
-		return 1;
+	if (!ret) {
+		::fprintf(stderr, "DMRGateway: unable to start the MQTT Publisher\n");
+		delete m_mqtt;
+		m_mqtt = nullptr;
+	}
 
 	m_id = m_conf.getId();
 
@@ -317,6 +322,7 @@ int CDMRGateway::run()
 		m_networkEnabled[i] = m_conf.getDMRNetworkEnabled(i);
 
 	m_networkXlxEnabled = m_conf.getXLXNetworkEnabled();
+	m_trunkingEnabled = m_conf.getTrunkingEnabled();
 
 	m_dmrNetRewrites.resize(m_dmrNetworkCount);
 	m_dmrRFRewrites.resize(m_dmrNetworkCount);
@@ -495,6 +501,16 @@ int CDMRGateway::run()
 		CDMRData data;
 
 		bool ret = m_repeater->read(data);
+		if(m_trunkingEnabled && data.getMessageFlag()) {
+			for (unsigned int i = 0; i < m_dmrNetworkCount; i++) {
+				if (m_networkEnabled[i] && (m_dmrNetworks[i] != nullptr)) {
+					m_dmrNetworks[i]->write(data);
+				}
+			}
+			ret = false;
+			data.setMessageFlag(false);
+		}
+
 		if (ret) {
 			unsigned int slotNo = data.getSlotNo();
 			unsigned int srcId = data.getSrcId();
@@ -599,7 +615,7 @@ int CDMRGateway::run()
 
 						if (result == PROCESS_RESULT::MATCHED) {
 							slotNo = data.getSlotNo();
-							if (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+							if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
 							) {
@@ -630,7 +646,7 @@ int CDMRGateway::run()
 
 						if (result == PROCESS_RESULT::MATCHED) {
 							slotNo = data.getSlotNo();
-							if (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+							if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 									m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 									m_extStatus[slotNo].m_dmrNetwork == i)
 							) {
@@ -676,6 +692,11 @@ int CDMRGateway::run()
 		for (unsigned int i = 0; i < m_dmrNetworkCount; i++) {
 			if (m_networkEnabled[i] && (m_dmrNetworks[i] != nullptr)) {
 				ret = m_dmrNetworks[i]->read(data);
+				if(m_trunkingEnabled && data.getMessageFlag()) {
+					m_repeater->write(data);
+					ret = false;
+					data.setMessageFlag(false);
+				}
 				if (ret) {
 					unsigned int slotNo = data.getSlotNo();
 					unsigned int srcId  = data.getSrcId();
@@ -705,7 +726,7 @@ int CDMRGateway::run()
 					if (rewritten) {
 						// Check that the rewritten slot is free to use.
 						slotNo = data.getSlotNo();
-						if (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE || (
+						if (m_trunkingEnabled || (m_extStatus[slotNo].m_status == DMRGW_STATUS::NONE) || (
 								m_extStatus[slotNo].m_status == DMRGW_STATUS::DMRNETWORK &&
 								m_extStatus[slotNo].m_dmrNetwork == i)
 						) {
@@ -789,8 +810,9 @@ int CDMRGateway::run()
 			}
 		}
 
-		if (ms < 10U)
-			CThread::sleep(10U);
+		unsigned int sleep_time = m_trunkingEnabled ? 2U : 10U;
+		if (ms < sleep_time)
+			CThread::sleep(sleep_time);
 	}
 
 	LogInfo("DMRGateway is stopping");
@@ -849,7 +871,7 @@ bool CDMRGateway::createMMDVM()
 	LogInfo("    Local Address: %s", localAddress.c_str());
 	LogInfo("    Local Port: %hu", localPort);
 
-	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, m_id, debug);
+	m_repeater = new CMMDVMNetwork(rptAddress, rptPort, localAddress, localPort, m_id, debug, m_trunkingEnabled);
 
 	bool ret = m_repeater->open();
 	if (!ret) {
@@ -886,7 +908,7 @@ bool CDMRGateway::createDMRNetwork(unsigned int index)
 		LogInfo("    Local: random");
 	LogInfo("    Location Data: %s", location ? "yes" : "no");
 
-	m_dmrNetworks[index] = new CDMRNetwork(address, port, local, id, password, m_dmrName[index], location, debug);
+	m_dmrNetworks[index] = new CDMRNetwork(address, port, local, id, password, m_dmrName[index], location, debug, m_trunkingEnabled);
 
 	std::string options = m_conf.getDMRNetworkOptions(index);
 
@@ -1116,7 +1138,7 @@ bool CDMRGateway::linkXLX(const std::string &number)
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
-	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", false, m_xlxDebug);
+	m_xlxNetwork = new CDMRNetwork(reflector->m_address, m_xlxPort, m_xlxLocal, m_xlxId, m_xlxPassword, "XLX", false, m_xlxDebug, m_trunkingEnabled);
 
 	unsigned char config[400U];
 	unsigned int len = getConfig("XLX", config);

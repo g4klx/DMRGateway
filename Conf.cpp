@@ -46,6 +46,7 @@ CConf::CConf(const std::string& file) :
 m_file(file),
 m_id(0U),
 m_daemon(false),
+m_trunkingEnabled(false),
 m_rptAddress("127.0.0.1"),
 m_rptPort(62032U),
 m_localAddress("127.0.0.1"),
@@ -189,6 +190,8 @@ bool CConf::read()
 				m_id = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
+			else if (::strcmp(key, "TrunkingEnabled") == 0)
+				m_trunkingEnabled = ::atoi(value) == 1;
 			else if (::strcmp(key, "Timeout") == 0)
 				m_rfTimeout = m_netTimeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RFTimeout") == 0)
@@ -463,6 +466,11 @@ unsigned int CConf::getId() const
 bool CConf::getDaemon() const
 {
 	return m_daemon;
+}
+
+bool CConf::getTrunkingEnabled() const
+{
+	return m_trunkingEnabled;
 }
 
 std::string CConf::getRptAddress() const

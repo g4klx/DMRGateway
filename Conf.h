@@ -101,6 +101,7 @@ public:
 	// The General section
 	unsigned int getId() const;
 	bool         getDaemon() const;
+	bool         getTrunkingEnabled() const;
 	unsigned int getRFTimeout() const;
 	unsigned int getNetTimeout() const;
 	std::string  getRptAddress() const;
@@ -203,6 +204,7 @@ private:
 	std::string  m_file;
 	unsigned int m_id;
 	bool         m_daemon;
+	bool         m_trunkingEnabled;
 	std::string  m_rptAddress;
 	unsigned short m_rptPort;
 	std::string  m_localAddress;
