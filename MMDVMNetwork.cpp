@@ -310,12 +310,12 @@ void CMMDVMNetwork::clock(unsigned int ms)
 			m_rxData.addData(m_buffer, len);
 		}
 	} else if (::memcmp(m_buffer, "DMRG", 4U) == 0) {
-		if (length <= 50U) {
+		if (length <= 50) {
 			::memcpy(m_radioPositionData, m_buffer, length);
 			m_radioPositionLen = length;
 		}
 	} else if (::memcmp(m_buffer, "DMRA", 4U) == 0) {
-		if (length <= 50U) {
+		if (length <= 50) {
 			::memcpy(m_talkerAliasData, m_buffer, length);
 			m_talkerAliasLen = length;
 		}
