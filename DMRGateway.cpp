@@ -450,6 +450,7 @@ int CDMRGateway::run()
 				}
 
 				m_xlxConnected = true;
+				writeJSONLink("XLX" + m_xlxNumber, true);
 
 				if (m_xlxNumber == m_xlxStartup && m_xlxRoom == m_xlxReflector)
 					m_xlxRelink.stop();
@@ -462,6 +463,7 @@ int CDMRGateway::run()
 					m_xlxVoice->unlinked();
 
 				m_xlxConnected = false;
+				writeJSONLink("XLX" + m_xlxNumber, false);
 				m_xlxRelink.stop();
 			} else if (connected && m_xlxRelink.isRunning() && m_xlxRelink.hasExpired()) {
 				m_xlxRelink.stop();
@@ -1145,6 +1147,9 @@ bool CDMRGateway::linkXLX(const std::string &number)
 		delete m_xlxNetwork;
 	}
 
+	if (m_xlxConnected)
+		writeJSONLink("XLX" + m_xlxNumber, false);
+
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
@@ -1182,6 +1187,9 @@ void CDMRGateway::unlinkXLX()
 		delete m_xlxNetwork;
 		m_xlxNetwork = nullptr;
 	}
+
+	if (m_xlxConnected)
+		writeJSONLink("XLX" + m_xlxNumber, false);
 
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
