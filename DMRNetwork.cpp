@@ -32,6 +32,33 @@ const unsigned int BUFFER_LENGTH = 500U;
 const unsigned int HOMEBREW_DATA_PACKET_LENGTH = 55U;
 const unsigned int HOMEBREW_TRUNKING_DATA_PACKET_LENGTH = 71U; // DMRD with 16 byte UUID extension
 
+// Structured companion to the existing free-text WriteJSONStatus() calls
+// below -- operators (and WPSD's own dashboard) need to know *why* a
+// network won't connect at a glance, not just that it's disconnected.
+// "auth" specifically means the master rejected the RPTK authorisation
+// response, i.e. the configured password is wrong -- by far the most
+// common real-world support issue. reason values mirror where in the
+// login handshake (or afterwards) the master pushed back:
+//   "login"   MSTNAK to the initial RPTL -- ID not recognised/permitted
+//   "auth"    MSTNAK to RPTK -- wrong password
+//   "config"  MSTNAK to RPTC/RPTO -- master rejected the declared config
+//             (e.g. this ID is already connected elsewhere)
+//   "session" MSTNAK while already RUNNING -- an established session was
+//             dropped/rejected; not necessarily a misconfiguration
+//   "closed"  MSTCL -- the master explicitly closed the connection
+//   "timeout" no response at all -- host/port unreachable or firewalled,
+//             not a credentials problem
+static void writeJSONLinkFailed(const std::string& name, const std::string& reason)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["action"]    = "failed";
+	json["reason"]    = reason;
+	json["network"]   = name;
+
+	WriteJSON("link", json, true);
+}
 
 CDMRNetwork::CDMRNetwork(const std::string& address, unsigned short port, unsigned short local, unsigned int id, const std::string& password, const std::string& name, bool location, bool debug, bool trunkingEnabled) :
 m_addr(),
@@ -423,6 +450,7 @@ void CDMRNetwork::clock(unsigned int ms)
 			if (m_status == STATUS::RUNNING) {
 				LogWarning("%s, Login to the master has failed, retrying login ...", m_name.c_str());
 				WriteJSONStatus("Failed login into DMR Network: " + m_name);
+				writeJSONLinkFailed(m_name, "session");
 				m_status = STATUS::WAITING_LOGIN;
 				m_timeoutTimer.start();
 				m_retryTimer.start();
@@ -432,6 +460,13 @@ void CDMRNetwork::clock(unsigned int ms)
 				   We want it to reconnect so... */
 				LogError("%s, Login to the master has failed, retrying network ...", m_name.c_str());
 				WriteJSONStatus("Failed login into DMR Network: " + m_name);
+				// Which handshake stage got NAK'd tells us why: a rejection
+				// during WAITING_AUTHORISATION means the master didn't
+				// accept our hashed password -- almost always a wrong
+				// DMR Network password in the .ini, the single most common
+				// real-world support issue this is meant to surface.
+				writeJSONLinkFailed(m_name, m_status == STATUS::WAITING_AUTHORISATION ? "auth" :
+				                             m_status == STATUS::WAITING_LOGIN        ? "login" : "config");
 				close(false);
 				open();
 				return;
@@ -479,6 +514,7 @@ void CDMRNetwork::clock(unsigned int ms)
 		} else if (::memcmp(m_buffer, "MSTCL",   5U) == 0) {
 			LogError("%s, Master is closing down", m_name.c_str());
 			WriteJSONStatus("Connection closing into DMR Network: " + m_name);
+			writeJSONLinkFailed(m_name, "closed");
 			close(false);
 			open();
 		} else if (::memcmp(m_buffer, "MSTPONG", 7U) == 0) {
@@ -613,6 +649,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	if (m_timeoutTimer.isRunning() && m_timeoutTimer.hasExpired()) {
 		LogError("%s, Connection to the master has timed out, retrying connection", m_name.c_str());
 		WriteJSONStatus("Failed connection into DMR Network: " + m_name);
+		writeJSONLinkFailed(m_name, "timeout");
 		close(false);
 		open();
 	}
