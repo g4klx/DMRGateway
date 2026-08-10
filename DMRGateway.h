@@ -67,6 +67,7 @@ private:
 	unsigned int       m_dmrNetworkCount;
 	std::vector<CDMRNetwork*> m_dmrNetworks;
 	std::vector<std::string> m_dmrName;
+	std::vector<bool>  m_dmrNetworkStatus;
 	CReflectors*       m_xlxReflectors;
 	CDMRNetwork*       m_xlxNetwork;
 	unsigned int       m_xlxId;
@@ -126,6 +127,7 @@ private:
 	void processEnableCommand(CDMRNetwork* network, const std::string& name, bool& mode, bool enabled);
 	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
 	void buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network);
+	void writeJSONLink(const std::string& name, bool connected);
 
 	static void onCommand(const unsigned char* message, unsigned int length);
 	static void onDynamic(const unsigned char* message, unsigned int length);

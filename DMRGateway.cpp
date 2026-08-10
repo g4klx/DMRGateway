@@ -147,6 +147,7 @@ m_repeater(nullptr),
 m_dmrNetworkCount(0U),
 m_dmrNetworks(),
 m_dmrName(),
+m_dmrNetworkStatus(),
 m_xlxReflectors(nullptr),
 m_xlxNetwork(nullptr),
 m_xlxId(0U),
@@ -316,6 +317,7 @@ int CDMRGateway::run()
 
 	m_dmrNetworks.resize(m_dmrNetworkCount, nullptr);
 	m_dmrName.resize(m_dmrNetworkCount, "");
+	m_dmrNetworkStatus.resize(m_dmrNetworkCount, false);
 	m_networkEnabled = new bool[m_dmrNetworkCount];
 
 	for (unsigned int i = 0; i < m_dmrNetworkCount; i++)
@@ -448,6 +450,7 @@ int CDMRGateway::run()
 				}
 
 				m_xlxConnected = true;
+				writeJSONLink("XLX" + m_xlxNumber, true);
 
 				if (m_xlxNumber == m_xlxStartup && m_xlxRoom == m_xlxReflector)
 					m_xlxRelink.stop();
@@ -460,6 +463,7 @@ int CDMRGateway::run()
 					m_xlxVoice->unlinked();
 
 				m_xlxConnected = false;
+				writeJSONLink("XLX" + m_xlxNumber, false);
 				m_xlxRelink.stop();
 			} else if (connected && m_xlxRelink.isRunning() && m_xlxRelink.hasExpired()) {
 				m_xlxRelink.stop();
@@ -777,9 +781,17 @@ int CDMRGateway::run()
 
 		m_xlxRelink.clock(ms);
 
-		for (unsigned int i = 0; i < m_dmrNetworkCount; i++)
-			if (m_dmrNetworks[i] != nullptr)
+		for (unsigned int i = 0; i < m_dmrNetworkCount; i++) {
+			if (m_dmrNetworks[i] != nullptr) {
 				m_dmrNetworks[i]->clock(ms);
+
+				bool connected = m_dmrNetworks[i]->isConnected();
+				if (connected != m_dmrNetworkStatus[i]) {
+					m_dmrNetworkStatus[i] = connected;
+					writeJSONLink(m_dmrName[i], connected);
+				}
+			}
+		}
 
 		if (m_xlxNetwork != nullptr)
 			m_xlxNetwork->clock(ms);
@@ -1135,6 +1147,9 @@ bool CDMRGateway::linkXLX(const std::string &number)
 		delete m_xlxNetwork;
 	}
 
+	if (m_xlxConnected)
+		writeJSONLink("XLX" + m_xlxNumber, false);
+
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
 
@@ -1172,6 +1187,9 @@ void CDMRGateway::unlinkXLX()
 		delete m_xlxNetwork;
 		m_xlxNetwork = nullptr;
 	}
+
+	if (m_xlxConnected)
+		writeJSONLink("XLX" + m_xlxNumber, false);
 
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
@@ -1523,6 +1541,18 @@ void CDMRGateway::buildNetworkStatusString(std::string &str)
 void CDMRGateway::buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled)
 {
 	str += name + ":"+ (((network == nullptr) || (enabled == false)) ? "n/a" : (network->isConnected() ? "conn" : "disc"));
+}
+
+void CDMRGateway::writeJSONLink(const std::string& name, bool connected)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["action"]    = connected ? "linking" : "unlinked";
+	json["reason"]    = "network";
+	json["network"]   = name;
+
+	WriteJSON("link", json, true);
 }
 
 void CDMRGateway::buildNetworkHostsString(std::string &str)

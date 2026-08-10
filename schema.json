@@ -1,6 +1,9 @@
 {
 	"$defs": {
-		"timestamp": {"type": "string"}
+		"timestamp": {"type": "string"},
+		"network": {"type": "string"},
+		"action": {"type": "string", "enum": ["linking", "unlinked"]},
+		"reason": {"type": "string", "enum": ["network"]}
 	},
 
 	"status": {
@@ -8,6 +11,15 @@
 		"timestamp": {"$ref": "#/$defs/timestamp"},
 		"message": {"type": "string"},
 		"required": ["timestamp", "message"]
+	},
+
+	"link": {
+		"type": "object",
+		"timestamp": {"$ref": "#/$defs/timestamp"},
+		"action": {"$ref": "#/$defs/action"},
+		"reason": {"$ref": "#/$defs/reason"},
+		"network": {"$ref": "#/$defs/network"},
+		"required": ["timestamp", "action", "network"]
 	}
 }
 
