@@ -2,8 +2,8 @@
 	"$defs": {
 		"timestamp": {"type": "string"},
 		"network": {"type": "string"},
-		"action": {"type": "string", "enum": ["linking", "unlinked"]},
-		"reason": {"type": "string", "enum": ["network"]}
+		"action": {"type": "string", "enum": ["linking", "unlinked", "failed"]},
+		"reason": {"type": "string", "enum": ["network", "login", "auth", "config", "session", "closed", "timeout"]}
 	},
 
 	"status": {
