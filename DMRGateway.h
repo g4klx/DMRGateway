@@ -96,9 +96,6 @@ private:
 	std::vector<CDynVoice*> m_dynVoices;
 	std::vector<CRewriteDynTGRF*> m_dynRF;
 	CAPRSWriter*           m_writer;
-	std::string            m_callsign;
-	unsigned int           m_txFrequency;
-	unsigned int           m_rxFrequency;
 #if defined(USE_GPSD)
 	CGPSD*                 m_gpsd;
 #endif

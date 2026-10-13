@@ -39,7 +39,8 @@ m_latitude(0.0F),
 m_longitude(0.0F),
 m_height(0),
 m_desc(),
-m_symbol()
+m_symbol(),
+m_mobile(false)
 {
 	assert(!callsign.empty());
 
@@ -69,6 +70,19 @@ void CAPRSWriter::setLocation(float latitude, float longitude, int height)
 	m_height    = height;
 }
 
+// gpsd sends the beacon instead of the fixed timer
+void CAPRSWriter::setMobile()
+{
+	m_mobile = true;
+	m_idTimer.stop();
+}
+
+void CAPRSWriter::sendLocation(float latitude, float longitude, int height)
+{
+	setLocation(latitude, longitude, height);
+	sendIdFrame();
+}
+
 bool CAPRSWriter::open()
 {
 	m_idTimer.setTimeout(60U);
@@ -79,6 +93,9 @@ bool CAPRSWriter::open()
 
 void CAPRSWriter::clock(unsigned int ms)
 {
+	if (m_mobile)
+		return;
+
 	m_idTimer.clock(ms);
 	if (m_idTimer.hasExpired()) {
 		sendIdFrame();
@@ -130,10 +147,10 @@ void CAPRSWriter::sendIdFrame()
 	longitude = (tempLong - longitude) * 60.0 + longitude * 100.0;
 
 	char lat[20U];
-	::sprintf(lat, "%07.2lf", latitude);
+	::snprintf(lat, sizeof(lat), "%07.2lf", latitude);
 
 	char lon[20U];
-	::sprintf(lon, "%08.2lf", longitude);
+	::snprintf(lon, sizeof(lon), "%08.2lf", longitude);
 
 	std::string server = m_callsign;
 	std::string symbol = m_symbol;
@@ -147,7 +164,7 @@ void CAPRSWriter::sendIdFrame()
                 symbol.append("D&");
 
 	char output[500U];
-	::sprintf(output, "%s>APDG03,TCPIP*,qAC,%s:!%s%c%c%s%c%c/A=%06.0f%s %s\r\n",
+	::snprintf(output, sizeof(output), "%s>APDG03,TCPIP*,qAC,%s:!%s%c%c%s%c%c/A=%06.0f%s %s\r\n",
 		m_callsign.c_str(), server.c_str(),
 		lat, (m_latitude < 0.0F)  ? 'S' : 'N', symbol[0],
 		lon, (m_longitude < 0.0F) ? 'W' : 'E', symbol[1],

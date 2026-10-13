@@ -47,6 +47,10 @@ public:
 
 	void setLocation(float latitude, float longitude, int height);
 
+	void setMobile();
+
+	void sendLocation(float latitude, float longitude, int height);
+
 	void clock(unsigned int ms);
 
 	void close();
@@ -62,6 +66,7 @@ private:
 	int          m_height;
 	std::string  m_desc;
 	std::string  m_symbol;
+	bool         m_mobile;
 
 	void sendIdFrame();
 };
