@@ -103,6 +103,7 @@ public:
 	bool         getDaemon() const;
 	bool         getTrunkingEnabled() const;
 	unsigned int getRFTimeout() const;
+	std::vector<unsigned int> getRFDropPC() const;
 	unsigned int getNetTimeout() const;
 	std::string  getRptAddress() const;
 	unsigned short getRptPort() const;
@@ -210,6 +211,7 @@ private:
 	std::string  m_localAddress;
 	unsigned short m_localPort;
 	unsigned int m_rfTimeout;
+	std::vector<unsigned int> m_rfDropPC;
 	unsigned int m_netTimeout;
 	bool         m_ruleTrace;
 	bool         m_debug;
