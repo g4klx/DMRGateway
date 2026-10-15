@@ -37,6 +37,7 @@
 #include "Log.h"
 #include "GitVersion.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <vector>
 
@@ -408,6 +409,7 @@ int CDMRGateway::run()
 	createAPRS();
 
 	unsigned int rfTimeout  = m_conf.getRFTimeout();
+	std::vector<unsigned int> rfDropPC = m_conf.getRFDropPC();
 	unsigned int netTimeout = m_conf.getNetTimeout();
 
 	CTimer* timer[3U];
@@ -601,6 +603,14 @@ int CDMRGateway::run()
 					LogDebug("Rule Trace, RF transmission: Slot=%u Src=%u Dst=%s%u", slotNo, srcId, flco == FLCO::GROUP ? "TG" : "", dstId);
 
 				PROCESS_RESULT result = PROCESS_RESULT::UNMATCHED;
+
+				// A private call to one of [General] RFDropPC is for local use
+				// only and goes to no network.
+				if (flco == FLCO::USER_USER && std::find(rfDropPC.begin(), rfDropPC.end(), dstId) != rfDropPC.end()) {
+					if (trace)
+						LogDebug("Rule Trace,\tprivate call to %u dropped (RFDropPC)", dstId);
+					result = PROCESS_RESULT::IGNORED;
+				}
 
 				// Match by m_dmrRFRewrites
 				for (unsigned int i = 0; i < m_dmrNetworkCount; i++) {

@@ -196,6 +196,17 @@ bool CConf::read()
 				m_rfTimeout = m_netTimeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RFTimeout") == 0)
 				m_rfTimeout = (unsigned int)::atoi(value);
+			else if (::strcmp(key, "RFDropPC") == 0) {
+				// Private calls from RF to these IDs go to no network, for
+				// local use (a remote control, for example). Comma-separated.
+				char* p = ::strtok(value, ",\r\n");
+				while (p != nullptr) {
+					unsigned int id = (unsigned int)::atoi(p);
+					if (id > 0U)
+						m_rfDropPC.push_back(id);
+					p = ::strtok(nullptr, ",\r\n");
+				}
+			}
 			else if (::strcmp(key, "NetTimeout") == 0)
 				m_netTimeout = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "RptAddress") == 0)
@@ -496,6 +507,11 @@ unsigned short CConf::getLocalPort() const
 unsigned int CConf::getRFTimeout() const
 {
 	return m_rfTimeout;
+}
+
+std::vector<unsigned int> CConf::getRFDropPC() const
+{
+	return m_rfDropPC;
 }
 
 unsigned int CConf::getNetTimeout() const
