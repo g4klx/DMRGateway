@@ -49,10 +49,27 @@ private:
 	std::string               m_gpsdAddress;
 	std::string               m_gpsdPort;
 	struct gps_data_t         m_gpsdData;
+	bool                      m_connected;
+	bool                      m_warned;
+	CTimer                    m_retryTimer;
+	CTimer                    m_fixTimer;
 	CTimer                    m_idTimer;
+	CTimer                    m_refreshTimer;
+	bool                      m_fixValid;
+	double                    m_latitude;
+	double                    m_longitude;
+	bool                      m_altitudeValid;
+	double                    m_altitude;
+	bool                      m_reportSent;
+	double                    m_sentLatitude;
+	double                    m_sentLongitude;
 	std::vector<CDMRNetwork*> m_networks;
 	CAPRSWriter*              m_aprs;
 
+	bool connect();
+	void disconnect();
+	void read();
+	bool reportDue();
 	void sendReport();
 };
 

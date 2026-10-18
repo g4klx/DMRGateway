@@ -177,9 +177,6 @@ m_dmrPassalls(),
 m_dynVoices(),
 m_dynRF(),
 m_writer(nullptr),
-m_callsign(),
-m_txFrequency(0U),
-m_rxFrequency(0U),
 #if defined(USE_GPSD)
 m_gpsd(nullptr),
 #endif
@@ -1385,12 +1382,19 @@ void CDMRGateway::createAPRS()
 	std::string suffix = m_conf.getAPRSSuffix();
 	bool debug         = m_conf.getDebug();
 
-	m_writer = new CAPRSWriter(m_callsign, suffix, debug);
+	// From [Info]: these used to come from MMDVM-Host's config message
+	std::string callsign = m_conf.getInfoCallsign();
+	if (callsign.empty()) {
+		LogWarning("APRS is enabled but [Info] Callsign is empty, APRS disabled");
+		return;
+	}
+
+	m_writer = new CAPRSWriter(callsign, suffix, debug);
 
 	std::string desc   = m_conf.getAPRSDescription();
 	std::string symbol = m_conf.getAPRSSymbol();
 
-	m_writer->setInfo(m_txFrequency, m_rxFrequency, desc, symbol);
+	m_writer->setInfo(m_conf.getInfoTXFrequency(), m_conf.getInfoRXFrequency(), desc, symbol);
 
 	float latitude  = m_conf.getInfoLatitude();
 	float longitude = m_conf.getInfoLongitude();
