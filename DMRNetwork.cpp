@@ -129,6 +129,7 @@ bool CDMRNetwork::open()
 {
 	if (m_addrLen == 0U) {
 		LogError("%s, Could not lookup the address of the master", m_name.c_str());
+		writeJSONLinkFailed(m_name, "lookup");
 		return false;
 	}
 
@@ -424,6 +425,7 @@ void CDMRNetwork::clock(unsigned int ms)
 	int length = m_socket.read(m_buffer, BUFFER_LENGTH, address, addrlen);
 	if (length < 0) {
 		LogError("%s, Socket has failed, retrying connection to the master", m_name.c_str());
+		writeJSONLinkFailed(m_name, "socket");
 		close(false);
 		open();
 		return;
@@ -752,6 +754,7 @@ bool CDMRNetwork::write(const unsigned char* data, unsigned int length)
 	bool ret = m_socket.write(data, length, m_addr, m_addrLen);
 	if (!ret) {
 		LogError("%s, Socket has failed when writing data to the master, retrying connection", m_name.c_str());
+		writeJSONLinkFailed(m_name, "socket");
 		close(false);
 		open();
 		return false;
