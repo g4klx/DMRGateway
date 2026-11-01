@@ -449,7 +449,7 @@ int CDMRGateway::run()
 				}
 
 				m_xlxConnected = true;
-				writeJSONLink("XLX" + m_xlxNumber, true);
+				writeJSONXLXLink(true);
 
 				if (m_xlxNumber == m_xlxStartup && m_xlxRoom == m_xlxReflector)
 					m_xlxRelink.stop();
@@ -462,7 +462,7 @@ int CDMRGateway::run()
 					m_xlxVoice->unlinked();
 
 				m_xlxConnected = false;
-				writeJSONLink("XLX" + m_xlxNumber, false);
+				writeJSONXLXLink(false);
 				m_xlxRelink.stop();
 			} else if (connected && m_xlxRelink.isRunning() && m_xlxRelink.hasExpired()) {
 				m_xlxRelink.stop();
@@ -491,6 +491,7 @@ int CDMRGateway::run()
 					}
 
 					m_xlxReflector = m_xlxRoom;
+					writeJSONXLXLink(true);
 					if (m_xlxVoice != nullptr) {
 						if (m_xlxReflector < 4001U || m_xlxReflector > 4026U)
 							m_xlxVoice->linkedTo(m_xlxNumber, 0U);
@@ -554,6 +555,9 @@ int CDMRGateway::run()
 						m_xlxRelink.start();
 					else
 						m_xlxRelink.stop();
+
+					if (m_xlxConnected)
+						writeJSONXLXLink(true);
 				}
 
 				m_extStatus[slotNo].m_status = DMRGW_STATUS::XLXREFLECTOR;
@@ -1155,7 +1159,7 @@ bool CDMRGateway::linkXLX(const std::string &number)
 	}
 
 	if (m_xlxConnected)
-		writeJSONLink("XLX" + m_xlxNumber, false);
+		writeJSONXLXLink(false);
 
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
@@ -1187,6 +1191,80 @@ bool CDMRGateway::linkXLX(const std::string &number)
 	return true;
 }
 
+// A reflector known to the XLX host list (number empty: XLX is set up at all).
+bool CDMRGateway::canLinkXLX(const std::string& number)
+{
+	if (m_xlxReflectors == nullptr)
+		return false;
+
+	if (number.empty())
+		return m_xlxNetwork != nullptr;
+
+	return m_xlxReflectors->find(number) != nullptr;
+}
+
+// What a private call from the radio does, asked for over remote control: a
+// reflector other than the one linked connects to it (and to the module once
+// connected); the linked one changes module now. Away from the startup
+// reflector and module, the RF inactivity timer relinks to them as usual.
+void CDMRGateway::remoteLinkXLX(const std::string& number, char module)
+{
+	unsigned int room = (module >= 'A' && module <= 'Z') ? (4000U + (unsigned int)(module - 'A') + 1U) : 0U;
+
+	if (m_xlxNetwork == nullptr || number != m_xlxNumber) {
+		if (!linkXLX(number)) {
+			LogWarning("XLX, Unable to link to XLX%s", number.c_str());
+			return;
+		}
+
+		if (room != 0U)
+			m_xlxReflector = room;
+
+		return;
+	}
+
+	if (room == 0U)
+		room = m_xlxRoom;
+
+	if (room < 4001U || room > 4026U || room == m_xlxReflector)
+		return;
+
+	if (m_xlxConnected) {
+		if (m_xlxReflector != 4000U)
+			writeXLXLink(m_xlxId, 4000U, m_xlxNetwork);
+		writeXLXLink(m_xlxId, room, m_xlxNetwork);
+		LogMessage("XLX, Linking to reflector XLX%s %c", m_xlxNumber.c_str(), module != 0 ? module : char(('A' + (room % 100U)) - 1U));
+	}
+
+	m_xlxReflector = room;
+
+	if (m_xlxConnected)
+		writeJSONXLXLink(true);
+
+	if (m_xlxNumber == m_xlxStartup && m_xlxReflector == m_xlxRoom)
+		m_xlxRelink.stop();
+	else
+		m_xlxRelink.start();
+}
+
+void CDMRGateway::remoteUnlinkXLX()
+{
+	if (m_xlxNetwork == nullptr || m_xlxReflector < 4001U || m_xlxReflector > 4026U)
+		return;
+
+	if (m_xlxConnected) {
+		writeXLXLink(m_xlxId, 4000U, m_xlxNetwork);
+		char c = ('A' + (m_xlxReflector % 100U)) - 1U;
+		LogMessage("XLX, Unlinking from reflector XLX%s %c", m_xlxNumber.c_str(), c);
+	}
+
+	m_xlxReflector = 4000U;
+	m_xlxRelink.start();
+
+	if (m_xlxConnected)
+		writeJSONXLXLink(true);
+}
+
 void CDMRGateway::unlinkXLX()
 {
 	if (m_xlxNetwork != nullptr) {
@@ -1196,7 +1274,7 @@ void CDMRGateway::unlinkXLX()
 	}
 
 	if (m_xlxConnected)
-		writeJSONLink("XLX" + m_xlxNumber, false);
+		writeJSONXLXLink(false);
 
 	m_xlxConnected = false;
 	m_xlxRelink.stop();
@@ -1526,6 +1604,12 @@ void CDMRGateway::remoteControl(const std::string& commandStr)
 		case REMOTE_COMMAND::DISABLE_XLX:
 			processEnableCommand(m_xlxNetwork, "XLX Network", m_networkXlxEnabled, false);
 			break;
+		case REMOTE_COMMAND::LINK_XLX:
+			remoteLinkXLX(m_remoteControl->getXLXNumber(), m_remoteControl->getXLXModule());
+			break;
+		case REMOTE_COMMAND::UNLINK_XLX:
+			remoteUnlinkXLX();
+			break;
 		default:
 			break;
 	}
@@ -1565,6 +1649,22 @@ void CDMRGateway::writeJSONLink(const std::string& name, bool connected)
 	json["action"]    = connected ? "linking" : "unlinked";
 	json["reason"]    = "network";
 	json["network"]   = name;
+
+	WriteJSON("link", json, true);
+}
+
+// XLX's link message: the reflector as the network ("XLX950"), and the
+// module linked on it, if any ("module": "D"), each time either changes.
+void CDMRGateway::writeJSONXLXLink(bool connected)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["action"]    = connected ? "linking" : "unlinked";
+	json["reason"]    = "network";
+	json["network"]   = "XLX" + m_xlxNumber;
+	if (connected && m_xlxReflector >= 4001U && m_xlxReflector <= 4026U)
+		json["module"] = std::string(1, char(('A' + (m_xlxReflector % 100U)) - 1U));
 
 	WriteJSON("link", json, true);
 }
