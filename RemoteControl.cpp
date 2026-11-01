@@ -25,9 +25,12 @@
 #include <cstdlib>
 #include <cassert>
 #include <cstring>
+#include <cctype>
 
 const unsigned int ENABLE_ARGS = 2U;
 const unsigned int DISABLE_ARGS = 2U;
+const unsigned int LINK_ARGS = 3U;
+const unsigned int UNLINK_ARGS = 2U;
 
 const unsigned int BUFFER_LENGTH = 100U;
 
@@ -37,7 +40,9 @@ extern CMQTTConnection* m_mqtt;
 CRemoteControl::CRemoteControl(CDMRGateway* host) :
 m_host(host),
 m_command(REMOTE_COMMAND::NONE),
-m_args()
+m_args(),
+m_xlxNumber(),
+m_xlxModule(0)
 {
 }
 
@@ -98,6 +103,39 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 			m_command = REMOTE_COMMAND::DISABLE_XLX;
 		else
 			replyStr = "KO";
+	} else if (m_args.at(0U) == "link" && m_args.size() >= LINK_ARGS && m_args.at(1U) == "xlx") {
+		// link xlx <reflector> [<module>]: as a private call to Base+4000+reflector,
+		// then to Base+module, from the radio.
+		const std::string& number = m_args.at(2U);
+		bool valid = number.length() >= 1U && number.length() <= 3U && number.find_first_not_of("0123456789") == std::string::npos;
+
+		char module = 0;
+		if (valid && m_args.size() > LINK_ARGS) {
+			const std::string& m = m_args.at(3U);
+			valid = m.length() == 1U && ::isalpha((unsigned char)m.at(0U));
+			if (valid)
+				module = (char)::toupper((unsigned char)m.at(0U));
+		}
+
+		if (valid) {
+			char buffer[16U];
+			::snprintf(buffer, sizeof(buffer), "%03u", (unsigned int)::atoi(number.c_str()));
+			valid = m_host != nullptr && m_host->canLinkXLX(buffer);
+			if (valid) {
+				m_xlxNumber = buffer;
+				m_xlxModule = module;
+				m_command   = REMOTE_COMMAND::LINK_XLX;
+			}
+		}
+
+		if (!valid)
+			replyStr = "KO";
+	} else if (m_args.at(0U) == "unlink" && m_args.size() >= UNLINK_ARGS && m_args.at(1U) == "xlx") {
+		// unlink xlx: from the module, as a private call to Base.
+		if (m_host != nullptr && m_host->canLinkXLX(""))
+			m_command = REMOTE_COMMAND::UNLINK_XLX;
+		else
+			replyStr = "KO";
 	} else if (m_args.at(0U) == "status") {
 		if (m_host != nullptr)
 			m_host->buildNetworkStatusString(replyStr);
@@ -132,4 +170,14 @@ REMOTE_COMMAND CRemoteControl::processCommand(const std::string& command)
 		m_mqtt->publish("response", replyStr);
 	
 	return m_command;
+}
+
+std::string CRemoteControl::getXLXNumber() const
+{
+	return m_xlxNumber;
+}
+
+char CRemoteControl::getXLXModule() const
+{
+	return m_xlxModule;
 }

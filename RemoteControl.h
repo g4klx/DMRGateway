@@ -42,6 +42,8 @@ enum class REMOTE_COMMAND {
 	DISABLE_NETWORK7,
 	DISABLE_NETWORK8,
 	DISABLE_XLX,
+	LINK_XLX,
+	UNLINK_XLX,
 	CONNECTION_STATUS,
 	CONFIG_HOSTS,
 	NONE
@@ -57,10 +59,15 @@ public:
 
 	REMOTE_COMMAND processCommand(const std::string& command);
 
+	std::string getXLXNumber() const;
+	char        getXLXModule() const;
+
 private:
 	CDMRGateway*             m_host;
 	REMOTE_COMMAND           m_command;
 	std::vector<std::string> m_args;
+	std::string              m_xlxNumber;
+	char                     m_xlxModule;
 };
 
 #endif

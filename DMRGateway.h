@@ -59,6 +59,8 @@ public:
 	void buildNetworkStatusString(std::string &str);
 	void buildNetworkHostsString(std::string &str);
 
+	bool canLinkXLX(const std::string& number);
+
 private:
 	CConf              m_conf;
 	unsigned int       m_id;
@@ -110,6 +112,8 @@ private:
 
 	bool linkXLX(const std::string &number);
 	void unlinkXLX();
+	void remoteLinkXLX(const std::string& number, char module);
+	void remoteUnlinkXLX();
 	void writeXLXLink(unsigned int srcId, unsigned int dstId, CDMRNetwork* network);
 
 	bool rewrite(std::vector<CRewrite*>& rewrites, CDMRData& data, bool trace);
@@ -125,6 +129,7 @@ private:
 	void buildNetworkStatusNetworkString(std::string &str, const std::string& name, CDMRNetwork* network, bool enabled);
 	void buildNetworkHostNetworkString(std::string &str, const std::string& name, CDMRNetwork* network);
 	void writeJSONLink(const std::string& name, bool connected);
+	void writeJSONXLXLink(bool connected);
 
 	static void onCommand(const unsigned char* message, unsigned int length);
 	static void onDynamic(const unsigned char* message, unsigned int length);

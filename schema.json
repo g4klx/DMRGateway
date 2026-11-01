@@ -19,6 +19,7 @@
 		"action": {"$ref": "#/$defs/action"},
 		"reason": {"$ref": "#/$defs/reason"},
 		"network": {"$ref": "#/$defs/network"},
+		"module": {"type": "string"},
 		"required": ["timestamp", "action", "network"]
 	}
 }
